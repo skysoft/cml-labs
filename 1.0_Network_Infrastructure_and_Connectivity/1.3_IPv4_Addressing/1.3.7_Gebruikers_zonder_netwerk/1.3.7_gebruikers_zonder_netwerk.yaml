@@ -260,6 +260,10 @@ nodes:
           hostname PC1
           USERNAME=cisco
           PASSWORD=cisco
+          # standaard-DHCP-client van het image vervangen door een eenmalige aanvraag
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
           ip link set dev eth0 up
           # DHCP-client; zonder antwoord APIPA (169.254.0.0/16), net als Windows
           udhcpc -i eth0 -n -q -t 10 -T 3 || ip addr add 169.254.$((RANDOM % 254 + 1)).$((RANDOM % 254 + 1))/16 dev eth0
@@ -294,6 +298,10 @@ nodes:
           hostname PC2
           USERNAME=cisco
           PASSWORD=cisco
+          # standaard-DHCP-client van het image vervangen door een eenmalige aanvraag
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
           ip link set dev eth0 up
           # DHCP-client; zonder antwoord APIPA (169.254.0.0/16), net als Windows
           udhcpc -i eth0 -n -q -t 10 -T 3 || ip addr add 169.254.$((RANDOM % 254 + 1)).$((RANDOM % 254 + 1))/16 dev eth0
@@ -328,6 +336,10 @@ nodes:
           hostname PC3
           USERNAME=cisco
           PASSWORD=cisco
+          # standaard-DHCP-client van het image vervangen door een eenmalige aanvraag
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
           ip link set dev eth0 up
           # DHCP-client; zonder antwoord APIPA (169.254.0.0/16), net als Windows
           udhcpc -i eth0 -n -q -t 10 -T 3 || ip addr add 169.254.$((RANDOM % 254 + 1)).$((RANDOM % 254 + 1))/16 dev eth0
@@ -362,6 +374,10 @@ nodes:
           hostname PC4
           USERNAME=cisco
           PASSWORD=cisco
+          # standaard-DHCP-client van het image vervangen door een eenmalige aanvraag
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
           ip link set dev eth0 up
           # DHCP-client; zonder antwoord APIPA (169.254.0.0/16), net als Windows
           udhcpc -i eth0 -n -q -t 10 -T 3 || ip addr add 169.254.$((RANDOM % 254 + 1)).$((RANDOM % 254 + 1))/16 dev eth0

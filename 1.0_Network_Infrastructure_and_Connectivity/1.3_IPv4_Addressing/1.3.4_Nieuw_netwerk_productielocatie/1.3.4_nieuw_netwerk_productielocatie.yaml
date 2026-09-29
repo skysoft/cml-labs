@@ -8,8 +8,8 @@ annotations:
       LAB 1.3.4 - NIEUW NETWERK PRODUCTIELOCATIE
       Adresblok: 10.10.0.0/24
        LAN1 Productie 60 hosts (R1 E0/0)   PC1 10.10.0.10
-       LAN2 Kantoor   28 hosts (R1 E0/1)   PC2 10.10.0.70
-       LAN3 Magazijn  12 hosts (R2 E0/0)   PC3 10.10.0.100
+       LAN2 Kantoor   28 hosts (R1 E0/1)   PC2 10.10.0.90
+       LAN3 Magazijn  12 hosts (R2 E0/0)   PC3 10.10.0.108
        LINK R1-R2      2 hosts (R1 E0/2 - R2 E0/1)
       Maak eerst het adresplan. Er zitten 2 fouten in dit
       netwerk. Vind ze, herstel ze en verifieer.
@@ -35,12 +35,12 @@ nodes:
           !
           interface Ethernet0/0
            description LAN1 Productie (60 hosts)
-           ip address 10.10.0.1 255.255.255.128
+           ip address 10.10.0.1 255.255.255.192
            no shutdown
           !
           interface Ethernet0/1
            description LAN2 Kantoor (28 hosts)
-           ip address 10.10.0.65 255.255.255.224
+           ip address 10.10.0.65 255.255.255.240
            no shutdown
           !
           interface Ethernet0/2
@@ -107,7 +107,7 @@ nodes:
           !
           interface Ethernet0/0
            description LAN3 Magazijn (12 hosts)
-           ip address 10.10.0.97 255.255.255.224
+           ip address 10.10.0.97 255.255.255.248
            no shutdown
           !
           interface Ethernet0/1
@@ -207,7 +207,7 @@ nodes:
           USERNAME=cisco
           PASSWORD=cisco
           ip link set dev eth0 up
-          ip address add 10.10.0.70/27 dev eth0
+          ip address add 10.10.0.90/27 dev eth0
           ip route add default via 10.10.0.65
     cpu_limit: null
     cpus: null
@@ -241,7 +241,7 @@ nodes:
           USERNAME=cisco
           PASSWORD=cisco
           ip link set dev eth0 up
-          ip address add 10.10.0.100/28 dev eth0
+          ip address add 10.10.0.108/28 dev eth0
           ip route add default via 10.10.0.97
     cpu_limit: null
     cpus: null
@@ -305,7 +305,7 @@ lab:
     **Leerdoel (CCNA 200-301 v2.0, 1.3):** IPv4-adresconfiguratie, -toewijzing en subnetting troubleshooten.
 
     ## Scenario
-    Een klant heeft voor de nieuwe productielocatie één adresblok gekregen: **10.10.0.0/24**. Dat blok moet zo zuinig mogelijk worden verdeeld over vier netwerken. Een collega heeft het netwerk opgebouwd, maar bij de oplevering werkt vrijwel niets. Er is geen adresplan achtergelaten, alleen de ontwerpeisen hieronder.
+    Een klant heeft voor de nieuwe productielocatie één adresblok gekregen: **10.10.0.0/24**. Dat blok moet zo zuinig mogelijk worden verdeeld over vier netwerken. Een collega heeft het netwerk opgebouwd, maar bij de oplevering werkt niet alles. Er is geen adresplan achtergelaten, alleen de ontwerpeisen hieronder.
 
     Er zitten **2 fouten** in het netwerk.
 
@@ -327,8 +327,8 @@ lab:
     | PC | Netwerk | IP-adres | Gateway |
     |---|---|---|---|
     | PC1 | LAN1 | 10.10.0.10/26 | 10.10.0.1 |
-    | PC2 | LAN2 | 10.10.0.70/27 | 10.10.0.65 |
-    | PC3 | LAN3 | 10.10.0.100/28 | 10.10.0.97 |
+    | PC2 | LAN2 | 10.10.0.90/27 | 10.10.0.65 |
+    | PC3 | LAN3 | 10.10.0.108/28 | 10.10.0.97 |
 
     Routing: R1 heeft een statische route naar LAN3, R2 heeft een default route naar R1.
 
@@ -351,21 +351,21 @@ lab:
 
     ### Deel 3 - Verkennen en vergelijken
     Verzamel van elk apparaat de werkelijke configuratie en vergelijk die met jouw adresplan.
-    - Router: `show ip interface brief`, `show running-config`, `show ip route`, `show logging`
-    - PC: `ip addr show eth0`, `ip route`
+    - Router: `show ip interface brief`, `show running-config`, `show ip route`, `show ip route connected`
+    - PC: `ip addr show eth0`, `ip route`, `traceroute <bestemming>`
 
     ### Deel 4 - Fouten vinden en herstellen
     Noteer per fout: het symptoom, het commando waarmee je de fout vond, de oorzaak en de herstelcommando's.
 
     ### Deel 5 - Verificatie
-    - `show ip interface brief` toont op alle gebruikte interfaces het adres uit jouw plan.
+    - `show ip route connected` toont op beide routers precies de subnetten uit jouw plan.
     - Alle PC's kunnen elkaar pingen.
-    - Vanaf PC1 loopt `traceroute 10.10.0.100` via R1 en R2.
+    - Vanaf PC2 loopt `traceroute 10.10.0.108` via 10.10.0.65 en 10.10.0.114.
 
     ### Deel 6 - Reflectie
     1. Welke fouten heb je gevonden? Geef per fout het commando dat de doorslag gaf.
     2. Welke fout was het lastigst te vinden, en waarom?
-    3. Werkte alles meteen nadat je een fout had opgelost, of moest je nog iets extra doen? Leg uit.
+    3. Waarom kon PC1 de gateways van LAN2 en LAN3 wel pingen, maar PC2 en PC3 hun eigen gateway niet?
     4. Hoe had deze storing voorkomen kunnen worden?
 
     Je docent bespreekt daarna nog een aantal verdiepingsvragen met je.

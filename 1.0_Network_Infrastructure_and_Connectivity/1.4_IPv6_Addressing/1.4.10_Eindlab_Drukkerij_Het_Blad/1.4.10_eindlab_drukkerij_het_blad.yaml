@@ -37,6 +37,10 @@ nodes:
           !
           ipv6 unicast-routing
           !
+          interface Loopback0
+           description Beheer (IPv4)
+           ip address 10.255.255.1 255.255.255.255
+          !
           interface Ethernet0/0
            description Trunk naar SW-HQ
            no ip address
@@ -121,6 +125,10 @@ nodes:
           hostname R-BR
           no ip domain lookup
           !
+          interface Loopback0
+           description Beheer (IPv4)
+           ip address 10.255.255.2 255.255.255.255
+          !
           interface Ethernet0/0
            description BRANCH-LAN
            ipv6 address FE80::1 link-local
@@ -190,6 +198,10 @@ nodes:
           no ip domain lookup
           !
           ipv6 unicast-routing
+          !
+          interface Loopback0
+           description Beheer (IPv4)
+           ip address 10.255.255.254 255.255.255.255
           !
           interface Ethernet0/0
            description "Internet"

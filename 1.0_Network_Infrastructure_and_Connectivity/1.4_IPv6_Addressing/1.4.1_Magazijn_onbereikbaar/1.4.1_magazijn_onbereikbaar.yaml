@@ -34,6 +34,10 @@ nodes:
           !
           ipv6 unicast-routing
           !
+          interface Loopback0
+           description Beheer (IPv4)
+           ip address 10.255.255.1 255.255.255.255
+          !
           interface Ethernet0/0
            description LAN-A (kantoor)
            ipv6 address 2001:DB8:1:A::1/64
@@ -102,6 +106,10 @@ nodes:
           no ip domain lookup
           !
           ipv6 unicast-routing
+          !
+          interface Loopback0
+           description Beheer (IPv4)
+           ip address 10.255.255.2 255.255.255.255
           !
           interface Ethernet0/0
            description LAN-B (magazijn)

@@ -39,6 +39,10 @@ nodes:
            dns-server 2001:DB8:8:A::53
            domain-name korrel.lan
           !
+          interface Loopback0
+           description Beheer (IPv4)
+           ip address 10.255.255.1 255.255.255.255
+          !
           interface Ethernet0/0
            description LAN-A (stateful DHCPv6)
            ipv6 address 2001:DB8:8:A::1/64
@@ -113,6 +117,10 @@ nodes:
           ipv6 dhcp pool LAN-B
            dns-server 2001:DB8:8:A::53
            domain-name korrel.lan
+          !
+          interface Loopback0
+           description Beheer (IPv4)
+           ip address 10.255.255.2 255.255.255.255
           !
           interface Ethernet0/0
            description LAN-B (SLAAC + stateless DHCPv6)
@@ -223,6 +231,10 @@ nodes:
           hostname CL1
           no ip domain lookup
           !
+          interface Loopback0
+           description Beheer (IPv4)
+           ip address 10.255.255.11 255.255.255.255
+          !
           interface Ethernet0/0
            description client (DHCPv6)
            ipv6 enable
@@ -285,6 +297,10 @@ nodes:
           hostname CL2
           no ip domain lookup
           !
+          interface Loopback0
+           description Beheer (IPv4)
+           ip address 10.255.255.12 255.255.255.255
+          !
           interface Ethernet0/0
            description client (DHCPv6)
            ipv6 enable
@@ -346,6 +362,10 @@ nodes:
         content: |-
           hostname CL3
           no ip domain lookup
+          !
+          interface Loopback0
+           description Beheer (IPv4)
+           ip address 10.255.255.13 255.255.255.255
           !
           interface Ethernet0/0
            description client (SLAAC + stateless DHCPv6)
