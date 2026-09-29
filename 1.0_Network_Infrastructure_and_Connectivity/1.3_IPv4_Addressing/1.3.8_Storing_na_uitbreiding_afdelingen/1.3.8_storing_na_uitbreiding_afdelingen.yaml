@@ -107,6 +107,7 @@ nodes:
           hostname SW1
           no ip domain lookup
           !
+          vtp mode transparent
           spanning-tree mode rapid-pvst
           !
           vlan 10

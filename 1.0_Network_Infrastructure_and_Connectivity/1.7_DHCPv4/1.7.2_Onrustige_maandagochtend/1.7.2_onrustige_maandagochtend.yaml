@@ -1,0 +1,605 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 1.7.2 - ONRUSTIGE MAANDAGOCHTEND
+       R1 = gateway en DHCP-server voor alle VLAN's (trunk naar SW1)
+       VLAN10 STAFF  172.17.10.0/24  PC10, PRN10 (vast .50)
+       VLAN20 SALES  172.17.20.0/24  PC20
+       VLAN30 GASTEN 172.17.30.0/24  GAST1-3
+       DHCP-bereik per VLAN: .100 t/m .254, gateway .1
+      Er zitten 3 fouten in dit netwerk. Vind ze, herstel ze
+      en verifieer dat alle clients correct zijn ingesteld.
+      Wacht na het starten ~2 minuten (clients vragen dan pas DHCP).
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -480.0
+    y1: -330.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R1
+          no ip domain lookup
+          !
+          ip dhcp excluded-address 172.17.10.1 172.17.10.99
+          ip dhcp excluded-address 172.17.20.1 172.17.20.99
+          ip dhcp excluded-address 172.17.30.1 172.17.30.252
+          !
+          ip dhcp pool STAFF
+           network 172.17.10.0 255.255.255.0
+           default-router 172.17.10.1
+           dns-server 8.8.8.8
+          !
+          ip dhcp pool PRINTER
+           host 172.17.10.50 255.255.255.0
+           client-identifier 5254.0017.1050
+           default-router 172.17.10.1
+           dns-server 8.8.8.8
+          !
+          ip dhcp pool SALES
+           network 172.17.20.0 255.255.255.0
+           default-router 172.17.30.1
+           dns-server 8.8.8.8
+          !
+          ip dhcp pool GASTEN
+           network 172.17.30.0 255.255.255.0
+           default-router 172.17.30.1
+           dns-server 8.8.8.8
+          !
+          interface Ethernet0/0
+           description Trunk naar SW1
+           no ip address
+           no shutdown
+          !
+          interface Ethernet0/0.10
+           description VLAN 10 STAFF
+           encapsulation dot1Q 10
+           ip address 172.17.10.1 255.255.255.0
+          !
+          interface Ethernet0/0.20
+           description VLAN 20 SALES
+           encapsulation dot1Q 20
+           ip address 172.17.20.1 255.255.255.0
+          !
+          interface Ethernet0/0.30
+           description VLAN 30 GASTEN
+           encapsulation dot1Q 30
+           ip address 172.17.30.1 255.255.255.0
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: R1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -100
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname SW1
+          no ip domain lookup
+          !
+          vtp mode transparent
+          spanning-tree mode rapid-pvst
+          !
+          vlan 10
+           name STAFF
+          vlan 20
+           name SALES
+          vlan 30
+           name GASTEN
+          !
+          interface Ethernet0/0
+           description Trunk naar R1
+           switchport trunk encapsulation dot1q
+           switchport trunk allowed vlan 10,20,30
+           switchport mode trunk
+          !
+          interface Ethernet0/1
+           description PC10
+           switchport mode access
+           switchport access vlan 10
+           spanning-tree portfast
+          !
+          interface Ethernet0/2
+           description PRN10
+           switchport mode access
+           switchport access vlan 10
+           spanning-tree portfast
+          !
+          interface Ethernet0/3
+           description PC20
+           switchport mode access
+           switchport access vlan 20
+           spanning-tree portfast
+          !
+          interface Ethernet1/0
+           description GAST1
+           switchport mode access
+           switchport access vlan 30
+           spanning-tree portfast
+          !
+          interface Ethernet1/1
+           description GAST2
+           switchport mode access
+           switchport access vlan 30
+           spanning-tree portfast
+          !
+          interface Ethernet1/2
+           description GAST3
+           switchport mode access
+           switchport access vlan 30
+           spanning-tree portfast
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: SW1
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: 50
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i5
+        label: Ethernet1/0
+        mac_address: null
+        type: physical
+        slot: 4
+      - id: i6
+        label: Ethernet1/1
+        mac_address: null
+        type: physical
+        slot: 5
+      - id: i7
+        label: Ethernet1/2
+        mac_address: null
+        type: physical
+        slot: 6
+      - id: i8
+        label: Ethernet1/3
+        mac_address: null
+        type: physical
+        slot: 7
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC10
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image vervangen door een eigen aanvraag
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          # DHCP-client na 90 s; zonder antwoord APIPA (169.254.0.0/16), net als Windows
+          (sleep 90; udhcpc -i eth0 -n -q -t 10 -T 3 || ip addr add 169.254.$((RANDOM % 254 + 1)).$((RANDOM % 254 + 1))/16 dev eth0) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: PC10
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -375
+    y: 225
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PRN10
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image vervangen door een eigen aanvraag
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          # DHCP-client na 90 s; zonder antwoord APIPA (169.254.0.0/16), net als Windows
+          (sleep 90; udhcpc -i eth0 -n -q -t 10 -T 3 || ip addr add 169.254.$((RANDOM % 254 + 1)).$((RANDOM % 254 + 1))/16 dev eth0) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: PRN10
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -225
+    y: 225
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: '52:54:00:17:10:50'
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC20
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image vervangen door een eigen aanvraag
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          # DHCP-client na 90 s; zonder antwoord APIPA (169.254.0.0/16), net als Windows
+          (sleep 90; udhcpc -i eth0 -n -q -t 10 -T 3 || ip addr add 169.254.$((RANDOM % 254 + 1)).$((RANDOM % 254 + 1))/16 dev eth0) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: PC20
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -75
+    y: 225
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname GAST1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image vervangen door een eigen aanvraag
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          # DHCP-client na 90 s; zonder antwoord APIPA (169.254.0.0/16), net als Windows
+          (sleep 90; udhcpc -i eth0 -n -q -t 10 -T 3 || ip addr add 169.254.$((RANDOM % 254 + 1)).$((RANDOM % 254 + 1))/16 dev eth0) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: GAST1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 75
+    y: 225
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname GAST2
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image vervangen door een eigen aanvraag
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          # DHCP-client na 90 s; zonder antwoord APIPA (169.254.0.0/16), net als Windows
+          (sleep 90; udhcpc -i eth0 -n -q -t 10 -T 3 || ip addr add 169.254.$((RANDOM % 254 + 1)).$((RANDOM % 254 + 1))/16 dev eth0) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n6
+    image_definition: null
+    label: GAST2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 225
+    y: 225
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname GAST3
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image vervangen door een eigen aanvraag
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          # DHCP-client na 90 s; zonder antwoord APIPA (169.254.0.0/16), net als Windows
+          (sleep 90; udhcpc -i eth0 -n -q -t 10 -T 3 || ip addr add 169.254.$((RANDOM % 254 + 1)).$((RANDOM % 254 + 1))/16 dev eth0) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n7
+    image_definition: null
+    label: GAST3
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 375
+    y: 225
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i1
+    i2: i1
+    conditioning: {}
+    label: R1-Ethernet0/0<->SW1-Ethernet0/0
+  - id: l1
+    n1: n1
+    n2: n2
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: SW1-Ethernet0/1<->PC10-eth0
+  - id: l2
+    n1: n1
+    n2: n3
+    i1: i3
+    i2: i0
+    conditioning: {}
+    label: SW1-Ethernet0/2<->PRN10-eth0
+  - id: l3
+    n1: n1
+    n2: n4
+    i1: i4
+    i2: i0
+    conditioning: {}
+    label: SW1-Ethernet0/3<->PC20-eth0
+  - id: l4
+    n1: n1
+    n2: n5
+    i1: i5
+    i2: i0
+    conditioning: {}
+    label: SW1-Ethernet1/0<->GAST1-eth0
+  - id: l5
+    n1: n1
+    n2: n6
+    i1: i6
+    i2: i0
+    conditioning: {}
+    label: SW1-Ethernet1/1<->GAST2-eth0
+  - id: l6
+    n1: n1
+    n2: n7
+    i1: i7
+    i2: i0
+    conditioning: {}
+    label: SW1-Ethernet1/2<->GAST3-eth0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 1.7. Troubleshootlab: vind en herstel
+    de storing zodat het netwerk weer overeenkomt met de documentatie.'
+  notes: |-
+    # Lab 1.7.2 - Onrustige maandagochtend
+
+    **Leerdoel (CCNA 200-301 v2.0, 1.7):** DHCPv4-client, -server en -relay op IOS-apparaten troubleshooten.
+
+    ## Scenario
+    Router R1 routeert tussen drie VLAN's (router-on-a-stick) en is voor alle drie de **DHCP-server**. De netwerkprinter krijgt via een DHCP-reservering altijd hetzelfde adres. Op maandagochtend komen deze klachten binnen:
+    - *PC20 (Sales):* "Ik heb wel een adres, maar ik kom nergens buiten mijn eigen afdeling."
+    - *PC10 (Staff):* "Printen lukt niet meer, de printer staat niet op zijn vaste adres."
+    - *Gasten:* "Eén van ons heeft geen netwerk, de anderen wel."
+
+    De switch is correct geconfigureerd. Er zitten **3 fouten** in het netwerk.
+
+    ## Ontwerp (klopt)
+    | VLAN | Naam | Subnet | Gateway (R1) | DHCP-bereik | Clients |
+    |---|---|---|---|---|---|
+    | 10 | STAFF | 172.17.10.0/24 | E0/0.10 - 172.17.10.1 | .100 t/m .254 | PC10, PRN10 |
+    | 20 | SALES | 172.17.20.0/24 | E0/0.20 - 172.17.20.1 | .100 t/m .254 | PC20 |
+    | 30 | GASTEN | 172.17.30.0/24 | E0/0.30 - 172.17.30.1 | .100 t/m .254 | GAST1, GAST2, GAST3 |
+
+    DNS-server voor alle pools: 8.8.8.8.
+
+    Reservering: printer **PRN10** (MAC-adres 52:54:00:17:10:50) krijgt altijd **172.17.10.50**.
+
+    ## Inloggen
+    - R1 en SW1: console, geen wachtwoord.
+    - Clients (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**. Gebruik `sudo` voor wijzigingen.
+    - De clients vragen ongeveer 90 seconden na het opstarten een adres aan. Krijgen ze geen antwoord, dan kiezen ze (net als Windows) een 169.254.x.x-adres. Een nieuw adres aanvragen:
+    ```
+    sudo ip addr flush dev eth0 && sudo udhcpc -i eth0 -n -q
+    ```
+
+    ## Opdrachten
+
+    ### Deel 1 - Documentatie analyseren
+    1. Welke opties moet elke pool minimaal meegeven?
+    2. Hoe herkent een IOS-DHCP-server een client voor een reservering (manual binding)? Welke twee manieren zijn er?
+
+    ### Deel 2 - Baseline
+    Noteer op elke client het IP-adres, het masker en de default gateway (`ip addr show eth0`, `ip route`). Ping vanaf elke client naar de eigen gateway en naar PC10.
+
+    ### Deel 3 - Verkennen en vergelijken
+    - R1: `show ip dhcp pool`, `show ip dhcp binding`, `show ip dhcp conflict`, `show ip dhcp server statistics`, `show running-config | section dhcp`
+    - Debuggen kan met `debug ip dhcp server packet` (zet het daarna weer uit met `undebug all`).
+    - Client: `ip link show eth0` (MAC-adres), `ip addr`, `ip route`
+
+    ### Deel 4 - Fouten vinden en herstellen
+    Noteer per fout: het symptoom, het commando waarmee je de fout vond, de oorzaak en de herstelcommando's. Vraag na elke wijziging op de betrokken client opnieuw een adres aan.
+
+    Tip: een bestaande lease verwijder je op R1 met `clear ip dhcp binding <adres>` of `clear ip dhcp binding *`.
+
+    ### Deel 5 - Verificatie
+    - Elke client heeft een adres uit het juiste bereik, het juiste masker en de juiste gateway.
+    - PRN10 heeft 172.17.10.50.
+    - Alle clients kunnen elkaar pingen.
+
+    ### Deel 6 - Reflectie
+    1. Welke fouten heb je gevonden? Geef per fout het commando dat de doorslag gaf.
+    2. Welke fout was het lastigst te vinden, en waarom?
+    3. Waarom had maar één gast geen netwerk en de anderen wel?
+    4. Hoe had deze storing voorkomen kunnen worden?
+
+    Je docent bespreekt daarna nog een aantal verdiepingsvragen met je.
+  title: Lab 1.7.2 - Onrustige maandagochtend
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1

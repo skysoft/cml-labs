@@ -1,0 +1,513 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 1.7.3 - FILIALEN ZONDER ADRES
+       R-DC = centrale DHCP-server
+       Filiaal 1 172.17.51.0/24 via R-BR1 (relay -> 10.71.1.1)
+       Filiaal 2 172.17.52.0/24 via R-MID en R-BR2 (relay -> 10.71.2.1)
+       Transit: 10.71.1.0/30, 10.71.2.0/30, 10.71.3.0/30
+       DHCP-bereik per filiaal: .100 t/m .254, gateway .1
+      Er zitten 3 fouten in dit netwerk. Vind ze, herstel ze
+      en verifieer dat beide PC's een adres krijgen.
+      Wacht na het starten ~2 minuten (PC's vragen dan pas DHCP).
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -470.0
+    y1: -330.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R-DC
+          no ip domain lookup
+          !
+          ip dhcp excluded-address 172.17.51.1 172.17.51.99
+          ip dhcp excluded-address 172.17.52.1 172.17.52.99
+          !
+          ip dhcp pool FILIAAL1
+           network 172.17.51.0 255.255.255.0
+           default-router 172.17.51.1
+           dns-server 8.8.8.8
+          !
+          ip dhcp pool FILIAAL2
+           network 172.17.52.0 255.255.255.0
+           default-router 172.17.52.1
+           dns-server 8.8.8.8
+          !
+          interface Ethernet0/1
+           description Naar R-BR1
+           ip address 10.71.1.1 255.255.255.252
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Naar R-MID
+           ip address 10.71.2.1 255.255.255.252
+           no shutdown
+          !
+          ip route 172.17.51.0 255.255.255.0 10.71.1.2
+          ip route 10.71.3.0 255.255.255.252 10.71.2.2
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: R-DC
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -150
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R-BR1
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description Filiaal 1
+           ip address 172.17.51.1 255.255.255.0
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Naar R-DC
+           ip address 10.71.1.2 255.255.255.252
+           ip helper-address 10.71.1.1
+           no shutdown
+          !
+          ip route 0.0.0.0 0.0.0.0 10.71.1.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: R-BR1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -250
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R-MID
+          no ip domain lookup
+          !
+          ip access-list extended FILTER-BR2
+           remark ongewenst verkeer uit filiaal 2 tegenhouden
+           deny   udp any any eq tftp
+           deny   udp any any eq bootps
+           permit ip any any
+          !
+          interface Ethernet0/0
+           description Naar R-DC
+           ip address 10.71.2.2 255.255.255.252
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Naar R-BR2
+           ip address 10.71.3.1 255.255.255.252
+           ip access-group FILTER-BR2 in
+           no shutdown
+          !
+          ip route 172.17.52.0 255.255.255.0 10.71.3.2
+          ip route 0.0.0.0 0.0.0.0 10.71.2.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: R-MID
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 200
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R-BR2
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description Filiaal 2
+           ip address 172.17.52.1 255.255.255.0
+           ip helper-address 10.71.2.1
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Naar R-MID
+           ip address 10.71.3.2 255.255.255.252
+           no shutdown
+          !
+          ip route 0.0.0.0 0.0.0.0 10.71.3.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: R-BR2
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 400
+    y: 100
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC-B1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image vervangen door een eigen aanvraag
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          # DHCP-client na 90 s; zonder antwoord APIPA (169.254.0.0/16), net als Windows
+          (sleep 90; udhcpc -i eth0 -n -q -t 10 -T 3 || ip addr add 169.254.$((RANDOM % 254 + 1)).$((RANDOM % 254 + 1))/16 dev eth0) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: PC-B1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -250
+    y: 175
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC-B2
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image vervangen door een eigen aanvraag
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          # DHCP-client na 90 s; zonder antwoord APIPA (169.254.0.0/16), net als Windows
+          (sleep 90; udhcpc -i eth0 -n -q -t 10 -T 3 || ip addr add 169.254.$((RANDOM % 254 + 1)).$((RANDOM % 254 + 1))/16 dev eth0) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: PC-B2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 400
+    y: 275
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i2
+    i2: i2
+    conditioning: {}
+    label: R-DC-Ethernet0/1<->R-BR1-Ethernet0/1
+  - id: l1
+    n1: n0
+    n2: n2
+    i1: i3
+    i2: i1
+    conditioning: {}
+    label: R-DC-Ethernet0/2<->R-MID-Ethernet0/0
+  - id: l2
+    n1: n2
+    n2: n3
+    i1: i2
+    i2: i2
+    conditioning: {}
+    label: R-MID-Ethernet0/1<->R-BR2-Ethernet0/1
+  - id: l3
+    n1: n1
+    n2: n4
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: R-BR1-Ethernet0/0<->PC-B1-eth0
+  - id: l4
+    n1: n3
+    n2: n5
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: R-BR2-Ethernet0/0<->PC-B2-eth0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 1.7. Troubleshootlab: vind en herstel
+    de storing zodat het netwerk weer overeenkomt met de documentatie.'
+  notes: |-
+    # Lab 1.7.3 - Filialen zonder adres
+
+    **Leerdoel (CCNA 200-301 v2.0, 1.7):** DHCPv4-client, -server en -relay op IOS-apparaten troubleshooten.
+
+    ## Scenario
+    Een bedrijf beheert DHCP centraal: router R-DC in het datacenter is de **DHCP-server** voor alle filialen. Filiaal 1 zit direct aan R-DC, filiaal 2 zit twee routers verder (via R-MID). De filiaalrouters sturen DHCP-verzoeken door als **DHCP-relay**.
+
+    Klachten:
+    - *PC-B1 (filiaal 1):* "Ik heb een adres dat met 169.254 begint."
+    - *PC-B2 (filiaal 2):* "Ik ook."
+
+    Er zitten **3 fouten** in het netwerk.
+
+    ## Ontwerp (klopt)
+    | Apparaat | Interface | IP-adres | Opmerking |
+    |---|---|---|---|
+    | R-DC | E0/1 (naar R-BR1) | 10.71.1.1/30 | DHCP-server |
+    | R-DC | E0/2 (naar R-MID) | 10.71.2.1/30 | DHCP-server |
+    | R-BR1 | E0/1 (naar R-DC) | 10.71.1.2/30 | |
+    | R-BR1 | E0/0 (filiaal 1) | 172.17.51.1/24 | DHCP-relay naar 10.71.1.1 |
+    | R-MID | E0/0 (naar R-DC) | 10.71.2.2/30 | |
+    | R-MID | E0/1 (naar R-BR2) | 10.71.3.1/30 | |
+    | R-BR2 | E0/1 (naar R-MID) | 10.71.3.2/30 | |
+    | R-BR2 | E0/0 (filiaal 2) | 172.17.52.1/24 | DHCP-relay naar 10.71.2.1 |
+    | PC-B1 | eth0 | DHCP (filiaal 1) | |
+    | PC-B2 | eth0 | DHCP (filiaal 2) | |
+
+    DHCP-pools op R-DC: filiaal 1 en filiaal 2, elk .100 t/m .254, gateway .1, DNS 8.8.8.8.
+
+    Routing (statisch): R-DC kent alle filiaalnetwerken en transitlinks. De filiaalrouters en R-MID hebben een default route richting R-DC; R-MID kent daarnaast filiaal 2.
+
+    Op R-MID staat een ACL die ongewenst verkeer uit filiaal 2 tegenhoudt; normaal bedrijfsverkeer (waaronder DHCP) moet erdoor.
+
+    ## Inloggen
+    - Routers: console, geen wachtwoord.
+    - PC's (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**. Gebruik `sudo` voor wijzigingen.
+    - De PC's vragen ongeveer 90 seconden na het opstarten een adres aan. Een nieuw adres aanvragen:
+    ```
+    sudo ip addr flush dev eth0 && sudo udhcpc -i eth0 -n -q
+    ```
+
+    ## Opdrachten
+
+    ### Deel 1 - Documentatie analyseren
+    1. Beschrijf de weg van een DHCPDISCOVER van PC-B2 naar R-DC, en de weg van de DHCPOFFER terug. Welke bron- en doeladressen en welke UDP-poorten horen daarbij?
+    2. Wat is het veld *giaddr*, wie vult het in, en waarom heeft de server het nodig?
+
+    ### Deel 2 - Baseline
+    Noteer het adres van PC-B1 en PC-B2. Ping vanaf R-DC naar 172.17.51.1 en 172.17.52.1.
+
+    ### Deel 3 - Verkennen en vergelijken
+    - R-DC: `show ip dhcp pool`, `show ip dhcp binding`, `show ip dhcp server statistics`, `show ip route`, `debug ip dhcp server packet` (daarna `undebug all`)
+    - Relay-routers: `show ip interface <int> | include Helper`, `show running-config`
+    - R-MID: `show access-lists`, `show ip interface <int> | include access list`
+    - Handig: `ping <doel> source <interface>` om een pad vanuit een bepaald bronadres te testen.
+
+    ### Deel 4 - Fouten vinden en herstellen
+    Noteer per fout: het symptoom, het commando waarmee je de fout vond, de oorzaak en de herstelcommando's. Test na elke wijziging opnieuw.
+
+    ### Deel 5 - Verificatie
+    - PC-B1 en PC-B2 hebben een adres uit hun eigen bereik met de juiste gateway.
+    - `show ip dhcp binding` op R-DC toont beide leases.
+    - PC-B1 kan PC-B2 pingen.
+
+    ### Deel 6 - Reflectie
+    1. Welke fouten heb je gevonden? Geef per fout het commando dat de doorslag gaf.
+    2. Welke fout was het lastigst te vinden, en waarom?
+    3. Werkte alles meteen nadat je één fout had opgelost, of kwam er daarna een nieuw probleem aan het licht? Leg uit.
+    4. Hoe had deze storing voorkomen kunnen worden?
+
+    Je docent bespreekt daarna nog een aantal verdiepingsvragen met je.
+  title: Lab 1.7.3 - Filialen zonder adres
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1

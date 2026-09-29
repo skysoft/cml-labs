@@ -1,0 +1,347 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 1.7.1 - NIEUWE GLASVEZELAANSLUITING
+       PC1 192.168.71.10 -- EDGE .1 (LAN 192.168.71.0/24, PAT)
+       EDGE E0/1 = WAN via DHCP van ISP (klantlink 100.64.71.0/29)
+       ISP E0/1 100.64.71.1 = DHCP-server, E0/2 = echt internet
+       Pool: .2 t/m .6, gateway .1, DNS 8.8.8.8
+      Er zitten 3 fouten in dit netwerk. Vind ze, herstel ze
+      en verifieer met ping 8.8.8.8 vanaf PC1.
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+      Login PC1: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -420.0
+    y1: -280.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: default
+        content: NAT
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: INTERNET
+    node_definition: external_connector
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 300
+    y: -150
+    interfaces:
+      - id: i0
+        label: port
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname ISP
+          no ip domain lookup
+          !
+          ip dhcp excluded-address 100.64.71.1 100.64.71.6
+          !
+          ip dhcp pool KLANT-71
+           network 100.64.71.0 255.255.255.248
+           dns-server 8.8.8.8
+          !
+          interface Ethernet0/1
+           description Klant (100.64.71.0/29)
+           ip address 100.64.71.1 255.255.255.248
+           ip nat inside
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Uplink naar het echte internet (CML External Connector, NAT)
+           ip address dhcp
+           ip nat outside
+           no shutdown
+          !
+          ip access-list standard NAT-INTERNET
+           permit 100.64.71.0 0.0.0.7
+          !
+          ip nat inside source list NAT-INTERNET interface Ethernet0/2 overload
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: ISP
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 300
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname EDGE
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description Kantoor-LAN
+           ip address 192.168.71.1 255.255.255.0
+           ip nat inside
+           no shutdown
+          !
+          interface Ethernet0/1
+           description WAN naar provider (DHCP)
+           ip address dhcp
+           ip nat outside
+           no shutdown
+          !
+          ip access-list standard NAT-LAN
+           permit 192.168.71.0 0.0.0.255
+          !
+          ip nat inside source list NAT-LAN interface Ethernet0/1 overload
+          !
+          ip route 0.0.0.0 0.0.0.0 100.64.71.6
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: EDGE
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.71.10/24 dev eth0
+          ip route add default via 192.168.71.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: PC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -250
+    y: 0
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i0
+    i2: i3
+    conditioning: {}
+    label: INTERNET-port<->ISP-Ethernet0/2
+  - id: l1
+    n1: n1
+    n2: n2
+    i1: i2
+    i2: i2
+    conditioning: {}
+    label: ISP-Ethernet0/1<->EDGE-Ethernet0/1
+  - id: l2
+    n1: n2
+    n2: n3
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: EDGE-Ethernet0/0<->PC1-eth0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 1.7. Troubleshootlab: vind en herstel
+    de storing zodat het netwerk weer overeenkomt met de documentatie.'
+  notes: |-
+    # Lab 1.7.1 - Nieuwe glasvezelaansluiting
+
+    **Leerdoel (CCNA 200-301 v2.0, 1.7):** DHCPv4-client, -server en -relay op IOS-apparaten troubleshooten.
+
+    ## Scenario
+    Een klein kantoor heeft een nieuwe glasvezelaansluiting gekregen. De bedrijfsrouter EDGE haalt zijn WAN-adres en default gateway automatisch via **DHCP** bij de router van de provider (ISP). EDGE vertaalt het kantoor-LAN via PAT naar het WAN-adres. De ISP-router is verbonden met het **echte internet**; gebruik **8.8.8.8** als testadres.
+
+    In dit lab beheer je ook de DHCP-server van de provider.
+
+    Na de installatie komen deze klachten binnen:
+    - *PC1:* "Het internet werkt niet."
+    - *Monteur:* "De router van de klant krijgt geen adres van ons."
+
+    Er zitten **3 fouten** in het netwerk.
+
+    ## Ontwerp (klopt)
+    | Apparaat | Interface | IP-adres | Opmerking |
+    |---|---|---|---|
+    | ISP | E0/1 (klant) | 100.64.71.1/29 | DHCP-server voor de klant |
+    | ISP | E0/2 (internet) | via DHCP | uplink naar het echte internet |
+    | EDGE | E0/1 (WAN) | via DHCP van de ISP | NAT outside |
+    | EDGE | E0/0 (LAN) | 192.168.71.1/24 | NAT inside |
+    | PC1 | eth0 | 192.168.71.10/24 | gateway 192.168.71.1 |
+
+    Afspraken met de provider (DHCP-pool voor de klantlink):
+    - Uitgedeeld bereik: 100.64.71.2 t/m 100.64.71.6
+    - Default gateway: 100.64.71.1
+    - DNS-server: 8.8.8.8
+
+    EDGE heeft **geen** handmatig ingestelde routes: de default route komt uit DHCP.
+
+    ## Inloggen
+    - Routers: console, geen wachtwoord.
+    - PC1 (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**. Gebruik `sudo` voor wijzigingen.
+
+    ## Opdrachten
+
+    ### Deel 1 - Documentatie analyseren
+    1. Welke gegevens moet een DHCP-client naast een IP-adres en subnetmasker minimaal ontvangen om het internet te kunnen bereiken?
+    2. Hoe installeert een IOS-router met `ip address dhcp` zijn default route, en met welke administratieve afstand?
+
+    ### Deel 2 - Baseline
+    Ping vanaf PC1 naar 192.168.71.1 en 8.8.8.8, en vanaf EDGE naar 100.64.71.1 en 8.8.8.8.
+
+    ### Deel 3 - Verkennen en vergelijken
+    - EDGE: `show ip interface brief`, `show dhcp lease`, `show ip route`, `show running-config`
+    - ISP: `show ip dhcp pool`, `show ip dhcp binding`, `show ip dhcp server statistics`, `show running-config | section dhcp`
+    - Debuggen kan met `debug dhcp detail` (EDGE) en `debug ip dhcp server packet` (ISP). Zet het debuggen daarna weer uit met `undebug all`.
+
+    Een nieuwe DHCP-aanvraag op EDGE:
+    ```
+    renew dhcp Ethernet0/1
+    ```
+    of `shutdown` / `no shutdown` op de WAN-interface.
+
+    ### Deel 4 - Fouten vinden en herstellen
+    Noteer per fout: het symptoom, het commando waarmee je de fout vond, de oorzaak en de herstelcommando's. Test na elke wijziging opnieuw.
+
+    ### Deel 5 - Verificatie
+    - `show dhcp lease` op EDGE toont een adres uit 100.64.71.2-.6 en gateway 100.64.71.1.
+    - `show ip route` op EDGE toont de default route via 100.64.71.1.
+    - PC1 kan 8.8.8.8 pingen.
+
+    ### Deel 6 - Reflectie
+    1. Welke fouten heb je gevonden? Geef per fout het commando dat de doorslag gaf.
+    2. Welke fout was het lastigst te vinden, en waarom?
+    3. Werkte alles meteen nadat je één fout had opgelost, of kwam er daarna een nieuw probleem aan het licht? Leg uit.
+    4. Hoe had deze storing voorkomen kunnen worden?
+
+    Je docent bespreekt daarna nog een aantal verdiepingsvragen met je.
+  title: Lab 1.7.1 - Nieuwe glasvezelaansluiting
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1

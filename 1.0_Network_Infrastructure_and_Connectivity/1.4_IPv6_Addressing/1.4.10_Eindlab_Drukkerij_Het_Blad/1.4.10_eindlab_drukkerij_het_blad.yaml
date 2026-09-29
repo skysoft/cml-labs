@@ -271,6 +271,7 @@ nodes:
           hostname SW-HQ
           no ip domain lookup
           !
+          vtp mode transparent
           spanning-tree mode rapid-pvst
           !
           vlan 10

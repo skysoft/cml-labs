@@ -8,4 +8,4 @@
 | [1.4](1.4_IPv6_Addressing/) | Troubleshoot IPv6 address configuration, assignment, and prefix sizing (unicast and modified EUI 64) | 10 |
 | [1.5](1.5_Wireless_Principles/) | Describe wireless principles | 0 |
 | [1.6](1.6_Client_Connectivity/) | Troubleshoot wired and wireless client connectivity (IP configuration, network reachability, and wireless security parameters on Windows, MacOS, and Linux) | 0 |
-| [1.7](1.7_DHCPv4/) | Troubleshoot DHCPv4 client, server, and relay on IOS devices | 0 |
+| [1.7](1.7_DHCPv4/) | Troubleshoot DHCPv4 client, server, and relay on IOS devices | 4 |
