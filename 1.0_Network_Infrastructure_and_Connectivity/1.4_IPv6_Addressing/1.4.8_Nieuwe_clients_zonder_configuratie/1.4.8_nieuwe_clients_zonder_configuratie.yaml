@@ -1,0 +1,520 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 1.4.8 - NIEUWE CLIENTS ZONDER CONFIGURATIE
+       LAN-A 2001:db8:8:a::/64  R1 ::1  stateful DHCPv6 (CL1, CL2)
+       LAN-B 2001:db8:8:b::/64  R2 ::1  SLAAC + stateless DHCPv6 (CL3)
+       WAN   2001:db8:8:ff::/64 R1 ::1 - R2 ::2
+       DNS 2001:db8:8:a::53, domein korrel.lan
+       CL1-CL3 = IOS-apparaten als client (geen routing)
+      Er zitten 3 fouten in dit netwerk. Vind ze, herstel ze
+      en verifieer dat alle clients volledig geconfigureerd zijn.
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -460.0
+    y1: -270.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R1
+          no ip domain lookup
+          !
+          ipv6 unicast-routing
+          !
+          ipv6 dhcp pool LAN-A
+           address prefix 2001:DB8:8:AA::/64
+           dns-server 2001:DB8:8:A::53
+           domain-name korrel.lan
+          !
+          interface Ethernet0/0
+           description LAN-A (stateful DHCPv6)
+           ipv6 address 2001:DB8:8:A::1/64
+           ipv6 nd managed-config-flag
+           ipv6 nd prefix 2001:DB8:8:A::/64 no-autoconfig
+           no shutdown
+          !
+          interface Ethernet0/1
+           description WAN naar R2
+           ipv6 address 2001:DB8:8:FF::1/64
+           no shutdown
+          !
+          ipv6 route 2001:DB8:8:B::/64 2001:DB8:8:FF::2
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: R1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -200
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R2
+          no ip domain lookup
+          !
+          ipv6 unicast-routing
+          !
+          ipv6 dhcp pool LAN-B
+           dns-server 2001:DB8:8:A::53
+           domain-name korrel.lan
+          !
+          interface Ethernet0/0
+           description LAN-B (SLAAC + stateless DHCPv6)
+           ipv6 address 2001:DB8:8:B::1/64
+           ipv6 dhcp server LAN-B
+           no shutdown
+          !
+          interface Ethernet0/1
+           description WAN naar R1
+           ipv6 address 2001:DB8:8:FF::2/64
+           no shutdown
+          !
+          ipv6 route ::/0 2001:DB8:8:FF::1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: R2
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 200
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: SW-A
+    node_definition: unmanaged_switch
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -200
+    y: 150
+    interfaces:
+      - id: i0
+        label: port0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: port1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i2
+        label: port2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i3
+        label: port3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname CL1
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description client (DHCPv6)
+           ipv6 enable
+           ipv6 address dhcp
+           ipv6 address autoconfig default
+           no shutdown
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: CL1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -300
+    y: 300
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname CL2
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description client (DHCPv6)
+           ipv6 enable
+           ipv6 address dhcp
+           ipv6 address autoconfig default
+           no shutdown
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: CL2
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -100
+    y: 300
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname CL3
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description client (SLAAC + stateless DHCPv6)
+           ipv6 enable
+           ipv6 address autoconfig default
+           no shutdown
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: CL3
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 200
+    y: 200
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i2
+    i2: i2
+    conditioning: {}
+    label: R1-Ethernet0/1<->R2-Ethernet0/1
+  - id: l1
+    n1: n0
+    n2: n2
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: R1-Ethernet0/0<->SW-A-port0
+  - id: l2
+    n1: n2
+    n2: n3
+    i1: i1
+    i2: i1
+    conditioning: {}
+    label: SW-A-port1<->CL1-Ethernet0/0
+  - id: l3
+    n1: n2
+    n2: n4
+    i1: i2
+    i2: i1
+    conditioning: {}
+    label: SW-A-port2<->CL2-Ethernet0/0
+  - id: l4
+    n1: n1
+    n2: n5
+    i1: i1
+    i2: i1
+    conditioning: {}
+    label: R2-Ethernet0/0<->CL3-Ethernet0/0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 1.4. Troubleshootlab: vind en herstel
+    de storing zodat het netwerk weer overeenkomt met de documentatie.'
+  notes: |-
+    # Lab 1.4.8 - Nieuwe clients zonder configuratie
+
+    **Leerdoel (CCNA 200-301 v2.0, 1.4):** IPv6-adresconfiguratie, -toewijzing en prefixgrootte troubleshooten.
+
+    ## Scenario
+    Een bedrijf heeft twee locaties. De clients in dit lab zijn IOS-apparaten (CL1 t/m CL3) die zich als eindapparaat gedragen: ze routeren niet en halen hun configuratie automatisch op.
+
+    - **LAN-A (R1):** clients krijgen hun adres **en** DNS-gegevens via **stateful DHCPv6** van R1. SLAAC is op dit LAN bewust uitgeschakeld.
+    - **LAN-B (R2):** clients maken hun adres zelf via **SLAAC** en halen alleen de DNS-gegevens via **stateless DHCPv6** bij R2.
+
+    Klachten:
+    - *CL1 en CL2:* "Na het opstarten hebben we geen bruikbaar IPv6-adres."
+    - *CL3:* "Ik heb wel een adres, maar geen DNS-server en geen domeinnaam."
+
+    Er zitten **3 fouten** in het netwerk.
+
+    ## Adresplan (de documentatie klopt)
+    | Apparaat | Interface | IPv6-adres | Opmerking |
+    |---|---|---|---|
+    | R1 | E0/0 (LAN-A) | 2001:db8:8:a::1/64 | DHCPv6-server, stateful (M-flag) |
+    | R1 | E0/1 (WAN) | 2001:db8:8:ff::1/64 | |
+    | R2 | E0/1 (WAN) | 2001:db8:8:ff::2/64 | |
+    | R2 | E0/0 (LAN-B) | 2001:db8:8:b::1/64 | SLAAC + DHCPv6-server, stateless (O-flag) |
+    | CL1, CL2 | E0/0 | via DHCPv6 uit 2001:db8:8:a::/64 | LAN-A |
+    | CL3 | E0/0 | via SLAAC uit 2001:db8:8:b::/64 | LAN-B |
+
+    DHCPv6-gegevens voor beide LAN's:
+    - DNS-server: 2001:db8:8:a::53
+    - Domeinnaam: korrel.lan
+
+    Routing: R1 heeft een statische route naar LAN-B, R2 heeft een default route naar R1.
+
+    ## Inloggen
+    - Alle apparaten: console, geen wachtwoord.
+
+    ## Opdrachten
+
+    ### Deel 1 - Documentatie analyseren
+    Leg uit wat de M-flag en de O-flag in een Router Advertisement betekenen. Welke combinatie hoort bij LAN-A en welke bij LAN-B?
+
+    ### Deel 2 - Symptomen
+    Noteer op elke client de uitvoer van `show ipv6 interface brief`, `show ipv6 interface e0/0` en `show ipv6 dhcp interface`. Ping vanaf elke client naar de gateway en naar de andere clients.
+
+    ### Deel 3 - Verkennen en vergelijken
+    Verzamel van elk apparaat de werkelijke configuratie en vergelijk die met het adresplan.
+    - Router: `show ipv6 interface <int>` (let op de RA-gegevens), `show ipv6 dhcp pool`, `show ipv6 dhcp binding`, `show ipv6 dhcp interface`, `show running-config`, `show ipv6 route`
+    - Client: `show ipv6 interface brief`, `show ipv6 dhcp interface`, `show ipv6 route`
+    - Debuggen kan met `debug ipv6 dhcp` (zet het debuggen daarna weer uit met `undebug all`).
+
+    Een client opnieuw laten beginnen:
+    ```
+    interface Ethernet0/0
+     shutdown
+     no shutdown
+    ```
+
+    ### Deel 4 - Fouten vinden en herstellen
+    Noteer per fout: het symptoom, het commando waarmee je de fout vond, de oorzaak en de herstelcommando's. Test na elke wijziging opnieuw.
+
+    ### Deel 5 - Verificatie
+    - CL1 en CL2 hebben een adres uit 2001:db8:8:a::/64 en zijn te zien in `show ipv6 dhcp binding` op R1.
+    - Alle clients tonen in `show ipv6 dhcp interface` de DNS-server 2001:db8:8:a::53 en het domein korrel.lan.
+    - Alle clients kunnen elkaar pingen.
+
+    ### Deel 6 - Reflectie
+    1. Welke fouten heb je gevonden? Geef per fout het commando dat de doorslag gaf.
+    2. Welke fout was het lastigst te vinden, en waarom?
+    3. Werkte alles meteen nadat je één fout had opgelost, of kwam er daarna een nieuw probleem aan het licht? Leg uit.
+    4. Hoe had deze storing voorkomen kunnen worden?
+
+    Je docent bespreekt daarna nog een aantal verdiepingsvragen met je.
+  title: Lab 1.4.8 - Nieuwe clients zonder configuratie
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1

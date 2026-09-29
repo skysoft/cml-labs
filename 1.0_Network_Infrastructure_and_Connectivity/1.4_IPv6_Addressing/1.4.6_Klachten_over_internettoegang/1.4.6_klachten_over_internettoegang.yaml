@@ -5,13 +5,13 @@ annotations:
     rotation: 0
     text_bold: false
     text_content: |-
-      LAB 1.3.6 - GEEN INTERNETVERBINDING
-       Kantoor 172.20.10.0/24  (R1 .1)  PC1 .11  SRV-WEB .100
-       Gasten  192.168.50.0/24 (R1 .1)  GUEST1 .20
-       WAN 203.0.113.0/29: ISP .1, R1 .2 (PAT)
-       SRV-WEB publiek: 203.0.113.3 (static NAT)
-       ISP E0/2 = echt internet - test 8.8.8.8
-       Klant van de provider: INET-PC 198.51.100.10
+      LAB 1.4.6 - KLACHTEN OVER INTERNETTOEGANG
+       Bedrijfsprefix van ISP: 2001:db8:6::/48
+       LAN-A 2001:db8:6:a::/64  PC1 (SLAAC), SRV-WEB ::80
+       LAN-B 2001:db8:6:b::/64  PC2 (SLAAC)
+       LAN-C 2001:db8:6:c::/64  PC3 (SLAAC)
+       WAN 2001:db8:ffff:6::/64  ISP ::1 - R1 ::2
+       "Internet": INET-PC 2001:db8:ffff:100::10
       Er zitten 3 fouten in dit netwerk. Vind ze, herstel ze
       en verifieer internettoegang in beide richtingen.
       Volledige opdracht: open de Lab Notes (tabblad Notes).
@@ -22,7 +22,7 @@ annotations:
     text_unit: pt
     thickness: 1
     type: text
-    x1: -470.0
+    x1: -500.0
     y1: -270.0
     z_index: 1
 smart_annotations: []
@@ -34,32 +34,29 @@ nodes:
           hostname R1
           no ip domain lookup
           !
+          ipv6 unicast-routing
+          !
           interface Ethernet0/0
-           description Kantoor-LAN
-           ip address 172.20.10.1 255.255.255.0
-           ip nat inside
+           description LAN-A
+           ipv6 address 2001:DB8:6:A::1/64
            no shutdown
           !
           interface Ethernet0/1
            description WAN naar ISP
-           ip address 203.0.113.2 255.255.255.248
-           ip nat outside
+           ipv6 address 2001:DB8:FFFF:6::2/64
            no shutdown
           !
           interface Ethernet0/2
-           description Gasten-LAN
-           ip address 192.186.50.1 255.255.255.0
-           ip nat inside
+           description LAN-B
+           ipv6 address FD00:6:B::1/64
            no shutdown
           !
-          ip access-list standard NAT-INSIDE
-           permit 172.16.0.0 0.0.255.255
-           permit 192.168.0.0 0.0.255.255
+          interface Ethernet0/3
+           description LAN-C
+           ipv6 enable
+           no shutdown
           !
-          ip nat inside source list NAT-INSIDE interface Ethernet0/1 overload
-          ip nat inside source static 172.20.10.100 203.0.113.10
-          !
-          ip route 0.0.0.0 0.0.0.0 203.0.113.1
+          ipv6 route ::/0 2001:DB8:FFFF:6::1
           !
           line con 0
            exec-timeout 0 0
@@ -116,30 +113,19 @@ nodes:
           hostname ISP
           no ip domain lookup
           !
+          ipv6 unicast-routing
+          !
           interface Ethernet0/0
-           description "Internet"-testnetwerk (INET-PC)
-           ip address 198.51.100.1 255.255.255.0
-           ip nat inside
+           description "Internet"
+           ipv6 address 2001:DB8:FFFF:100::1/64
            no shutdown
           !
           interface Ethernet0/1
-           description Klant (203.0.113.0/29)
-           ip address 203.0.113.1 255.255.255.248
-           ip nat inside
+           description Klant (2001:db8:6::/48)
+           ipv6 address 2001:DB8:FFFF:6::1/64
            no shutdown
           !
-          interface Ethernet0/2
-           description Uplink naar het echte internet (CML External Connector, NAT)
-           ip address dhcp
-           ip nat outside
-           no shutdown
-          !
-          ! Alleen het publieke klantblok en het testnetwerk mogen naar het echte internet
-          ip access-list standard NAT-INTERNET
-           permit 203.0.113.0 0.0.0.7
-           permit 198.51.100.0 0.0.0.255
-          !
-          ip nat inside source list NAT-INTERNET interface Ethernet0/2 overload
+          ipv6 route 2001:DB8:6::/48 2001:DB8:FFFF:6::2
           !
           line con 0
            exec-timeout 0 0
@@ -238,8 +224,6 @@ nodes:
           USERNAME=cisco
           PASSWORD=cisco
           ip link set dev eth0 up
-          ip address add 172.20.10.11/24 dev eth0
-          ip route add default via 172.20.10.1
     cpu_limit: null
     cpus: null
     data_volume: null
@@ -271,9 +255,10 @@ nodes:
           hostname SRV-WEB
           USERNAME=cisco
           PASSWORD=cisco
+          # statisch adres, gateway via Router Advertisement
+          sysctl -w net.ipv6.conf.eth0.autoconf=0
           ip link set dev eth0 up
-          ip address add 172.20.10.100/24 dev eth0
-          ip route add default via 172.20.10.1
+          ip -6 address add 2001:db8:7:a::80/64 dev eth0
     cpu_limit: null
     cpus: null
     data_volume: null
@@ -302,19 +287,17 @@ nodes:
     configuration:
       - name: node.cfg
         content: |-
-          hostname GUEST1
+          hostname PC2
           USERNAME=cisco
           PASSWORD=cisco
           ip link set dev eth0 up
-          ip address add 192.186.50.20/24 dev eth0
-          ip route add default via 192.186.50.1
     cpu_limit: null
     cpus: null
     data_volume: null
     hide_links: false
     id: n5
     image_definition: null
-    label: GUEST1
+    label: PC2
     node_definition: alpine
     parameters: {}
     priority: null
@@ -324,7 +307,39 @@ nodes:
       enable_password: null
     ram: null
     tags: []
-    x: 25
+    x: -25
+    y: 200
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC3
+          USERNAME=cisco
+          PASSWORD=cisco
+          ip link set dev eth0 up
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n6
+    image_definition: null
+    label: PC3
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 100
     y: 200
     interfaces:
       - id: i0
@@ -339,14 +354,16 @@ nodes:
           hostname INET-PC
           USERNAME=cisco
           PASSWORD=cisco
+          sysctl -w net.ipv6.conf.eth0.accept_ra=0
+          sysctl -w net.ipv6.conf.eth0.autoconf=0
           ip link set dev eth0 up
-          ip address add 198.51.100.10/24 dev eth0
-          ip route add default via 198.51.100.1
+          ip -6 address add 2001:db8:ffff:100::10/64 dev eth0
+          ip -6 route add default via 2001:db8:ffff:100::1 dev eth0
     cpu_limit: null
     cpus: null
     data_volume: null
     hide_links: false
-    id: n6
+    id: n7
     image_definition: null
     label: INET-PC
     node_definition: alpine
@@ -363,34 +380,6 @@ nodes:
     interfaces:
       - id: i0
         label: eth0
-        mac_address: null
-        type: physical
-        slot: 0
-  - boot_disk_size: null
-    configuration:
-      - name: default
-        content: NAT
-    cpu_limit: null
-    cpus: null
-    data_volume: null
-    hide_links: false
-    id: n7
-    image_definition: null
-    label: INTERNET
-    node_definition: external_connector
-    parameters: {}
-    priority: null
-    pyats:
-      username: null
-      password: null
-      enable_password: null
-    ram: null
-    tags: []
-    x: 450
-    y: 0
-    interfaces:
-      - id: i0
-        label: port
         mac_address: null
         type: physical
         slot: 0
@@ -429,58 +418,57 @@ links:
     i1: i3
     i2: i0
     conditioning: {}
-    label: R1-Ethernet0/2<->GUEST1-eth0
+    label: R1-Ethernet0/2<->PC2-eth0
   - id: l5
-    n1: n1
+    n1: n0
     n2: n6
+    i1: i4
+    i2: i0
+    conditioning: {}
+    label: R1-Ethernet0/3<->PC3-eth0
+  - id: l6
+    n1: n1
+    n2: n7
     i1: i1
     i2: i0
     conditioning: {}
     label: ISP-Ethernet0/0<->INET-PC-eth0
-  - id: l6
-    n1: n1
-    n2: n7
-    i1: i3
-    i2: i0
-    conditioning: {}
-    label: ISP-Ethernet0/2<->INTERNET-port
 lab:
-  description: 'CCNA 200-301 v2.0 - leerdoel 1.3. Troubleshootlab: vind en herstel
+  description: 'CCNA 200-301 v2.0 - leerdoel 1.4. Troubleshootlab: vind en herstel
     de storing zodat het netwerk weer overeenkomt met de documentatie.'
   notes: |-
-    # Lab 1.3.6 - Geen internetverbinding
+    # Lab 1.4.6 - Klachten over internettoegang
 
-    **Leerdoel (CCNA 200-301 v2.0, 1.3):** IPv4-adresconfiguratie, -toewijzing en subnetting troubleshooten.
+    **Leerdoel (CCNA 200-301 v2.0, 1.4):** IPv6-adresconfiguratie, -toewijzing en prefixgrootte troubleshooten.
 
     ## Scenario
-    Een bedrijf heeft een kantoornetwerk en een gastennetwerk. Router R1 verbindt beide met de provider (ISP). Van de ISP heeft het bedrijf het blok **203.0.113.0/29** gekregen. R1 vertaalt de interne adressen via PAT (overload) naar het WAN-adres. De webserver SRV-WEB is via static NAT van buitenaf bereikbaar op een eigen adres.
+    Een bedrijf is via router R1 met de provider (ISP) verbonden. Van de ISP heeft het bedrijf het IPv6-prefix **2001:db8:6::/48** gekregen. Bij IPv6 is geen NAT nodig: alle apparaten krijgen een globaal routeerbaar adres uit dit prefix. De PC's gebruiken SLAAC, de webserver heeft een statisch adres.
 
-    De ISP-router is verbonden met het **echte internet**. Gebruik **8.8.8.8** als testadres. INET-PC staat voor "een klant van dezelfde provider", waarmee je test of het bedrijf van buitenaf bereikbaar is.
+    INET-PC staat voor "een willekeurige computer op het internet".
 
     Klachten:
-    - *Kantoor (PC1):* "We hebben geen internet."
-    - *Gastennetwerk (GUEST1):* "Ook geen internet."
-    - *Klant (INET-PC):* "Jullie website op 203.0.113.3 is onbereikbaar."
+    - *PC2 (LAN-B):* "Collega's in het bedrijf bereik ik wel, internet niet."
+    - *PC3 (LAN-C):* "Ik bereik helemaal niets."
+    - *Klant op internet (INET-PC):* "Jullie website op 2001:db8:6:a::80 is onbereikbaar."
 
-    Intern werkt alles. Er zitten **3 fouten** in het netwerk.
+    Er zitten **3 fouten** in het netwerk.
 
     ## Adresplan (de documentatie klopt)
-    | Apparaat | Interface | IP-adres | Prefix | Opmerking |
-    |---|---|---|---|---|
-    | R1 | E0/0 (kantoor) | 172.20.10.1 | /24 | NAT inside |
-    | R1 | E0/2 (gasten) | 192.168.50.1 | /24 | NAT inside |
-    | R1 | E0/1 (WAN) | 203.0.113.2 | /29 | NAT outside, PAT-adres |
-    | ISP | E0/1 | 203.0.113.1 | /29 | gateway van R1 |
-    | ISP | E0/0 | 198.51.100.1 | /24 | klantennetwerk provider |
-    | ISP | E0/2 | via DHCP | - | uplink naar het echte internet |
-    | PC1 | eth0 | 172.20.10.11 | /24 | gateway 172.20.10.1 |
-    | SRV-WEB | eth0 | 172.20.10.100 | /24 | gateway 172.20.10.1, publiek: **203.0.113.3** |
-    | GUEST1 | eth0 | 192.168.50.20 | /24 | gateway 192.168.50.1 |
-    | INET-PC | eth0 | 198.51.100.10 | /24 | gateway 198.51.100.1 |
+    | Apparaat | Interface | IPv6-adres | Opmerking |
+    |---|---|---|---|
+    | R1 | E0/0 (LAN-A) | 2001:db8:6:a::1/64 | SLAAC |
+    | R1 | E0/2 (LAN-B) | 2001:db8:6:b::1/64 | SLAAC |
+    | R1 | E0/3 (LAN-C) | 2001:db8:6:c::1/64 | SLAAC |
+    | R1 | E0/1 (WAN) | 2001:db8:ffff:6::2/64 | |
+    | ISP | E0/1 | 2001:db8:ffff:6::1/64 | gateway van R1 |
+    | ISP | E0/0 | 2001:db8:ffff:100::1/64 | "internet" |
+    | PC1 | eth0 | via SLAAC (LAN-A) | |
+    | SRV-WEB | eth0 | 2001:db8:6:a::80/64 (statisch) | gateway via RA |
+    | PC2 | eth0 | via SLAAC (LAN-B) | |
+    | PC3 | eth0 | via SLAAC (LAN-C) | |
+    | INET-PC | eth0 | 2001:db8:ffff:100::10/64 | gateway 2001:db8:ffff:100::1 |
 
-    NAT-beleid: **alle** interne adressen van het bedrijf worden vertaald.
-
-    De ISP-router is van de provider. Je mag hem bekijken, maar niet aanpassen.
+    De ISP routeert alleen 2001:db8:6::/48 naar het bedrijf. De ISP-router is van de provider: je mag hem bekijken, maar niet aanpassen.
 
     ## Inloggen
     - Routers: console, geen wachtwoord.
@@ -489,34 +477,35 @@ lab:
     ## Opdrachten
 
     ### Deel 1 - Documentatie analyseren
-    Bereken voor elk subnet uit het adresplan het netwerkadres, het bruikbare bereik en het broadcastadres. Geef bij elk subnet aan of het een privé- of een publiek bereik is.
+    Noem de belangrijkste soorten IPv6-unicastadressen (met hun prefix) en geef bij elk aan of het op internet gerouteerd wordt. Welke soort hoort volgens het adresplan op de LAN's?
 
     ### Deel 2 - Baseline
-    - Ping vanaf PC1, SRV-WEB en GUEST1 naar 8.8.8.8 en naar 198.51.100.10 (INET-PC).
-    - Ping vanaf INET-PC naar 203.0.113.2 en 203.0.113.3.
-    - Ping intern tussen PC1 en GUEST1.
+    - Ping vanaf PC1, PC2, PC3 en SRV-WEB naar 2001:db8:ffff:100::10 (INET-PC).
+    - Ping vanaf INET-PC naar 2001:db8:6:a::80.
+    - Ping intern tussen PC1, PC2 en PC3.
 
     ### Deel 3 - Verkennen en vergelijken
-    Verzamel van elk apparaat de werkelijke configuratie en vergelijk die met het adresplan en het NAT-beleid.
-    - R1: `show ip interface brief`, `show running-config`, `show ip nat translations`, `show ip nat statistics`, `show access-lists`, `show ip route`
-    - Hosts: `ip addr show eth0`, `ip route`, `traceroute <bestemming>`
+    Verzamel van elk apparaat de werkelijke configuratie en vergelijk die met het adresplan. Classificeer elk adres dat je tegenkomt.
+    - Router: `show ipv6 interface brief`, `show ipv6 interface <int>`, `show ipv6 route`, `show running-config`
+    - Host: `ip -6 addr show eth0`, `ip -6 route`, `traceroute <bestemming>`
+
+    Heb je iets aangepast op R1, zet dan op de PC de interface uit en weer aan:
+    ```
+    sudo ip link set dev eth0 down && sudo ip link set dev eth0 up
+    ```
 
     ### Deel 4 - Fouten vinden en herstellen
     Noteer per fout: het symptoom, het commando waarmee je de fout vond, de oorzaak en de herstelcommando's.
 
-    Handige commando's:
+    Handige commando's op de hosts:
     ```
-    # R1
-    clear ip nat translation *
-    # Linux-host
-    sudo ip addr add|del <ip>/<prefix> dev eth0
-    sudo ip route add|del default via <gateway>
+    sudo ip -6 addr add|del <adres>/<prefix> dev eth0
     ```
 
     ### Deel 5 - Verificatie
-    - PC1, SRV-WEB en GUEST1 kunnen 8.8.8.8 en 198.51.100.10 pingen.
-    - INET-PC kan 203.0.113.3 pingen.
-    - Alle adressen komen overeen met het adresplan.
+    - PC1, PC2, PC3 en SRV-WEB kunnen 2001:db8:ffff:100::10 pingen.
+    - INET-PC kan 2001:db8:6:a::80 pingen.
+    - Alle adressen vallen binnen 2001:db8:6::/48.
 
     ### Deel 6 - Reflectie
     1. Welke fouten heb je gevonden? Geef per fout het commando dat de doorslag gaf.
@@ -525,7 +514,7 @@ lab:
     4. Hoe had deze storing voorkomen kunnen worden?
 
     Je docent bespreekt daarna nog een aantal verdiepingsvragen met je.
-  title: Lab 1.3.6 - Geen internetverbinding
+  title: Lab 1.4.6 - Klachten over internettoegang
   node_staging:
     enabled: false
     start_remaining: true

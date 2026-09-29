@@ -1,0 +1,420 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 1.4.2 - DOCUMENTATIE ROUTERKETEN
+       PC1 -- R1 -- R2 -- R3 -- PC3
+       LAN1 2001:db8:2:1::/64    Link R1-R2 2001:db8:2:12::/64
+       LAN3 2001:db8:2:3::/64    Link R2-R3 2001:db8:2:23::/64
+       Routerinterfaces: modified EUI-64, PC's: SLAAC
+       MAC-adressen: zie Lab Notes
+      Er zitten 3 fouten in dit netwerk. Bereken eerst alle
+      adressen, vind daarna de fouten en herstel ze.
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+      Login PC's: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -460.0
+    y1: -260.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R1
+          no ip domain lookup
+          !
+          ipv6 unicast-routing
+          !
+          interface Ethernet0/0
+           description LAN1
+           mac-address 5254.0012.0101
+           ipv6 address 2001:DB8:2:1::/64 eui-64
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Link naar R2
+           mac-address 5254.0012.0102
+           ipv6 address 2001:DB8:2:12::/64 eui-64
+           no shutdown
+          !
+          ipv6 route ::/0 2001:DB8:2:12:5254:FF:FE12:201
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: R1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -300
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R2
+          no ip domain lookup
+          !
+          ipv6 unicast-routing
+          !
+          interface Ethernet0/1
+           description Link naar R1
+           mac-address 5254.0012.0201
+           ipv6 address 2001:DB8:2:12::/64 eui-64
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Link naar R3
+           mac-address 5254.0012.0202
+           ipv6 address 2001:DB8:2:32::/64 eui-64
+           no shutdown
+          !
+          ipv6 route 2001:DB8:2:1::/64 2001:DB8:2:12:5054:FF:FE12:102
+          ipv6 route 2001:DB8:2:3::/64 2001:DB8:2:23:5054:FF:FE12:301
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: R2
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R3
+          no ip domain lookup
+          !
+          ipv6 unicast-routing
+          !
+          interface Ethernet0/0
+           description LAN3
+           mac-address 5254.0012.0302
+           ipv6 address 2001:DB8:2:3::/64 eui-64
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Link naar R2
+           mac-address 5254.0012.0301
+           ipv6 address 2001:DB8:2:23::3/64
+           no shutdown
+          !
+          ipv6 route ::/0 2001:DB8:2:23:5054:FF:FE12:202
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: R3
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 300
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          ip link set dev eth0 up
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: PC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -300
+    y: 175
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: '52:54:00:12:10:01'
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC3
+          USERNAME=cisco
+          PASSWORD=cisco
+          ip link set dev eth0 up
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: PC3
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 300
+    y: 175
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: '52:54:00:12:30:01'
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i2
+    i2: i2
+    conditioning: {}
+    label: R1-Ethernet0/1<->R2-Ethernet0/1
+  - id: l1
+    n1: n1
+    n2: n2
+    i1: i3
+    i2: i2
+    conditioning: {}
+    label: R2-Ethernet0/2<->R3-Ethernet0/1
+  - id: l2
+    n1: n0
+    n2: n3
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: R1-Ethernet0/0<->PC1-eth0
+  - id: l3
+    n1: n2
+    n2: n4
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: R3-Ethernet0/0<->PC3-eth0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 1.4. Troubleshootlab: bereken de adressen
+    uit de documentatie, vind en herstel de storing.'
+  notes: |-
+    # Lab 1.4.2 - Documentatie routerketen
+
+    **Leerdoel (CCNA 200-301 v2.0, 1.4):** IPv6-adresconfiguratie, -toewijzing en prefixgrootte troubleshooten.
+
+    ## Scenario
+    Drie routers zijn in een keten verbonden: R1 - R2 - R3. Volgens de netwerkstandaard van het bedrijf krijgen alle routerinterfaces hun interface-ID via **modified EUI-64**. De PC's krijgen hun adres via SLAAC.
+
+    De documentatie bevat alleen de prefixen en de MAC-adressen. De volledige adressen moet je zelf afleiden. PC1 kan PC3 niet bereiken.
+
+    Er zitten **3 fouten** in het netwerk.
+
+    ## Documentatie (klopt)
+
+    ### Prefixen
+    | Netwerk | Prefix |
+    |---|---|
+    | LAN1 (R1 E0/0 - PC1) | 2001:db8:2:1::/64 |
+    | Link R1-R2 (R1 E0/1 - R2 E0/1) | 2001:db8:2:12::/64 |
+    | Link R2-R3 (R2 E0/2 - R3 E0/1) | 2001:db8:2:23::/64 |
+    | LAN3 (R3 E0/0 - PC3) | 2001:db8:2:3::/64 |
+
+    ### MAC-adressen
+    | Apparaat | Interface | MAC-adres |
+    |---|---|---|
+    | R1 | E0/0 | 52:54:00:12:01:01 |
+    | R1 | E0/1 | 52:54:00:12:01:02 |
+    | R2 | E0/1 | 52:54:00:12:02:01 |
+    | R2 | E0/2 | 52:54:00:12:02:02 |
+    | R3 | E0/1 | 52:54:00:12:03:01 |
+    | R3 | E0/0 | 52:54:00:12:03:02 |
+    | PC1 | eth0 | 52:54:00:12:10:01 |
+    | PC3 | eth0 | 52:54:00:12:30:01 |
+
+    ### Routing (statisch)
+    - R1: default route naar het EUI-64-adres van R2 E0/1
+    - R2: route naar LAN1 via het EUI-64-adres van R1 E0/1, route naar LAN3 via het EUI-64-adres van R3 E0/1
+    - R3: default route naar het EUI-64-adres van R2 E0/2
+
+    ## Inloggen
+    - Routers: console, geen wachtwoord.
+    - PC's (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**. Gebruik `sudo` voor wijzigingen.
+
+    ## Opdrachten
+
+    ### Deel 1 - Adressen berekenen (op papier)
+    Bereken voor elke interface uit de MAC-tabel:
+    1. de modified EUI-64-interface-ID
+    2. het volledige global unicast-adres (prefix + interface-ID)
+    3. het link-local-adres
+
+    Noteer de stappen van één berekening volledig uit.
+
+    ### Deel 2 - Baseline
+    Ping vanaf elke router naar het adres van de buurrouter op elke link, en van PC1 naar PC3. Noteer OK of FAIL.
+
+    ### Deel 3 - Verkennen en vergelijken
+    Vergelijk de werkelijke adressen en routes met jouw berekening.
+    - Router: `show ipv6 interface brief`, `show ipv6 interface <int>`, `show interfaces <int>` (MAC-adres), `show ipv6 route`, `show ipv6 neighbors`, `show running-config`
+    - PC: `ip -6 addr show eth0`, `ip link show eth0`, `ip -6 route`
+
+    ### Deel 4 - Fouten vinden en herstellen
+    Noteer per fout: het symptoom, het commando waarmee je de fout vond, de oorzaak en de herstelcommando's.
+
+    ### Deel 5 - Verificatie
+    - Alle buurrouters kunnen elkaar pingen op hun EUI-64-adres.
+    - Alle adressen komen overeen met jouw berekening.
+    - PC1 kan PC3 pingen.
+
+    ### Deel 6 - Reflectie
+    1. Welke fouten heb je gevonden? Geef per fout het commando dat de doorslag gaf.
+    2. Welke fout was het lastigst te vinden, en waarom?
+    3. Werkte alles meteen nadat je één fout had opgelost, of kwam er daarna een nieuw probleem aan het licht? Leg uit.
+    4. Hoe had deze storing voorkomen kunnen worden?
+
+    Je docent bespreekt daarna nog een aantal verdiepingsvragen met je.
+  title: Lab 1.4.2 - Documentatie routerketen
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1

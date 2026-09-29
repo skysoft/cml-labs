@@ -1,0 +1,451 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 1.4.7 - ADRESPLAN NIEUWE VESTIGING
+       Prefix van de vestiging: 2001:db8:acad::/48
+       PC1 -- R1 -- R2 -- R3 -- PC3
+                     |
+                    PC2
+       LAN's /64 (subnet-ID n0), links /127 uit :ffff::/64
+       Zie de ontwerpregels in de Lab Notes
+      Maak eerst het adresplan. Er zitten 3 fouten in dit
+      netwerk. Vind ze, herstel ze en verifieer.
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+      Login PC's: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -460.0
+    y1: -260.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R1
+          no ip domain lookup
+          !
+          ipv6 unicast-routing
+          !
+          interface Ethernet0/0
+           description LAN R1
+           ipv6 address 2001:DB8:ACAD:10::1/64
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Link 1 naar R2
+           ipv6 address 2001:DB8:ACAD:FFFF::2/127
+           no shutdown
+          !
+          ipv6 route ::/0 2001:DB8:ACAD:FFFF::3
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: R1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -300
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R2
+          no ip domain lookup
+          !
+          ipv6 unicast-routing
+          !
+          interface Ethernet0/0
+           description LAN R2
+           ipv6 address 2001:DB8:ACAD:20::1/56
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Link 1 naar R1
+           ipv6 address 2001:DB8:ACAD:FFFF::3/127
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Link 2 naar R3
+           ipv6 address 2001:DB8:ACAD:FFFF::4/127
+           no shutdown
+          !
+          ipv6 route 2001:DB8:ACAD:10::/64 2001:DB8:ACAD:FFFF::2
+          ipv6 route 2001:DB8:ACAD:30::/64 2001:DB8:ACAD:FFFF::5
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: R2
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R3
+          no ip domain lookup
+          !
+          ipv6 unicast-routing
+          !
+          interface Ethernet0/0
+           description LAN R3
+           ipv6 address 2001:DB8:ACAD:3::1/64
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Link 2 naar R2
+           ipv6 address 2001:DB8:ACAD:FFFF::6/127
+           no shutdown
+          !
+          ipv6 route ::/0 2001:DB8:ACAD:FFFF::4
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: R3
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 300
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          ip link set dev eth0 up
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: PC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -300
+    y: 175
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC2
+          USERNAME=cisco
+          PASSWORD=cisco
+          ip link set dev eth0 up
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: PC2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: 175
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC3
+          USERNAME=cisco
+          PASSWORD=cisco
+          ip link set dev eth0 up
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: PC3
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 300
+    y: 175
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i2
+    i2: i2
+    conditioning: {}
+    label: R1-Ethernet0/1<->R2-Ethernet0/1
+  - id: l1
+    n1: n1
+    n2: n2
+    i1: i3
+    i2: i2
+    conditioning: {}
+    label: R2-Ethernet0/2<->R3-Ethernet0/1
+  - id: l2
+    n1: n0
+    n2: n3
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: R1-Ethernet0/0<->PC1-eth0
+  - id: l3
+    n1: n1
+    n2: n4
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: R2-Ethernet0/0<->PC2-eth0
+  - id: l4
+    n1: n2
+    n2: n5
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: R3-Ethernet0/0<->PC3-eth0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 1.4. Troubleshootlab: maak het adresplan,
+    vind en herstel de storing zodat het netwerk overeenkomt met het ontwerp.'
+  notes: |-
+    # Lab 1.4.7 - Adresplan nieuwe vestiging
+
+    **Leerdoel (CCNA 200-301 v2.0, 1.4):** IPv6-adresconfiguratie, -toewijzing en prefixgrootte troubleshooten.
+
+    ## Scenario
+    Voor een nieuwe vestiging heeft het bedrijf het prefix **2001:db8:acad::/48** gekregen. Een collega heeft het netwerk op basis van de ontwerpregels hieronder opgebouwd, maar er is geen adresplan achtergelaten. PC1, PC2 en PC3 kunnen elkaar niet allemaal bereiken.
+
+    Er zitten **3 fouten** in het netwerk.
+
+    ## Ontwerpregels
+    1. Elk LAN krijgt een **/64**. Het LAN achter router Rn gebruikt subnet-ID **n0** (hexadecimaal), dus R1 krijgt 2001:db8:acad:10::/64, R2 :20:, enzovoort.
+    2. De router krijgt op elk LAN interface-ID **::1**. De PC's krijgen hun adres via SLAAC.
+    3. Point-to-point-links tussen routers krijgen een **/127** (RFC 6164) uit 2001:db8:acad:ffff::/64. Begin bij ::2 en ga telkens naar de volgende vrije /127.
+    4. Op een link krijgt de router met het laagste nummer het laagste adres.
+
+    ## Topologie
+    | Link | Interfaces |
+    |---|---|
+    | LAN R1 | R1 E0/0 - PC1 |
+    | LAN R2 | R2 E0/0 - PC2 |
+    | LAN R3 | R3 E0/0 - PC3 |
+    | Link 1 | R1 E0/1 - R2 E0/1 |
+    | Link 2 | R2 E0/2 - R3 E0/1 |
+
+    Routing (statisch): R1 en R3 hebben een default route naar R2. R2 heeft routes naar de LAN's van R1 en R3.
+
+    ## Inloggen
+    - Routers: console, geen wachtwoord.
+    - PC's (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**. Gebruik `sudo` voor wijzigingen.
+
+    ## Opdrachten
+
+    ### Deel 1 - Adresplan maken (op papier)
+    Maak op basis van de ontwerpregels het adresplan:
+
+    | Netwerk | Prefix | Adres(sen) routers |
+    |---|---|---|
+
+    Hoeveel /64-subnetten zitten er in een /48? En hoeveel /127-links passen er in één /64?
+
+    ### Deel 2 - Baseline
+    Ping vanaf elke router naar de buurrouter(s), en tussen alle PC's. Noteer OK of FAIL.
+
+    ### Deel 3 - Verkennen en vergelijken
+    Verzamel van elk apparaat de werkelijke configuratie en vergelijk die met jouw adresplan.
+    - Router: `show ipv6 interface brief`, `show ipv6 interface <int>`, `show ipv6 route`, `show running-config`
+    - PC: `ip -6 addr show eth0`, `ip -6 route`, `traceroute <bestemming>`
+
+    Heb je iets aangepast op een router, zet dan op de PC de interface uit en weer aan:
+    ```
+    sudo ip link set dev eth0 down && sudo ip link set dev eth0 up
+    ```
+
+    ### Deel 4 - Fouten vinden en herstellen
+    Noteer per fout: het symptoom, het commando waarmee je de fout vond, de oorzaak en de herstelcommando's.
+
+    ### Deel 5 - Verificatie
+    - Alle routerinterfaces hebben het adres uit jouw plan.
+    - Alle PC's hebben een SLAAC-adres uit het juiste /64 en kunnen elkaar pingen.
+
+    ### Deel 6 - Reflectie
+    1. Welke fouten heb je gevonden? Geef per fout het commando dat de doorslag gaf.
+    2. Welke fout was het lastigst te vinden, en waarom?
+    3. Werkte alles meteen nadat je één fout had opgelost, of kwam er daarna een nieuw probleem aan het licht? Leg uit.
+    4. Hoe had deze storing voorkomen kunnen worden?
+
+    Je docent bespreekt daarna nog een aantal verdiepingsvragen met je.
+  title: Lab 1.4.7 - Adresplan nieuwe vestiging
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1
