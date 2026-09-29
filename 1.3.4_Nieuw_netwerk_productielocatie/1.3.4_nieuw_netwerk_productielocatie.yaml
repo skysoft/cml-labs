@@ -1,0 +1,377 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 1.3.4 - NIEUW NETWERK PRODUCTIELOCATIE
+      Adresblok: 10.10.0.0/24
+       LAN1 Productie 60 hosts (R1 E0/0)   PC1 10.10.0.10
+       LAN2 Kantoor   28 hosts (R1 E0/1)   PC2 10.10.0.70
+       LAN3 Magazijn  12 hosts (R2 E0/0)   PC3 10.10.0.100
+       LINK R1-R2      2 hosts (R1 E0/2 - R2 E0/1)
+      Maak eerst het adresplan. Er zitten 2 fouten in dit
+      netwerk. Vind ze, herstel ze en verifieer.
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+      Login PC's: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -420.0
+    y1: -260.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R1
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description LAN1 Productie (60 hosts)
+           ip address 10.10.0.1 255.255.255.128
+           no shutdown
+          !
+          interface Ethernet0/1
+           description LAN2 Kantoor (28 hosts)
+           ip address 10.10.0.65 255.255.255.224
+           no shutdown
+          !
+          interface Ethernet0/2
+           description LINK naar R2
+           ip address 10.10.0.113 255.255.255.252
+           no shutdown
+          !
+          ip route 10.10.0.96 255.255.255.240 10.10.0.114
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: R1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -150
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R2
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description LAN3 Magazijn (12 hosts)
+           ip address 10.10.0.97 255.255.255.224
+           no shutdown
+          !
+          interface Ethernet0/1
+           description LINK naar R1
+           ip address 10.10.0.114 255.255.255.252
+           no shutdown
+          !
+          ip route 0.0.0.0 0.0.0.0 10.10.0.113
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: R2
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 200
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          ip link set dev eth0 up
+          ip address add 10.10.0.10/26 dev eth0
+          ip route add default via 10.10.0.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: PC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -300
+    y: 175
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC2
+          USERNAME=cisco
+          PASSWORD=cisco
+          ip link set dev eth0 up
+          ip address add 10.10.0.70/27 dev eth0
+          ip route add default via 10.10.0.65
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: PC2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -100
+    y: 175
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC3
+          USERNAME=cisco
+          PASSWORD=cisco
+          ip link set dev eth0 up
+          ip address add 10.10.0.100/28 dev eth0
+          ip route add default via 10.10.0.97
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: PC3
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 200
+    y: 175
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i3
+    i2: i2
+    conditioning: {}
+    label: R1-Ethernet0/2<->R2-Ethernet0/1
+  - id: l1
+    n1: n0
+    n2: n2
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: R1-Ethernet0/0<->PC1-eth0
+  - id: l2
+    n1: n0
+    n2: n3
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: R1-Ethernet0/1<->PC2-eth0
+  - id: l3
+    n1: n1
+    n2: n4
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: R2-Ethernet0/0<->PC3-eth0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 1.3. Troubleshootlab: maak het adresplan,
+    vind en herstel de storing zodat het netwerk overeenkomt met het ontwerp.'
+  notes: |-
+    # Lab 1.3.4 - Nieuw netwerk productielocatie
+
+    **Leerdoel (CCNA 200-301 v2.0, 1.3):** IPv4-adresconfiguratie, -toewijzing en subnetting troubleshooten.
+
+    ## Scenario
+    Een klant heeft voor de nieuwe productielocatie één adresblok gekregen: **10.10.0.0/24**. Dat blok moet zo zuinig mogelijk worden verdeeld over vier netwerken. Een collega heeft het netwerk opgebouwd, maar bij de oplevering werkt vrijwel niets. Er is geen adresplan achtergelaten, alleen de ontwerpeisen hieronder.
+
+    Er zitten **2 fouten** in het netwerk.
+
+    ## Ontwerpeisen
+    | Netwerk | Locatie | Aantal hosts nodig | Router-interface |
+    |---|---|---|---|
+    | LAN1 | Productie | 60 | R1 E0/0 |
+    | LAN2 | Kantoor | 28 | R1 E0/1 |
+    | LAN3 | Magazijn | 12 | R2 E0/0 |
+    | LINK | R1 E0/2 - R2 E0/1 | 2 | - |
+
+    Regels:
+    - Gebruik voor elk netwerk het **kleinste** subnet dat groot genoeg is.
+    - Wijs de subnetten toe van **groot naar klein**, beginnend bij 10.10.0.0.
+    - De router krijgt altijd het **eerste** bruikbare adres van een LAN.
+    - Op de LINK krijgt R1 het eerste en R2 het tweede bruikbare adres.
+
+    ## Eindapparaten
+    | PC | Netwerk | IP-adres | Gateway |
+    |---|---|---|---|
+    | PC1 | LAN1 | 10.10.0.10/26 | 10.10.0.1 |
+    | PC2 | LAN2 | 10.10.0.70/27 | 10.10.0.65 |
+    | PC3 | LAN3 | 10.10.0.100/28 | 10.10.0.97 |
+
+    Routing: R1 heeft een statische route naar LAN3, R2 heeft een default route naar R1.
+
+    ## Inloggen
+    - Routers: console, geen wachtwoord.
+    - PC's (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**. Gebruik `sudo` voor wijzigingen.
+
+    ## Opdrachten
+
+    ### Deel 1 - Adresplan maken (op papier)
+    Maak op basis van de ontwerpeisen het adresplan en vul deze tabel in:
+
+    | Netwerk | Prefix | Subnetmasker | Netwerkadres | Eerste bruikbaar | Laatste bruikbaar | Broadcast |
+    |---|---|---|---|---|---|---|
+
+    Hoeveel adressen van het /24-blok blijven over?
+
+    ### Deel 2 - Baseline
+    Ping vanaf elke PC naar de andere PC's en naar de eigen gateway. Noteer OK of FAIL.
+
+    ### Deel 3 - Verkennen en vergelijken
+    Verzamel van elk apparaat de werkelijke configuratie en vergelijk die met jouw adresplan.
+    - Router: `show ip interface brief`, `show running-config`, `show ip route`, `show logging`
+    - PC: `ip addr show eth0`, `ip route`
+
+    ### Deel 4 - Fouten vinden en herstellen
+    Noteer per fout: het symptoom, het commando waarmee je de fout vond, de oorzaak en de herstelcommando's.
+
+    ### Deel 5 - Verificatie
+    - `show ip interface brief` toont op alle gebruikte interfaces het adres uit jouw plan.
+    - Alle PC's kunnen elkaar pingen.
+    - Vanaf PC1 loopt `traceroute 10.10.0.100` via R1 en R2.
+
+    ### Deel 6 - Reflectie
+    1. Welke fouten heb je gevonden? Geef per fout het commando dat de doorslag gaf.
+    2. Welke fout was het lastigst te vinden, en waarom?
+    3. Werkte alles meteen nadat je een fout had opgelost, of moest je nog iets extra doen? Leg uit.
+    4. Hoe had deze storing voorkomen kunnen worden?
+
+    Je docent bespreekt daarna nog een aantal verdiepingsvragen met je.
+  title: Lab 1.3.4 - Nieuw netwerk productielocatie
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1

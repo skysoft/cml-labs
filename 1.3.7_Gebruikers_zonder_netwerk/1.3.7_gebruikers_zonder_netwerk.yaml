@@ -1,0 +1,518 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 1.3.7 - GEBRUIKERS ZONDER NETWERK
+       R1 = DHCP-server, R2 = DHCP-relay voor LAN-B
+       LAN-A 10.1.10.0/24 (GW .1)  PC1, PC2 via DHCP
+       LAN-B 10.1.20.0/24 (GW .1)  PC3, PC4 via DHCP
+       WAN   10.255.12.0/30  R1 .1 - R2 .2
+       DHCP-bereik per LAN: .100 t/m .254
+      Er zitten 3 fouten in dit netwerk. Vind ze, herstel ze
+      en verifieer dat alle PC's een juist adres krijgen.
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+      Login PC's: cisco / cisco (sudo voor wijzigingen)
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -420.0
+    y1: -260.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R1
+          no ip domain lookup
+          !
+          ip dhcp excluded-address 10.1.10.1 10.1.10.99
+          ip dhcp excluded-address 10.1.20.1 10.1.20.254
+          !
+          ip dhcp pool LAN-A
+           network 10.1.100.0 255.255.255.0
+           default-router 10.1.10.1
+          !
+          ip dhcp pool LAN-B
+           network 10.1.20.0 255.255.255.0
+           default-router 10.1.20.1
+          !
+          interface Ethernet0/0
+           description LAN-A
+           ip address 10.1.10.1 255.255.255.0
+           no shutdown
+          !
+          interface Ethernet0/1
+           description WAN naar R2
+           ip address 10.255.12.1 255.255.255.252
+           no shutdown
+          !
+          ip route 10.1.20.0 255.255.255.0 10.255.12.2
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: R1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -200
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R2
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description LAN-B
+           ip address 10.1.20.1 255.255.255.0
+           no shutdown
+          !
+          interface Ethernet0/1
+           description WAN naar R1
+           ip address 10.255.12.2 255.255.255.252
+           no shutdown
+          !
+          ip route 0.0.0.0 0.0.0.0 10.255.12.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: R2
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 200
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: SW-A
+    node_definition: unmanaged_switch
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -200
+    y: 150
+    interfaces:
+      - id: i0
+        label: port0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: port1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i2
+        label: port2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i3
+        label: port3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: SW-B
+    node_definition: unmanaged_switch
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 200
+    y: 150
+    interfaces:
+      - id: i0
+        label: port0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: port1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i2
+        label: port2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i3
+        label: port3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          ip link set dev eth0 up
+          # DHCP-client; zonder antwoord APIPA (169.254.0.0/16), net als Windows
+          udhcpc -i eth0 -n -q -t 10 -T 3 || ip addr add 169.254.$((RANDOM % 254 + 1)).$((RANDOM % 254 + 1))/16 dev eth0
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: PC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -300
+    y: 300
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC2
+          USERNAME=cisco
+          PASSWORD=cisco
+          ip link set dev eth0 up
+          # DHCP-client; zonder antwoord APIPA (169.254.0.0/16), net als Windows
+          udhcpc -i eth0 -n -q -t 10 -T 3 || ip addr add 169.254.$((RANDOM % 254 + 1)).$((RANDOM % 254 + 1))/16 dev eth0
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: PC2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -100
+    y: 300
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC3
+          USERNAME=cisco
+          PASSWORD=cisco
+          ip link set dev eth0 up
+          # DHCP-client; zonder antwoord APIPA (169.254.0.0/16), net als Windows
+          udhcpc -i eth0 -n -q -t 10 -T 3 || ip addr add 169.254.$((RANDOM % 254 + 1)).$((RANDOM % 254 + 1))/16 dev eth0
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n6
+    image_definition: null
+    label: PC3
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 100
+    y: 300
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC4
+          USERNAME=cisco
+          PASSWORD=cisco
+          ip link set dev eth0 up
+          # DHCP-client; zonder antwoord APIPA (169.254.0.0/16), net als Windows
+          udhcpc -i eth0 -n -q -t 10 -T 3 || ip addr add 169.254.$((RANDOM % 254 + 1)).$((RANDOM % 254 + 1))/16 dev eth0
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n7
+    image_definition: null
+    label: PC4
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 300
+    y: 300
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i2
+    i2: i2
+    conditioning: {}
+    label: R1-Ethernet0/1<->R2-Ethernet0/1
+  - id: l1
+    n1: n0
+    n2: n2
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: R1-Ethernet0/0<->SW-A-port0
+  - id: l2
+    n1: n1
+    n2: n3
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: R2-Ethernet0/0<->SW-B-port0
+  - id: l3
+    n1: n2
+    n2: n4
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: SW-A-port1<->PC1-eth0
+  - id: l4
+    n1: n2
+    n2: n5
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: SW-A-port2<->PC2-eth0
+  - id: l5
+    n1: n3
+    n2: n6
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: SW-B-port1<->PC3-eth0
+  - id: l6
+    n1: n3
+    n2: n7
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: SW-B-port2<->PC4-eth0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 1.3. Troubleshootlab: vind en herstel
+    de storing zodat het netwerk weer overeenkomt met de documentatie.'
+  notes: |-
+    # Lab 1.3.7 - Gebruikers zonder netwerk
+
+    **Leerdoel (CCNA 200-301 v2.0, 1.3):** IPv4-adresconfiguratie, -toewijzing en subnetting troubleshooten.
+
+    ## Scenario
+    Een bedrijf heeft twee locaties: LAN-A bij R1 en LAN-B bij R2. Alle PC's krijgen hun adres automatisch. Router R1 is de centrale DHCP-server voor beide locaties, en R2 stuurt de DHCP-verzoeken uit LAN-B door naar R1 (DHCP-relay).
+
+    Na een onderhoudsbeurt melden **alle** gebruikers dat ze geen netwerk hebben. Op hun PC staat een adres dat begint met **169.254**.
+
+    De PC's in dit lab gedragen zich zoals Windows-PC's.
+
+    Er zitten **3 fouten** in het netwerk.
+
+    ## Adresplan (de documentatie klopt)
+    | Apparaat | Interface | IP-adres | Prefix | Opmerking |
+    |---|---|---|---|---|
+    | R1 | E0/0 (LAN-A) | 10.1.10.1 | /24 | DHCP-server |
+    | R1 | E0/1 (WAN) | 10.255.12.1 | /30 | |
+    | R2 | E0/1 (WAN) | 10.255.12.2 | /30 | |
+    | R2 | E0/0 (LAN-B) | 10.1.20.1 | /24 | DHCP-relay naar 10.255.12.1 |
+    | PC1, PC2 | eth0 | DHCP | /24 | LAN-A |
+    | PC3, PC4 | eth0 | DHCP | /24 | LAN-B |
+
+    DHCP-afspraken:
+    | Pool | Netwerk | Uitgedeeld bereik | Default gateway |
+    |---|---|---|---|
+    | LAN-A | 10.1.10.0/24 | .100 t/m .254 | 10.1.10.1 |
+    | LAN-B | 10.1.20.0/24 | .100 t/m .254 | 10.1.20.1 |
+
+    ## Inloggen
+    - Routers: console, geen wachtwoord.
+    - PC's (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**. Gebruik `sudo` voor wijzigingen.
+
+    ## Opdrachten
+
+    ### Deel 1 - Documentatie analyseren
+    Bereken voor elk subnet uit het adresplan het netwerkadres, het bruikbare bereik en het broadcastadres. Welke adressen deelt de DHCP-server volgens de afspraken wel en niet uit?
+
+    ### Deel 2 - Symptomen
+    Noteer op elke PC de uitvoer van `ip addr show eth0` en `ip route`. Probeer vanaf elke PC de eigen gateway te pingen.
+
+    ### Deel 3 - Verkennen en vergelijken
+    Verzamel van elk apparaat de werkelijke configuratie en vergelijk die met het adresplan en de DHCP-afspraken.
+    - Router: `show ip interface brief`, `show running-config`, `show ip route`, `show ip dhcp pool`, `show ip dhcp binding`
+    - Debuggen kan ook, bijvoorbeeld met `debug ip dhcp server events` en `debug ip dhcp server packet`. Zet het debuggen daarna weer uit met `undebug all`.
+
+    Een nieuw adres aanvragen vanaf een PC:
+    ```
+    sudo ip addr flush dev eth0
+    sudo udhcpc -i eth0 -n -q
+    ```
+
+    ### Deel 4 - Fouten vinden en herstellen
+    Noteer per fout: het symptoom, het commando waarmee je de fout vond, de oorzaak en de herstelcommando's. Test na elke wijziging opnieuw.
+
+    ### Deel 5 - Verificatie
+    - Alle vier de PC's hebben een adres uit het juiste bereik en de juiste default gateway.
+    - `show ip dhcp binding` op R1 toont vier leases.
+    - PC1 kan PC3 pingen.
+
+    ### Deel 6 - Reflectie
+    1. Welke fouten heb je gevonden? Geef per fout het commando dat de doorslag gaf.
+    2. Welke fout was het lastigst te vinden, en waarom?
+    3. Werkte alles meteen nadat je één fout had opgelost, of kwam er daarna een nieuw probleem aan het licht? Leg uit.
+    4. Hoe had deze storing voorkomen kunnen worden?
+
+    Je docent bespreekt daarna nog een aantal verdiepingsvragen met je.
+  title: Lab 1.3.7 - Gebruikers zonder netwerk
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1
