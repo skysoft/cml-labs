@@ -1,0 +1,533 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 2.3.2 - OVERDRACHT VAN HET NETWERK (validatielab)
+       Er zitten 5 fouten in de DOCUMENTATIE (zie Lab Notes).
+       De kabels zijn bewust verborgen: gebruik CDP en LLDP.
+       Labels op het canvas = stickers op de apparaten.
+       Beheer-VLAN 1: 10.10.0.0/24
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -560.0
+    y1: -480.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname EDGE
+          no ip domain lookup
+          lldp run
+          !
+          interface Ethernet0/0
+           description LAN
+           ip address 10.10.0.1 255.255.255.0
+           no shutdown
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: true
+    id: n0
+    image_definition: null
+    label: EDGE
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -300
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname SW-CORE
+          no ip domain lookup
+          vtp mode transparent
+          no ip routing
+          lldp run
+          !
+          interface Vlan1
+           ip address 10.10.0.2 255.255.255.0
+           no shutdown
+          !
+          ip default-gateway 10.10.0.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: true
+    id: n1
+    image_definition: null
+    label: SW-CORE
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -150
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i5
+        label: Ethernet1/0
+        mac_address: null
+        type: physical
+        slot: 4
+      - id: i6
+        label: Ethernet1/1
+        mac_address: null
+        type: physical
+        slot: 5
+      - id: i7
+        label: Ethernet1/2
+        mac_address: null
+        type: physical
+        slot: 6
+      - id: i8
+        label: Ethernet1/3
+        mac_address: null
+        type: physical
+        slot: 7
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname SW-A
+          no ip domain lookup
+          vtp mode transparent
+          no ip routing
+          lldp run
+          !
+          interface Vlan1
+           ip address 10.10.0.3 255.255.255.0
+           no shutdown
+          !
+          ip default-gateway 10.10.0.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: true
+    id: n2
+    image_definition: null
+    label: SW-A
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -250
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname SW-MAGAZIJN
+          no ip domain lookup
+          vtp mode transparent
+          no ip routing
+          lldp run
+          !
+          interface Vlan1
+           ip address 10.10.0.4 255.255.255.0
+           no shutdown
+          !
+          ip default-gateway 10.10.0.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: true
+    id: n3
+    image_definition: null
+    label: SW-B
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -80
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R-LAB
+          no ip domain lookup
+          lldp run
+          !
+          interface Ethernet0/0
+           description LAN
+           ip address 10.10.0.22 255.255.255.0
+           no shutdown
+          !
+          ip route 0.0.0.0 0.0.0.0 10.10.0.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: true
+    id: n4
+    image_definition: null
+    label: R-LAB
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 80
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R-VOIP
+          no ip domain lookup
+          lldp run
+          !
+          interface Ethernet0/0
+           description LAN
+           ip address 10.10.0.23 255.255.255.0
+           no shutdown
+          !
+          ip route 0.0.0.0 0.0.0.0 10.10.0.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: true
+    id: n5
+    image_definition: null
+    label: R-VOIP
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 250
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i1
+    i2: i1
+    conditioning: {}
+    label: EDGE-Ethernet0/0<->SW-CORE-Ethernet0/0
+  - id: l1
+    n1: n1
+    n2: n2
+    i1: i2
+    i2: i1
+    conditioning: {}
+    label: SW-CORE-Ethernet0/1<->SW-A-Ethernet0/0
+  - id: l2
+    n1: n1
+    n2: n3
+    i1: i3
+    i2: i2
+    conditioning: {}
+    label: SW-CORE-Ethernet0/2<->SW-B-Ethernet0/1
+  - id: l3
+    n1: n2
+    n2: n3
+    i1: i2
+    i2: i1
+    conditioning: {}
+    label: SW-A-Ethernet0/1<->SW-B-Ethernet0/0
+  - id: l4
+    n1: n1
+    n2: n4
+    i1: i5
+    i2: i1
+    conditioning: {}
+    label: SW-CORE-Ethernet1/0<->R-LAB-Ethernet0/0
+  - id: l5
+    n1: n1
+    n2: n5
+    i1: i6
+    i2: i1
+    conditioning: {}
+    label: SW-CORE-Ethernet1/1<->R-VOIP-Ethernet0/0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 2.3. Validatielab: controleer de netwerkdocumentatie
+    met CDP en LLDP. Er zitten 5 fouten in de documentatie.'
+  notes: |-
+    # Lab 2.3.2 - Overdracht van het netwerk
+
+    **Leerdoel (CCNA 200-301 v2.0, 2.3):** de juistheid van netwerkdocumentatie controleren met CDP en LLDP.
+
+    ## Scenario
+    Logistiek bedrijf De Laadklep neemt het beheer over van een ander IT-bedrijf. Bij de overdracht hoort onderstaande documentatie. Jouw opdracht: **controleer of de documentatie klopt** met behulp van CDP en LLDP, en lever een gecorrigeerde versie op.
+
+    **Er zitten 5 fouten in de documentatie.** Het netwerk zelf werkt; je hoeft niets aan de configuratie te veranderen (behalve eventueel LLDP/CDP-commando's om te kijken).
+
+    De kabels zijn in deze CML-tekening bewust verborgen. De labels op het canvas zijn de stickers op de apparaten.
+
+    ## Documentatie van het vorige IT-bedrijf
+
+    ### Apparaten (beheer-VLAN 1, 10.10.0.0/24)
+    | Apparaat | Rol | Beheeradres |
+    |---|---|---|
+    | EDGE | internetrouter | 10.10.0.1 |
+    | SW-CORE | kernswitch | 10.10.0.2 |
+    | SW-A | switch kantoor | 10.10.0.3 |
+    | SW-B | switch magazijn | 10.10.0.4 |
+    | R-LAB | testrouter | 10.10.0.21 |
+    | R-VOIP | telefonie-router | 10.10.0.23 |
+
+    ### Bekabeling
+    | # | Van | Poort | Naar | Poort |
+    |---|---|---|---|---|
+    | 1 | EDGE | E0/0 | SW-CORE | E0/0 |
+    | 2 | SW-CORE | E0/1 | SW-A | E0/0 |
+    | 3 | SW-CORE | E0/2 | SW-B | E0/0 |
+    | 4 | SW-CORE | E1/0 | R-VOIP | E0/0 |
+    | 5 | SW-CORE | E1/1 | R-LAB | E0/0 |
+
+    Op alle routers en switches staan CDP en LLDP aan.
+
+    ## Inloggen
+    - Routers en switches: console, geen wachtwoord.
+
+    ## Opdrachten
+    1. Controleer elke regel van beide tabellen met CDP en/of LLDP (`show cdp neighbors`, `show cdp neighbors detail`, `show lldp neighbors`, `show lldp neighbors detail`). Werk vanaf SW-CORE en log in op de andere apparaten als dat nodig is.
+    2. Maak een **afwijkingenlijst**:
+
+    | # | Wat staat er in de documentatie? | Wat is de werkelijkheid? | Met welk commando aangetoond? |
+    |---|---|---|---|
+    | 1 | | | |
+    | 2 | | | |
+    | 3 | | | |
+    | 4 | | | |
+    | 5 | | | |
+
+    3. Lever een gecorrigeerde apparatentabel, bekabelingstabel en topologietekening op.
+
+    ### Reflectie
+    1. Welke afwijking kon je **niet** met alleen `show cdp neighbors` vinden, en welk commando had je daarvoor nodig?
+    2. Eén van de afwijkingen kan in de praktijk problemen geven met spanning tree. Welke, en waarom?
+    3. Hoe zou je voorkomen dat documentatie weer gaat afwijken van de werkelijkheid?
+
+    Je docent bespreekt daarna je afwijkingenlijst.
+  title: Lab 2.3.2 - Overdracht van het netwerk
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1

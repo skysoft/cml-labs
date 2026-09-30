@@ -1,0 +1,547 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 2.3.3 - GATEN IN DE NETWERKKAART
+       Er zitten 4 fouten in dit lab.
+       Beleid: CDP op alle Cisco-apparaten en interne links,
+               LLDP op alle apparaten, niets naar de provider.
+       SW-LEV = switch van ander merk (alleen LLDP)
+       Beheer-VLAN 99: 10.20.99.0/24
+      Beleid en opdracht: open de Lab Notes (tabblad Notes).
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -560.0
+    y1: -450.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: default
+        content: NAT
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: INTERNET
+    node_definition: external_connector
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 350
+    y: -300
+    interfaces:
+      - id: i0
+        label: port
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname EDGE
+          no ip domain lookup
+          lldp run
+          !
+          interface Ethernet0/0
+           description LAN (beheer-VLAN 99)
+           ip address 10.20.99.1 255.255.255.0
+           ip nat inside
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Provider (internet)
+           ip address dhcp
+           ip nat outside
+           no cdp enable
+           no lldp transmit
+           no lldp receive
+           no shutdown
+          !
+          ip access-list standard NAT-LAN
+           permit 10.20.99.0 0.0.0.255
+          !
+          ip nat inside source list NAT-LAN interface Ethernet0/1 overload
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: EDGE
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 150
+    y: -300
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname SW1
+          no ip domain lookup
+          vtp mode transparent
+          no ip routing
+          lldp run
+          !
+          vlan 99
+           name BEHEER
+          !
+          interface Ethernet0/0
+           description EDGE
+           switchport mode access
+           switchport access vlan 99
+          !
+          interface Ethernet0/1
+           description SW2
+           switchport trunk encapsulation dot1q
+           switchport trunk native vlan 99
+           switchport trunk allowed vlan 1,99
+           switchport mode trunk
+           switchport nonegotiate
+          !
+          interface Ethernet0/2
+           description R2
+           switchport mode access
+           switchport access vlan 99
+           no cdp enable
+          !
+          interface Ethernet0/3
+           description SW-LEV
+           switchport mode access
+           switchport access vlan 99
+          !
+          interface Vlan1
+           no ip address
+           shutdown
+          !
+          interface Vlan99
+           ip address 10.20.99.2 255.255.255.0
+           no shutdown
+          !
+          ip default-gateway 10.20.99.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: SW1
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -150
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname SW2
+          no ip domain lookup
+          vtp mode transparent
+          no ip routing
+          no cdp run
+          lldp run
+          !
+          vlan 99
+           name BEHEER
+          !
+          interface Ethernet0/0
+           description SW1
+           switchport trunk encapsulation dot1q
+           switchport trunk allowed vlan 1,99
+           switchport mode trunk
+           switchport nonegotiate
+          !
+          interface Vlan1
+           no ip address
+           shutdown
+          !
+          interface Vlan99
+           ip address 10.20.99.3 255.255.255.0
+           no shutdown
+          !
+          ip default-gateway 10.20.99.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: SW2
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -200
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R2
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description SW1
+           ip address 10.20.99.4 255.255.255.0
+           no shutdown
+          !
+          ip route 0.0.0.0 0.0.0.0 10.20.99.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: R2
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname SW-LEV
+          no ip domain lookup
+          vtp mode transparent
+          no ip routing
+          ! Nagebootste switch van een ander merk: alleen LLDP
+          no cdp run
+          lldp run
+          !
+          vlan 99
+           name BEHEER
+          !
+          interface Ethernet0/0
+           description Uplink SW1
+           switchport mode access
+           switchport access vlan 99
+          !
+          interface Vlan1
+           no ip address
+           shutdown
+          !
+          interface Vlan99
+           ip address 10.20.99.5 255.255.255.0
+           no shutdown
+          !
+          ip default-gateway 10.20.99.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: SW-LEV
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 200
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i0
+    i2: i2
+    conditioning: {}
+    label: INTERNET-port<->EDGE-Ethernet0/1
+  - id: l1
+    n1: n1
+    n2: n2
+    i1: i1
+    i2: i1
+    conditioning: {}
+    label: EDGE-Ethernet0/0<->SW1-Ethernet0/0
+  - id: l2
+    n1: n2
+    n2: n3
+    i1: i2
+    i2: i1
+    conditioning: {}
+    label: SW1-Ethernet0/1<->SW2-Ethernet0/0
+  - id: l3
+    n1: n2
+    n2: n4
+    i1: i3
+    i2: i1
+    conditioning: {}
+    label: SW1-Ethernet0/2<->R2-Ethernet0/0
+  - id: l4
+    n1: n2
+    n2: n5
+    i1: i4
+    i2: i1
+    conditioning: {}
+    label: SW1-Ethernet0/3<->SW-LEV-Ethernet0/0
+lab:
+  description: CCNA 200-301 v2.0 - leerdoel 2.3. Troubleshootinglab CDP en LLDP. Er
+    zitten 4 fouten in dit lab.
+  notes: |-
+    # Lab 2.3.3 - Gaten in de netwerkkaart
+
+    **Leerdoel (CCNA 200-301 v2.0, 2.3):** de juistheid van netwerkdocumentatie controleren met CDP en LLDP.
+
+    ## Scenario
+    Drukkerij De Letterbak gebruikt een monitoringtool die elke nacht met CDP en LLDP een netwerkkaart tekent. Sinds een onderhoudsronde klopt die kaart niet meer: er ontbreken apparaten en verbindingen. Daarnaast meldt de beheerder:
+    - "SW2 is niet meer te beheren via 10.20.99.3."
+
+    **Er zitten 4 fouten in dit lab.**
+
+    ## Beleid
+    - **CDP** staat aan op alle Cisco-apparaten en op alle interne links.
+    - **LLDP** staat aan op alle apparaten.
+    - Op de link van EDGE naar de provider (EDGE E0/1) staan CDP en LLDP **uit**.
+    - **SW-LEV** is een switch van een ander merk (nagebootst): die spreekt alleen LLDP, geen CDP.
+    - Beheer-VLAN 99: 10.20.99.0/24. De trunk SW1-SW2 heeft native VLAN 99.
+
+    ## Documentatie (klopt wel)
+    | Apparaat | Beheeradres |
+    |---|---|
+    | EDGE | 10.20.99.1 |
+    | SW1 | 10.20.99.2 |
+    | SW2 | 10.20.99.3 |
+    | R2 | 10.20.99.4 |
+    | SW-LEV | 10.20.99.5 |
+
+    | Van | Poort | Naar | Poort | Soort |
+    |---|---|---|---|---|
+    | EDGE | E0/0 | SW1 | E0/0 | access VLAN 99 |
+    | SW1 | E0/1 | SW2 | E0/0 | trunk (native 99) |
+    | SW1 | E0/2 | R2 | E0/0 | access VLAN 99 |
+    | SW1 | E0/3 | SW-LEV | E0/0 | access VLAN 99 |
+    | EDGE | E0/1 | provider (internet) | - | - |
+
+    ## Inloggen
+    - Routers en switches: console, geen wachtwoord.
+
+    ## Handige commando's
+    `show cdp`, `show cdp neighbors [detail]`, `show cdp interface`, `show lldp`, `show lldp neighbors [detail]`, `show lldp interface`, `show logging`, `show interfaces trunk`
+
+    ## Opdrachten
+    1. Vergelijk op elk apparaat `show cdp neighbors` en `show lldp neighbors` met de documentatie en het beleid. Noteer wat er ontbreekt.
+    2. Zoek en herstel de 4 fouten. Houd een **foutenlog** bij:
+
+    | # | Apparaat | Symptoom | Oorzaak | Oplossing (commando's) | Hoe geverifieerd |
+    |---|---|---|---|---|---|
+    | 1 | | | | | |
+    | 2 | | | | | |
+    | 3 | | | | | |
+    | 4 | | | | | |
+
+    3. Toon aan het eind aan dat elk apparaat de juiste buren ziet (CDP en/of LLDP, volgens het beleid) en dat SW2 bereikbaar is.
+
+    ### Reflectie
+    1. Welke fout werd pas zichtbaar nadat je een andere fout had opgelost, en waarom?
+    2. Waarom zie je SW-LEV wel in LLDP maar nooit in CDP?
+
+    Je docent bespreekt daarna je foutenlog.
+  title: Lab 2.3.3 - Gaten in de netwerkkaart
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1
