@@ -42,7 +42,7 @@ Gebruikte node-types: `iol-xe`, `ioll2-xe`, `unmanaged_switch` en `alpine`.
 | Leerdoel | Labs |
 |---|---|
 | [2.1 Infrastructure Connectivity](2.0_Switching_and_Network_Access/2.1_Infrastructure_Connectivity/) | 6 |
-| [2.2 Edge Host Connectivity](2.0_Switching_and_Network_Access/2.2_Edge_Host_Connectivity/) | - |
+| [2.2 Edge Host Connectivity](2.0_Switching_and_Network_Access/2.2_Edge_Host_Connectivity/) | 5 |
 | [2.3 CDP and LLDP](2.0_Switching_and_Network_Access/2.3_CDP_and_LLDP/) | - |
 | [2.4 L2 L3 Troubleshooting](2.0_Switching_and_Network_Access/2.4_L2_L3_Troubleshooting/) | - |
 | [2.5 Rapid PVST](2.0_Switching_and_Network_Access/2.5_Rapid_PVST/) | - |

@@ -1,0 +1,523 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 2.2.2 - BELLEN EN DRAADLOOS (configuratielab)
+       E0/1 telefoon + PC1: data VLAN 10, voice VLAN 150
+       E0/2 AP1 standalone: trunk, native 40, SSID's VLAN 10 en 50
+       E0/3 AP2 lightweight: access VLAN 40 -> WLC1 192.168.45.10
+       CML: geen IP-telefoon en geen PoE (zie Notes)
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+      Login hosts: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -560.0
+    y1: -450.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname CORE
+          no ip domain lookup
+          vtp mode transparent
+          ip routing
+          !
+          vlan 10
+           name PERSONEEL
+          vlan 40
+           name AP-BEHEER
+          vlan 45
+           name WLC
+          vlan 50
+           name GASTEN
+          vlan 99
+           name BEHEER
+          vlan 150
+           name VOICE
+          !
+          interface Ethernet0/0
+           description Trunk naar SW1
+           switchport trunk encapsulation dot1q
+           switchport trunk native vlan 99
+           switchport trunk allowed vlan 10,40,50,99,150
+           switchport mode trunk
+           switchport nonegotiate
+          !
+          interface Ethernet0/1
+           description WLC1
+           switchport mode access
+           switchport access vlan 45
+           spanning-tree portfast
+          !
+          interface Ethernet0/2
+           shutdown
+          interface Ethernet0/3
+           shutdown
+          !
+          interface Vlan1
+           no ip address
+           shutdown
+          !
+          interface Vlan10
+           ip address 192.168.10.1 255.255.255.0
+           no shutdown
+          interface Vlan40
+           ip address 192.168.40.1 255.255.255.0
+           no shutdown
+          interface Vlan45
+           ip address 192.168.45.1 255.255.255.0
+           no shutdown
+          interface Vlan50
+           ip address 192.168.50.1 255.255.255.0
+           no shutdown
+          interface Vlan99
+           ip address 192.168.99.1 255.255.255.0
+           no shutdown
+          interface Vlan150
+           ip address 192.168.150.1 255.255.255.0
+           no shutdown
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: CORE
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -250
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname SW1
+          no ip domain lookup
+          vtp mode transparent
+          no ip routing
+          !
+          vlan 10
+           name PERSONEEL
+          vlan 40
+           name AP-BEHEER
+          vlan 50
+           name GASTEN
+          vlan 99
+           name BEHEER
+          vlan 150
+           name VOICE
+          !
+          interface Ethernet0/0
+           description Uplink CORE
+           switchport trunk encapsulation dot1q
+           switchport trunk native vlan 99
+           switchport trunk allowed vlan 10,40,50,99,150
+           switchport mode trunk
+           switchport nonegotiate
+          !
+          interface Ethernet0/1
+           description IP-telefoon + PC1
+          !
+          interface Ethernet0/2
+           description AP1 (standalone)
+          !
+          interface Ethernet0/3
+           description AP2 (lightweight)
+          !
+          interface Vlan1
+           no ip address
+           shutdown
+          !
+          interface Vlan99
+           description Beheer
+           ip address 192.168.99.2 255.255.255.0
+           no shutdown
+          !
+          ip default-gateway 192.168.99.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: SW1
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -80
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname WLC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.45.10/24 dev eth0
+          ip route add default via 192.168.45.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: WLC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 250
+    y: -250
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          # PC1 staat 'achter' de IP-telefoon (de telefoon zelf bestaat niet in CML)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.10.11/24 dev eth0
+          ip route add default via 192.168.10.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: PC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -250
+    y: 100
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname AP1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # Standalone AP: beheer ongetagd, SSID's als getagde VLAN's
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.40.11/24 dev eth0
+          ip route add default via 192.168.40.1
+          modprobe 8021q 2>/dev/null
+          # SSID Personeel (VLAN 10): eigen routeringstabel, zodat het beheeradres los blijft
+          ip link add link eth0 name eth0.10 type vlan id 10
+          ip link set dev eth0.10 up
+          ip address add 192.168.10.21/24 dev eth0.10
+          ip route del 192.168.10.0/24 dev eth0.10
+          ip route add 192.168.10.0/24 dev eth0.10 table 10
+          ip route add default via 192.168.10.1 dev eth0.10 table 10
+          ip rule add from 192.168.10.21 table 10
+          # SSID Gasten (VLAN 50)
+          ip link add link eth0 name eth0.50 type vlan id 50
+          ip link set dev eth0.50 up
+          ip address add 192.168.50.21/24 dev eth0.50
+          ip route del 192.168.50.0/24 dev eth0.50
+          ip route add 192.168.50.0/24 dev eth0.50 table 50
+          ip route add default via 192.168.50.1 dev eth0.50 table 50
+          ip rule add from 192.168.50.21 table 50
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: AP1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: 100
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname AP2
+          USERNAME=cisco
+          PASSWORD=cisco
+          # Lightweight AP: alleen een beheeradres, verkeer via CAPWAP naar de WLC
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.40.12/24 dev eth0
+          ip route add default via 192.168.40.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: AP2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 250
+    y: 100
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i1
+    i2: i1
+    conditioning: {}
+    label: CORE-Ethernet0/0<->SW1-Ethernet0/0
+  - id: l1
+    n1: n0
+    n2: n2
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: CORE-Ethernet0/1<->WLC1-eth0
+  - id: l2
+    n1: n1
+    n2: n3
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: SW1-Ethernet0/1<->PC1-eth0
+  - id: l3
+    n1: n1
+    n2: n4
+    i1: i3
+    i2: i0
+    conditioning: {}
+    label: SW1-Ethernet0/2<->AP1-eth0
+  - id: l4
+    n1: n1
+    n2: n5
+    i1: i4
+    i2: i0
+    conditioning: {}
+    label: SW1-Ethernet0/3<->AP2-eth0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 2.2. Configuratielab: voice VLAN, poort
+    naar een standalone AP (trunk) en naar een controller-based AP (access).'
+  notes: |-
+    # Lab 2.2.2 - Bellen en draadloos
+
+    **Leerdoel (CCNA 200-301 v2.0, 2.2):** Layer 2-poortinstellingen configureren voor eindapparaten: VoIP-telefoon en wireless access points (standalone en controller-based).
+
+    ## Scenario
+    Fysiotherapiepraktijk In Beweging krijgt IP-telefonie en wifi. Op switch SW1 komen:
+    - een **IP-telefoon** met de pc van de balie erachter (pc aangesloten op de telefoon);
+    - een **standalone AP** (AP1) dat zelf twee SSID's uitzendt: *Personeel* (VLAN 10) en *Gasten* (VLAN 50); het beheeradres van AP1 zit in VLAN 40;
+    - een **controller-based (lightweight) AP** (AP2) dat al het wifi-verkeer via een CAPWAP-tunnel naar de wireless controller WLC1 stuurt.
+
+    Alle VLAN's bestaan al op SW1 en CORE. De uplink van SW1 naar CORE is klaar. CORE is de gateway (SVI's .1) voor alle VLAN's.
+
+    ## VLAN's
+    | VLAN | Naam | Subnet |
+    |---|---|---|
+    | 10 | PERSONEEL | 192.168.10.0/24 |
+    | 40 | AP-BEHEER | 192.168.40.0/24 |
+    | 45 | WLC | 192.168.45.0/24 |
+    | 50 | GASTEN | 192.168.50.0/24 |
+    | 99 | BEHEER (native uplink) | 192.168.99.0/24 |
+    | 150 | VOICE | 192.168.150.0/24 |
+
+    ## Poortenplan SW1
+    | Poort | Apparaat | Ontwerp |
+    |---|---|---|
+    | E0/0 | uplink CORE | trunk (al klaar) |
+    | E0/1 | IP-telefoon + PC1 | data-VLAN 10, voice VLAN 150, PortFast |
+    | E0/2 | AP1 (standalone) | trunk, native VLAN 40, allowed 10,40,50, geen DTP, PortFast voor trunks |
+    | E0/3 | AP2 (lightweight) | access VLAN 40, PortFast |
+
+    | Apparaat | Adres(sen) |
+    |---|---|
+    | PC1 | 192.168.10.11 |
+    | AP1 | beheer 192.168.40.11 (ongetagd); SSID Personeel 192.168.10.21 (VLAN 10); SSID Gasten 192.168.50.21 (VLAN 50) |
+    | AP2 | 192.168.40.12 |
+    | WLC1 | 192.168.45.10 (op CORE) |
+
+    **Let op - beperkingen van CML:**
+    - Er is geen IP-telefoon in CML: PC1 staat voor de pc achter de telefoon. Het voice VLAN controleer je met show-commando's.
+    - Er is geen PoE in CML (de telefoon en de AP's krijgen in het echt stroom via de switch).
+    - AP1 en AP2 zijn Linux-hosts die het verkeer van een AP nabootsen (AP1 met VLAN-subinterfaces `eth0.10` en `eth0.50`).
+
+    ## Inloggen
+    - Switches: console, geen wachtwoord.
+    - Hosts (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**.
+
+    ## Opdrachten
+
+    ### Deel 1 - Theorie
+    1. Een IP-telefoon en een pc delen één switchpoort. Hoe houdt de switch spraak- en dataverkeer uit elkaar? Wat is getagd en wat niet?
+    2. Hoe weet een Cisco-telefoon welk voice VLAN hij moet gebruiken?
+    3. Wat is het verschil tussen een standalone (autonomous) AP en een lightweight AP? Waar wordt het wifi-verkeer op het bekabelde netwerk gezet?
+    4. Waarom heeft een standalone AP een trunk nodig, en een lightweight AP (local mode) niet? Wanneer heeft een lightweight AP toch een trunk nodig (tip: FlexConnect)?
+
+    ### Deel 2 - Poort voor telefoon en pc (E0/1)
+    1. Configureer E0/1 volgens het poortenplan.
+    2. Controleer met `show interfaces Ethernet0/1 switchport` (*Access Mode VLAN* en *Voice VLAN*) en `show vlan brief`. In welke VLAN's staat E0/1?
+    3. Ping vanaf PC1 naar 192.168.10.1.
+
+    ### Deel 3 - Poort voor de standalone AP (E0/2)
+    1. Configureer E0/2 volgens het poortenplan.
+    2. Test vanaf AP1: `ping -c 2 192.168.40.1` (beheer), `ping -c 2 -I eth0.10 192.168.10.1` (SSID Personeel) en `ping -c 2 -I eth0.50 192.168.50.1` (SSID Gasten).
+    3. Bekijk `show interfaces trunk` en `show spanning-tree interface Ethernet0/2 detail`.
+
+    ### Deel 4 - Poort voor de lightweight AP (E0/3)
+    1. Configureer E0/3 volgens het poortenplan.
+    2. Test vanaf AP2 of hij de controller bereikt: `ping -c 3 192.168.45.10`.
+
+    ### Deel 5 - Reflectie
+    1. Waarom hoeven de VLAN's 10 en 50 niet op de poort van AP2 te staan, terwijl gebruikers op AP2 wel in die VLAN's terechtkomen?
+    2. Wat gebeurt er met AP1 als de native VLAN op E0/2 op 1 blijft staan?
+    3. Een AP met 802.3at (PoE+) krijgt op een 802.3af-poort te weinig stroom. Wat merk je dan in de praktijk?
+
+    Je docent bespreekt daarna je antwoorden.
+  title: Lab 2.2.2 - Bellen en draadloos
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1

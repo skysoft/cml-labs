@@ -1,0 +1,664 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 2.2.4 - KLACHTEN BIJ DE RECEPTIE
+       Er zitten 4 fouten in dit lab (op SW1).
+       E0/1 telefoon+PC1 (data 10, voice 150)  E0/2 AP1 standalone
+       E0/3 AP2 lightweight  E1/0 CAM1 (IoT)  E1/1 PRN1
+       WLC1 192.168.45.10 op CORE
+      Ontwerp en opdracht: open de Lab Notes (tabblad Notes).
+      Login hosts: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -560.0
+    y1: -450.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname CORE
+          no ip domain lookup
+          vtp mode transparent
+          ip routing
+          !
+          vlan 10
+           name PERSONEEL
+          vlan 20
+           name PRINTERS
+          vlan 30
+           name IOT
+          vlan 40
+           name AP-BEHEER
+          vlan 45
+           name WLC
+          vlan 50
+           name GASTEN
+          vlan 99
+           name BEHEER
+          vlan 150
+           name VOICE
+          !
+          interface Ethernet0/0
+           description Trunk naar SW1
+           switchport trunk encapsulation dot1q
+           switchport trunk native vlan 99
+           switchport trunk allowed vlan 10,20,30,40,50,99,150
+           switchport mode trunk
+           switchport nonegotiate
+          !
+          interface Ethernet0/1
+           description WLC1
+           switchport mode access
+           switchport access vlan 45
+           spanning-tree portfast
+          !
+          interface Ethernet0/2
+           shutdown
+          interface Ethernet0/3
+           shutdown
+          !
+          interface Vlan1
+           no ip address
+           shutdown
+          interface Vlan10
+           ip address 192.168.10.1 255.255.255.0
+           no shutdown
+          interface Vlan20
+           ip address 192.168.20.1 255.255.255.0
+           no shutdown
+          interface Vlan30
+           ip address 192.168.30.1 255.255.255.0
+           no shutdown
+          interface Vlan40
+           ip address 192.168.40.1 255.255.255.0
+           no shutdown
+          interface Vlan45
+           ip address 192.168.45.1 255.255.255.0
+           no shutdown
+          interface Vlan50
+           ip address 192.168.50.1 255.255.255.0
+           no shutdown
+          interface Vlan99
+           ip address 192.168.99.1 255.255.255.0
+           no shutdown
+          interface Vlan150
+           ip address 192.168.150.1 255.255.255.0
+           no shutdown
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: CORE
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -250
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname SW1
+          no ip domain lookup
+          vtp mode transparent
+          no ip routing
+          !
+          vlan 10
+           name PERSONEEL
+          vlan 20
+           name PRINTERS
+          vlan 30
+           name IOT
+          vlan 40
+           name AP-BEHEER
+          vlan 50
+           name GASTEN
+          vlan 99
+           name BEHEER
+          vlan 150
+           name VOICE
+          !
+          interface Ethernet0/0
+           description Uplink CORE
+           switchport trunk encapsulation dot1q
+           switchport trunk native vlan 99
+           switchport trunk allowed vlan 10,20,30,40,50,99,150
+           switchport mode trunk
+           switchport nonegotiate
+          !
+          interface Ethernet0/1
+           description IP-telefoon + PC1
+           switchport access vlan 150
+           switchport mode access
+           switchport voice vlan 10
+           spanning-tree portfast
+          !
+          interface Ethernet0/2
+           description AP1 standalone
+           switchport trunk encapsulation dot1q
+           switchport trunk allowed vlan 10,40,50
+           switchport mode trunk
+           switchport nonegotiate
+           spanning-tree portfast trunk
+          !
+          interface Ethernet0/3
+           description AP2 lightweight
+           switchport trunk encapsulation dot1q
+           switchport access vlan 40
+           switchport mode trunk
+           spanning-tree portfast
+          !
+          interface Ethernet1/0
+           description CAM1 camera slagboom
+           switchport access vlan 20
+           switchport mode access
+           spanning-tree portfast
+          !
+          interface Ethernet1/1
+           description PRN1 printer
+           switchport access vlan 20
+           switchport mode access
+           spanning-tree portfast
+          !
+          interface Ethernet1/2
+           shutdown
+          interface Ethernet1/3
+           shutdown
+          !
+          interface Vlan1
+           no ip address
+           shutdown
+          !
+          interface Vlan99
+           description Beheer
+           ip address 192.168.99.2 255.255.255.0
+           no shutdown
+          !
+          ip default-gateway 192.168.99.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: SW1
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -80
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i5
+        label: Ethernet1/0
+        mac_address: null
+        type: physical
+        slot: 4
+      - id: i6
+        label: Ethernet1/1
+        mac_address: null
+        type: physical
+        slot: 5
+      - id: i7
+        label: Ethernet1/2
+        mac_address: null
+        type: physical
+        slot: 6
+      - id: i8
+        label: Ethernet1/3
+        mac_address: null
+        type: physical
+        slot: 7
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname WLC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.45.10/24 dev eth0
+          ip route add default via 192.168.45.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: WLC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 250
+    y: -250
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # PC1 staat 'achter' de IP-telefoon (de telefoon zelf bestaat niet in CML)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.10.11/24 dev eth0
+          ip route add default via 192.168.10.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: PC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -375
+    y: 100
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname AP1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # Standalone AP: beheer ongetagd, SSID's als getagde VLAN's
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.40.11/24 dev eth0
+          ip route add default via 192.168.40.1
+          modprobe 8021q 2>/dev/null
+          # SSID Personeel (VLAN 10): eigen routeringstabel, zodat het beheeradres los blijft
+          ip link add link eth0 name eth0.10 type vlan id 10
+          ip link set dev eth0.10 up
+          ip address add 192.168.10.21/24 dev eth0.10
+          ip route del 192.168.10.0/24 dev eth0.10
+          ip route add 192.168.10.0/24 dev eth0.10 table 10
+          ip route add default via 192.168.10.1 dev eth0.10 table 10
+          ip rule add from 192.168.10.21 table 10
+          # SSID Gasten (VLAN 50)
+          ip link add link eth0 name eth0.50 type vlan id 50
+          ip link set dev eth0.50 up
+          ip address add 192.168.50.21/24 dev eth0.50
+          ip route del 192.168.50.0/24 dev eth0.50
+          ip route add 192.168.50.0/24 dev eth0.50 table 50
+          ip route add default via 192.168.50.1 dev eth0.50 table 50
+          ip rule add from 192.168.50.21 table 50
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: AP1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -225
+    y: 100
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname AP2
+          USERNAME=cisco
+          PASSWORD=cisco
+          # Lightweight AP: alleen een beheeradres, verkeer via CAPWAP naar de WLC
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.40.12/24 dev eth0
+          ip route add default via 192.168.40.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: AP2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -75
+    y: 100
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname CAM1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.30.10/24 dev eth0
+          ip route add default via 192.168.30.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n6
+    image_definition: null
+    label: CAM1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 75
+    y: 100
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PRN1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.20.10/24 dev eth0
+          ip route add default via 192.168.20.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n7
+    image_definition: null
+    label: PRN1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 225
+    y: 100
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i1
+    i2: i1
+    conditioning: {}
+    label: CORE-Ethernet0/0<->SW1-Ethernet0/0
+  - id: l1
+    n1: n0
+    n2: n2
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: CORE-Ethernet0/1<->WLC1-eth0
+  - id: l2
+    n1: n1
+    n2: n3
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: SW1-Ethernet0/1<->PC1-eth0
+  - id: l3
+    n1: n1
+    n2: n4
+    i1: i3
+    i2: i0
+    conditioning: {}
+    label: SW1-Ethernet0/2<->AP1-eth0
+  - id: l4
+    n1: n1
+    n2: n5
+    i1: i4
+    i2: i0
+    conditioning: {}
+    label: SW1-Ethernet0/3<->AP2-eth0
+  - id: l5
+    n1: n1
+    n2: n6
+    i1: i5
+    i2: i0
+    conditioning: {}
+    label: SW1-Ethernet1/0<->CAM1-eth0
+  - id: l6
+    n1: n1
+    n2: n7
+    i1: i6
+    i2: i0
+    conditioning: {}
+    label: SW1-Ethernet1/1<->PRN1-eth0
+lab:
+  description: CCNA 200-301 v2.0 - leerdoel 2.2. Troubleshootinglab eindapparaat-poorten
+    (telefoon, AP's, IoT). Er zitten 4 fouten in dit lab.
+  notes: |-
+    # Lab 2.2.4 - Klachten bij de receptie
+
+    **Leerdoel (CCNA 200-301 v2.0, 2.2):** Layer 2-poortinstellingen voor eindapparaten configureren en troubleshooten.
+
+    ## Scenario
+    Camping De Zeven Linden heeft een nieuwe switch (SW1) bij de receptie. Een stagiair heeft de poorten ingesteld. Sindsdien:
+    - "De balie-pc (aangesloten achter de IP-telefoon) heeft geen netwerk."
+    - "AP1 is niet meer te beheren, terwijl het wifi van AP1 gewoon werkt."
+    - "AP2 meldt zich niet aan bij de wireless controller."
+    - "De camera bij de slagboom is offline."
+    De printer werkt wel.
+
+    **Er zitten 4 fouten in dit lab.** CORE is correct; de fouten zitten op SW1.
+
+    ## Ontwerp
+    | VLAN | Naam | Subnet (gateway .1 op CORE) |
+    |---|---|---|
+    | 10 | PERSONEEL | 192.168.10.0/24 |
+    | 20 | PRINTERS | 192.168.20.0/24 |
+    | 30 | IOT | 192.168.30.0/24 |
+    | 40 | AP-BEHEER | 192.168.40.0/24 |
+    | 45 | WLC | 192.168.45.0/24 |
+    | 50 | GASTEN | 192.168.50.0/24 |
+    | 99 | BEHEER (native uplink) | 192.168.99.0/24 |
+    | 150 | VOICE | 192.168.150.0/24 |
+
+    | Poort SW1 | Apparaat | Ontwerp | Adres(sen) |
+    |---|---|---|---|
+    | E0/0 | uplink CORE | trunk, native 99 | - |
+    | E0/1 | IP-telefoon + PC1 | data-VLAN 10, voice VLAN 150, PortFast | PC1 192.168.10.11 |
+    | E0/2 | AP1 standalone | trunk, native 40, allowed 10,40,50, PortFast trunk | beheer 192.168.40.11; SSID's 192.168.10.21 (V10) en 192.168.50.21 (V50) |
+    | E0/3 | AP2 lightweight | access VLAN 40, PortFast | 192.168.40.12 |
+    | E1/0 | CAM1 (camera) | access VLAN 30, PortFast | 192.168.30.10 |
+    | E1/1 | PRN1 (printer) | access VLAN 20, PortFast | 192.168.20.10 |
+
+    WLC1 (192.168.45.10) hangt aan CORE.
+
+    **Beperkingen van CML:** er is geen IP-telefoon (PC1 staat voor de pc achter de telefoon) en geen PoE. AP1 en AP2 zijn Linux-hosts die het verkeer van een AP nabootsen (AP1: `eth0.10` en `eth0.50` voor de SSID's).
+
+    ## Inloggen
+    - Switches: console, geen wachtwoord.
+    - Hosts (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**.
+
+    ## Testcommando's
+    - PC1, CAM1, PRN1: `ping -c 2 <gateway>`
+    - AP1: `ping -c 2 192.168.40.1`, `ping -c 2 -I eth0.10 192.168.10.1`, `ping -c 2 -I eth0.50 192.168.50.1`
+    - AP2: `ping -c 2 192.168.45.10`
+    - SW1: `show interfaces status`, `show interfaces <poort> switchport`, `show interfaces trunk`, `show vlan brief`
+
+    ## Opdrachten
+    1. Test de meldingen en noteer de symptomen.
+    2. Zoek en herstel de 4 fouten. Houd een **foutenlog** bij:
+
+    | # | Poort | Symptoom | Oorzaak | Oplossing (commando's) | Hoe geverifieerd |
+    |---|---|---|---|---|---|
+    | 1 | | | | | |
+    | 2 | | | | | |
+    | 3 | | | | | |
+    | 4 | | | | | |
+
+    3. Controleer aan het eind elke poort van SW1 tegen het ontwerp.
+
+    Je docent bespreekt daarna je foutenlog.
+  title: Lab 2.2.4 - Klachten bij de receptie
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1
