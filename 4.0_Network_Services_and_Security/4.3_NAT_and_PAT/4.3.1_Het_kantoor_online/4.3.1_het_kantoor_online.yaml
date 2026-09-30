@@ -1,0 +1,429 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 4.3.1 - HET KANTOOR ONLINE (configuratielab)
+       Kantoor 192.168.31.0/24: PC1 .11, PC2 .12, EDGE .1
+       EDGE E0/1 = WAN via DHCP van ISP (100.64.31.0/29)
+       ISP E0/2 = echt internet - test 8.8.8.8
+      Opdracht: configureer PAT op EDGE zodat het kantoor
+      het internet op kan. Alles behalve NAT werkt al.
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+      Login PC's: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -420.0
+    y1: -320.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: default
+        content: NAT
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: INTERNET
+    node_definition: external_connector
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 350
+    y: -150
+    interfaces:
+      - id: i0
+        label: port
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname ISP
+          no ip domain lookup
+          !
+          ip dhcp excluded-address 100.64.31.1
+          !
+          ip dhcp pool KLANT-31
+           network 100.64.31.0 255.255.255.248
+           default-router 100.64.31.1
+           dns-server 8.8.8.8
+          !
+          interface Ethernet0/1
+           description Klant (100.64.31.0/29)
+           ip address 100.64.31.1 255.255.255.248
+           ip nat inside
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Uplink naar het echte internet (CML External Connector, NAT)
+           ip address dhcp
+           ip nat outside
+           no shutdown
+          !
+          ip access-list standard NAT-INTERNET
+           permit 100.64.31.0 0.0.0.7
+          !
+          ip nat inside source list NAT-INTERNET interface Ethernet0/2 overload
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: ISP
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 350
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname EDGE
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description Kantoor-LAN
+           ip address 192.168.31.1 255.255.255.0
+           no shutdown
+          !
+          interface Ethernet0/1
+           description WAN naar provider (DHCP)
+           ip address dhcp
+           no shutdown
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: EDGE
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 100
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: SW1
+    node_definition: unmanaged_switch
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -100
+    y: 0
+    interfaces:
+      - id: i0
+        label: port0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: port1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i2
+        label: port2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i3
+        label: port3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.31.11/24 dev eth0
+          ip route add default via 192.168.31.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: PC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -250
+    y: -75
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC2
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.31.12/24 dev eth0
+          ip route add default via 192.168.31.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: PC2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -250
+    y: 75
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i0
+    i2: i3
+    conditioning: {}
+    label: INTERNET-port<->ISP-Ethernet0/2
+  - id: l1
+    n1: n1
+    n2: n2
+    i1: i2
+    i2: i2
+    conditioning: {}
+    label: ISP-Ethernet0/1<->EDGE-Ethernet0/1
+  - id: l2
+    n1: n2
+    n2: n3
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: EDGE-Ethernet0/0<->SW1-port0
+  - id: l3
+    n1: n3
+    n2: n4
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: SW1-port1<->PC1-eth0
+  - id: l4
+    n1: n3
+    n2: n5
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: SW1-port2<->PC2-eth0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 4.3. Configuratielab: configureer PAT
+    zodat het kantoor het internet op kan.'
+  notes: |-
+    # Lab 4.3.1 - Het kantoor online
+
+    **Leerdoel (CCNA 200-301 v2.0, 4.3):** NAT/PAT configureren op IOS XE-routers.
+
+    ## Scenario
+    Een klein kantoor heeft een glasvezelaansluiting. De bedrijfsrouter EDGE krijgt zijn WAN-adres automatisch via DHCP van de provider (ISP). De ISP-router is verbonden met het **echte internet**; gebruik **8.8.8.8** als testadres.
+
+    Het kantoor gebruikt privé-adressen (RFC 1918). De provider routeert die niet. Jouw taak: zorg dat alle kantoor-PC's via **PAT** (NAT overload) het internet op kunnen, vertaald naar het WAN-adres van EDGE.
+
+    Alles behalve NAT is al correct geconfigureerd.
+
+    ## Topologie en adressen
+    | Apparaat | Interface | IP-adres | Opmerking |
+    |---|---|---|---|
+    | PC1 | eth0 | 192.168.31.11/24 | gateway 192.168.31.1 |
+    | PC2 | eth0 | 192.168.31.12/24 | gateway 192.168.31.1 |
+    | EDGE | E0/0 (LAN) | 192.168.31.1/24 | kantoorkant |
+    | EDGE | E0/1 (WAN) | via DHCP van de ISP (100.64.31.0/29) | providerkant |
+    | ISP | E0/1 | 100.64.31.1/29 | DHCP-server voor EDGE |
+    | ISP | E0/2 | via DHCP | uplink naar het echte internet |
+
+    De ISP-router is van de provider: je mag hem bekijken, maar niet aanpassen.
+
+    Na het starten kan het tot ongeveer een minuut duren voordat EDGE zijn WAN-adres heeft. Duurt het langer, gebruik dan `renew dhcp Ethernet0/1`.
+
+    ## Inloggen
+    - Routers: console, geen wachtwoord.
+    - PC's (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**.
+
+    ## Opdrachten
+
+    ### Deel 1 - Theorie
+    1. Leg uit wat de begrippen **inside local**, **inside global**, **outside local** en **outside global** betekenen.
+    2. Wat is het verschil tussen NAT en PAT? Waarom is PAT de standaard voor een kantoor met één publiek adres?
+    3. Welke drie onderdelen heeft een PAT-configuratie op een IOS-router minimaal nodig?
+
+    ### Deel 2 - Uitgangssituatie
+    1. Welk WAN-adres heeft EDGE gekregen? (`show ip interface brief`, `show dhcp lease`)
+    2. Ping vanaf EDGE naar 8.8.8.8. Werkt dat?
+    3. Ping vanaf PC1 naar 8.8.8.8. Werkt dat? Leg uit waarom het verschil tussen 2 en 3 er is.
+
+    ### Deel 3 - PAT configureren op EDGE
+    Configureer op EDGE, zonder de ISP-router aan te passen:
+    1. Geef elke interface van EDGE de juiste NAT-rol (inside of outside).
+    2. Maak een **standaard-ACL** met de naam `NAT-KANTOOR` die precies het kantoornetwerk selecteert.
+    3. Configureer PAT: het verkeer uit de ACL wordt vertaald naar het adres van de **WAN-interface** (overload).
+
+    Tip: omdat het WAN-adres via DHCP komt, moet je naar de interface verwijzen en niet naar een vast adres.
+
+    ### Deel 4 - Verificatie en analyse
+    1. Ping vanaf PC1 en PC2 (tegelijk, bijvoorbeeld `ping -c 20 8.8.8.8`) naar 8.8.8.8.
+    2. Bekijk op EDGE `show ip nat translations` en `show ip nat statistics`.
+    3. Vul voor de vertalingen van PC1 en PC2 deze tabel in:
+
+    | | Inside local | Inside global | Outside local | Outside global |
+    |---|---|---|---|---|
+    | PC1 | | | | |
+    | PC2 | | | | |
+
+    4. PC1 en PC2 gebruiken hetzelfde inside global-adres. Hoe houdt EDGE de verbindingen uit elkaar?
+    5. Wis de vertalingen (`clear ip nat translation *`) en kijk wat er gebeurt met een lopende ping.
+
+    ### Deel 5 - Reflectie
+    1. Verwijder je NAT-regel en voer hem opnieuw in, maar nu **zonder** het woord `overload`. Bekijk daarna `show running-config | include ip nat inside source`. Wat valt je op, en werken beide PC's nog?
+    2. Waarom is er in de vertalingstabel geen verschil tussen outside local en outside global?
+    3. Waarom kan iemand op internet een kantoor-PC niet uit zichzelf bereiken, zelfs als hij het WAN-adres kent?
+
+    Je docent bespreekt daarna je antwoorden.
+  title: Lab 4.3.1 - Het kantoor online
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1
