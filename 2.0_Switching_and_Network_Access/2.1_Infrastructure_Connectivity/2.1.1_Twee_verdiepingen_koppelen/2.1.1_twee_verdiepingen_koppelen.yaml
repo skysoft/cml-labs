@@ -1,0 +1,520 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 2.1.1 - TWEE VERDIEPINGEN KOPPELEN (configuratielab)
+       VLAN 10 ADMINISTRATIE 192.168.10.0/24
+       VLAN 20 VERKOOP       192.168.20.0/24
+       VLAN 99 BEHEER/native 192.168.99.0/24
+       Trunks: SW1 E0/1 - SW2 E0/1 en SW2 E0/0 - R1 (router-on-a-stick)
+       Access: E0/2 = VLAN 10, E0/3 = VLAN 20 (op beide switches)
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+      Login hosts: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -560.0
+    y1: -400.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R1
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description Trunk naar SW2
+           no ip address
+           no shutdown
+          !
+          interface Ethernet0/0.10
+           description ADMINISTRATIE
+           encapsulation dot1Q 10
+           ip address 192.168.10.1 255.255.255.0
+          !
+          interface Ethernet0/0.20
+           description VERKOOP
+           encapsulation dot1Q 20
+           ip address 192.168.20.1 255.255.255.0
+          !
+          interface Ethernet0/0.99
+           description BEHEER (native)
+           encapsulation dot1Q 99 native
+           ip address 192.168.99.1 255.255.255.0
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: R1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -250
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname SW2
+          no ip domain lookup
+          vtp mode transparent
+          ! Laag-2-switch: geen routering, beheer via default gateway
+          no ip routing
+          !
+          interface Vlan1
+           no ip address
+           shutdown
+          !
+          interface Vlan99
+           description Beheer
+           ip address 192.168.99.3 255.255.255.0
+           no shutdown
+          !
+          ip default-gateway 192.168.99.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: SW2
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 200
+    y: -50
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname SW1
+          no ip domain lookup
+          vtp mode transparent
+          ! Laag-2-switch: geen routering, beheer via default gateway
+          no ip routing
+          !
+          interface Vlan1
+           no ip address
+           shutdown
+          !
+          interface Vlan99
+           description Beheer
+           ip address 192.168.99.2 255.255.255.0
+           no shutdown
+          !
+          ip default-gateway 192.168.99.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: SW1
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -200
+    y: -50
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.10.11/24 dev eth0
+          ip route add default via 192.168.10.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: PC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -350
+    y: 150
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC2
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.20.11/24 dev eth0
+          ip route add default via 192.168.20.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: PC2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -150
+    y: 150
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC3
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.10.12/24 dev eth0
+          ip route add default via 192.168.10.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: PC3
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 150
+    y: 150
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC4
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.20.12/24 dev eth0
+          ip route add default via 192.168.20.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n6
+    image_definition: null
+    label: PC4
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 350
+    y: 150
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i1
+    i2: i1
+    conditioning: {}
+    label: R1-Ethernet0/0<->SW2-Ethernet0/0
+  - id: l1
+    n1: n2
+    n2: n1
+    i1: i2
+    i2: i2
+    conditioning: {}
+    label: SW1-Ethernet0/1<->SW2-Ethernet0/1
+  - id: l2
+    n1: n2
+    n2: n3
+    i1: i3
+    i2: i0
+    conditioning: {}
+    label: SW1-Ethernet0/2<->PC1-eth0
+  - id: l3
+    n1: n2
+    n2: n4
+    i1: i4
+    i2: i0
+    conditioning: {}
+    label: SW1-Ethernet0/3<->PC2-eth0
+  - id: l4
+    n1: n1
+    n2: n5
+    i1: i3
+    i2: i0
+    conditioning: {}
+    label: SW2-Ethernet0/2<->PC3-eth0
+  - id: l5
+    n1: n1
+    n2: n6
+    i1: i4
+    i2: i0
+    conditioning: {}
+    label: SW2-Ethernet0/3<->PC4-eth0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 2.1. Configuratielab: VLAN''s, access-poorten
+    en 802.1Q-trunks (switch-to-switch en switch-to-router).'
+  notes: |-
+    # Lab 2.1.1 - Twee verdiepingen koppelen
+
+    **Leerdoel (CCNA 200-301 v2.0, 2.1):** netwerkinfrastructuur verbinden (switch-to-switch en switch-to-router): fysieke L2-interfaces en 802.1Q-trunks.
+
+    ## Scenario
+    Administratiekantoor Het Grootboek heeft twee verdiepingen. Op elke verdieping staat een switch (SW1 beneden, SW2 boven). SW2 is verbonden met router R1, die al is geconfigureerd als router-on-a-stick. Op beide verdiepingen zitten medewerkers van **Administratie (VLAN 10)** en **Verkoop (VLAN 20)**. **VLAN 99** is het beheer-VLAN en ook het native VLAN.
+
+    De switches zijn net uit de doos. Alleen dit is ingesteld: hostname, `vtp mode transparent`, `no ip routing` (het zijn laag-2-switches), het beheeradres op `interface Vlan99` en `ip default-gateway`. Jij configureert de VLAN's, de access-poorten en de trunks.
+
+    ## Poortenplan
+    | Switch | Poort | Verbonden met | Functie |
+    |---|---|---|---|
+    | SW1 | E0/1 | SW2 E0/1 | trunk |
+    | SW1 | E0/2 | PC1 | access VLAN 10 |
+    | SW1 | E0/3 | PC2 | access VLAN 20 |
+    | SW2 | E0/0 | R1 E0/0 | trunk naar router |
+    | SW2 | E0/1 | SW1 E0/1 | trunk |
+    | SW2 | E0/2 | PC3 | access VLAN 10 |
+    | SW2 | E0/3 | PC4 | access VLAN 20 |
+
+    ## VLAN's en adressen
+    | VLAN | Naam | Subnet | Gateway (R1) |
+    |---|---|---|---|
+    | 10 | ADMINISTRATIE | 192.168.10.0/24 | 192.168.10.1 |
+    | 20 | VERKOOP | 192.168.20.0/24 | 192.168.20.1 |
+    | 99 | BEHEER (native) | 192.168.99.0/24 | 192.168.99.1 |
+
+    | Apparaat | Adres |
+    |---|---|
+    | PC1 / PC3 | 192.168.10.11 / 192.168.10.12 |
+    | PC2 / PC4 | 192.168.20.11 / 192.168.20.12 |
+    | SW1 / SW2 (Vlan99) | 192.168.99.2 / 192.168.99.3 |
+
+    R1 is al correct geconfigureerd; je hoeft hem niet aan te passen.
+
+    ## Inloggen
+    - Routers en switches: console, geen wachtwoord.
+    - Hosts (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**.
+
+    ## Opdrachten
+
+    ### Deel 1 - Theorie
+    1. Wat doet DTP? Welke combinaties van `dynamic auto`, `dynamic desirable`, `trunk` en `access` leveren een trunk op?
+    2. Wat is het native VLAN, en waarom kies je daarvoor liever niet VLAN 1?
+    3. Waarom zou je `switchport nonegotiate` en een beperkte lijst `allowed vlan` instellen?
+
+    ### Deel 2 - Uitgangssituatie
+    1. Bekijk op SW1 `show interfaces Ethernet0/1 switchport`. Wat is de *administrative mode* en de *operational mode*?
+    2. Bekijk `show interfaces trunk` en `show ip interface brief`. Wat is de status van `Vlan99`, en waarom?
+    3. Ping vanaf PC1 naar PC3 en naar zijn gateway. Verklaar het resultaat.
+
+    ### Deel 3 - Configureren
+    1. Maak op beide switches de VLAN's 10, 20 en 99 aan, met de namen uit de tabel.
+    2. Configureer de access-poorten volgens het poortenplan.
+    3. Configureer de trunk tussen SW1 en SW2 met deze instellingen:
+       - 802.1Q (de IOL-switches vragen eerst om de encapsulatie);
+       - altijd trunk, zonder DTP-onderhandeling;
+       - native VLAN 99;
+       - alleen de VLAN's 10, 20 en 99.
+    4. Configureer op SW2 de trunk naar R1 met dezelfde instellingen.
+
+    ### Deel 4 - Verificatie
+    1. Bekijk `show interfaces trunk` op beide switches. Welke VLAN's staan in de laatste twee blokken, en wat betekenen die blokken?
+    2. Bekijk opnieuw de status van `Vlan99`. Wat is er veranderd, en waarom?
+    3. Ping vanaf PC1 naar:
+       - PC3 (zelfde VLAN, andere verdieping);
+       - PC4 (ander VLAN);
+       - 192.168.99.3 (SW2).
+    4. Ping vanaf SW1 naar 192.168.99.1 en 192.168.99.3.
+
+    ### Deel 5 - Reflectie
+    1. Hoe loopt een ping van PC2 naar PC3? Noem alle links, en of het frame daar getagd is.
+    2. Wat gebeurt er met het verkeer van VLAN 20 als je VLAN 20 uit de allowed list van de trunk SW1-SW2 haalt? Probeer het en zet het daarna terug.
+    3. Wat gebeurt er als je op SW1 het native VLAN weer op 1 zet? Kijk naar de meldingen op de console, naar `show interfaces trunk` en naar de ping van SW1 naar SW2. Zet het daarna terug.
+
+    Je docent bespreekt daarna je antwoorden.
+  title: Lab 2.1.1 - Twee verdiepingen koppelen
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1

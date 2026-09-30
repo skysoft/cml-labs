@@ -1,0 +1,751 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 2.1.6 - EINDLAB BOUWMARKT DE SPIJKER
+       Er zitten 6 fouten in dit lab.
+       DSW1 = multilayer switch, gateway voor VLAN 10/20/30/99
+       DSW1 E0/0 routed 10.0.0.2/30 - EDGE 10.0.0.1 (internet)
+       Po1 DSW1 - ASW1: LACP active, trunk
+       Trunks: geen DTP, native 99, allowed 10,20,30,99
+      Ontwerp en opdracht: open de Lab Notes (tabblad Notes).
+      Login hosts: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -560.0
+    y1: -500.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: default
+        content: NAT
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: INTERNET
+    node_definition: external_connector
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 350
+    y: -350
+    interfaces:
+      - id: i0
+        label: port
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname EDGE
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description Routed link naar DSW1
+           ip address 10.0.0.1 255.255.255.252
+           ip nat inside
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Internet (CML External Connector, NAT)
+           ip address dhcp
+           ip nat outside
+           no shutdown
+          !
+          ip access-list standard NAT-INTERN
+           permit 192.168.0.0 0.0.255.255
+           permit 10.0.0.0 0.0.0.3
+          !
+          ip nat inside source list NAT-INTERN interface Ethernet0/1 overload
+          !
+          ip route 192.168.0.0 255.255.0.0 10.0.0.2
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: EDGE
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 150
+    y: -350
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname DSW1
+          no ip domain lookup
+          vtp mode transparent
+          no ip routing
+          !
+          vlan 10
+           name KASSA
+          vlan 20
+           name KANTOOR
+          vlan 99
+           name BEHEER
+          !
+          interface Port-channel1
+           description Bundel naar ASW1
+           switchport trunk encapsulation dot1q
+           switchport trunk native vlan 99
+           switchport trunk allowed vlan 10,20,30,99
+           switchport mode trunk
+           switchport nonegotiate
+          !
+          interface Ethernet0/0
+           description Routed link naar EDGE
+           ip address 10.0.0.2 255.255.255.252
+          !
+          interface Ethernet0/1
+           description ASW1 (1)
+           switchport trunk encapsulation dot1q
+           switchport trunk native vlan 99
+           switchport trunk allowed vlan 10,20,30,99
+           switchport mode trunk
+           switchport nonegotiate
+           channel-group 1 mode active
+          !
+          interface Ethernet0/2
+           description ASW1 (2)
+           switchport trunk encapsulation dot1q
+           switchport trunk native vlan 99
+           switchport trunk allowed vlan 10,20,30,99
+           switchport mode trunk
+           switchport nonegotiate
+           channel-group 1 mode active
+          !
+          interface Ethernet0/3
+           description Trunk naar ASW2
+           switchport trunk encapsulation dot1q
+           switchport trunk native vlan 99
+           switchport trunk allowed vlan 10,20,30,99
+           switchport mode trunk
+           switchport nonegotiate
+          !
+          interface Vlan1
+           no ip address
+           shutdown
+          !
+          interface Vlan10
+           ip address 192.168.10.1 255.255.255.0
+           no shutdown
+          !
+          interface Vlan20
+           ip address 192.168.20.1 255.255.255.0
+           shutdown
+          !
+          interface Vlan30
+           ip address 192.168.30.1 255.255.255.0
+           no shutdown
+          !
+          interface Vlan99
+           ip address 192.168.99.1 255.255.255.0
+           no shutdown
+          !
+          ip route 0.0.0.0 0.0.0.0 10.0.0.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: DSW1
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -180
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname ASW1
+          no ip domain lookup
+          vtp mode transparent
+          no ip routing
+          !
+          vlan 10
+           name KASSA
+          vlan 20
+           name KANTOOR
+          vlan 30
+           name MAGAZIJN
+          vlan 99
+           name BEHEER
+          !
+          interface Port-channel1
+           description Bundel naar DSW1
+           switchport trunk encapsulation dot1q
+           switchport trunk native vlan 99
+           switchport trunk allowed vlan 10,20,30,99
+           switchport mode trunk
+           switchport nonegotiate
+          !
+          interface Ethernet0/0
+           description DSW1 (1)
+           switchport trunk encapsulation dot1q
+           switchport trunk native vlan 99
+           switchport trunk allowed vlan 10,20,30,99
+           switchport mode trunk
+           switchport nonegotiate
+           channel-group 1 mode on
+          !
+          interface Ethernet0/1
+           description DSW1 (2)
+           switchport trunk encapsulation dot1q
+           switchport trunk native vlan 99
+           switchport trunk allowed vlan 10,20,30,99
+           switchport mode trunk
+           switchport nonegotiate
+           channel-group 1 mode on
+          !
+          interface Ethernet0/2
+           description PC1
+           switchport mode access
+           switchport access vlan 10
+           spanning-tree portfast
+          !
+          interface Ethernet0/3
+           description PC2
+           switchport mode access
+           switchport access vlan 20
+           spanning-tree portfast
+          !
+          interface Vlan1
+           no ip address
+           shutdown
+          !
+          interface Vlan99
+           ip address 192.168.99.2 255.255.255.0
+           no shutdown
+          !
+          ip default-gateway 192.168.99.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: ASW1
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -250
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname ASW2
+          no ip domain lookup
+          vtp mode transparent
+          no ip routing
+          !
+          vlan 10
+           name KASSA
+          vlan 20
+           name KANTOOR
+          vlan 30
+           name MAGAZIJN
+          vlan 99
+           name BEHEER
+          !
+          interface Ethernet0/0
+           description Trunk naar DSW1
+           switchport trunk encapsulation dot1q
+           switchport trunk allowed vlan 10,20,30,99
+           switchport mode trunk
+           switchport nonegotiate
+          !
+          interface Ethernet0/1
+           description PC3
+           switchport mode access
+           switchport access vlan 30
+           spanning-tree portfast
+          !
+          interface Ethernet0/2
+           description PC4
+           switchport mode access
+           switchport access vlan 10
+           spanning-tree portfast
+          !
+          interface Ethernet0/3
+           shutdown
+          !
+          interface Vlan1
+           no ip address
+           shutdown
+          !
+          interface Vlan99
+           ip address 192.168.99.3 255.255.255.0
+           no shutdown
+          !
+          ip default-gateway 192.168.99.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: ASW2
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 250
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.10.11/24 dev eth0
+          ip route add default via 192.168.10.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: PC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -350
+    y: 180
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC2
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.20.11/24 dev eth0
+          ip route add default via 192.168.20.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n6
+    image_definition: null
+    label: PC2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -150
+    y: 180
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC3
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.30.11/24 dev eth0
+          ip route add default via 192.168.30.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n7
+    image_definition: null
+    label: PC3
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 150
+    y: 180
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC4
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.10.12/24 dev eth0
+          ip route add default via 192.168.10.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n8
+    image_definition: null
+    label: PC4
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 350
+    y: 180
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i0
+    i2: i2
+    conditioning: {}
+    label: INTERNET-port<->EDGE-Ethernet0/1
+  - id: l1
+    n1: n1
+    n2: n2
+    i1: i1
+    i2: i1
+    conditioning: {}
+    label: EDGE-Ethernet0/0<->DSW1-Ethernet0/0
+  - id: l2
+    n1: n3
+    n2: n2
+    i1: i1
+    i2: i2
+    conditioning: {}
+    label: ASW1-Ethernet0/0<->DSW1-Ethernet0/1
+  - id: l3
+    n1: n3
+    n2: n2
+    i1: i2
+    i2: i3
+    conditioning: {}
+    label: ASW1-Ethernet0/1<->DSW1-Ethernet0/2
+  - id: l4
+    n1: n4
+    n2: n2
+    i1: i1
+    i2: i4
+    conditioning: {}
+    label: ASW2-Ethernet0/0<->DSW1-Ethernet0/3
+  - id: l5
+    n1: n3
+    n2: n5
+    i1: i3
+    i2: i0
+    conditioning: {}
+    label: ASW1-Ethernet0/2<->PC1-eth0
+  - id: l6
+    n1: n3
+    n2: n6
+    i1: i4
+    i2: i0
+    conditioning: {}
+    label: ASW1-Ethernet0/3<->PC2-eth0
+  - id: l7
+    n1: n4
+    n2: n7
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: ASW2-Ethernet0/1<->PC3-eth0
+  - id: l8
+    n1: n4
+    n2: n8
+    i1: i3
+    i2: i0
+    conditioning: {}
+    label: ASW2-Ethernet0/2<->PC4-eth0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 2.1. Integraal eindlab: trunks, EtherChannel,
+    SVI''s en routed ports. Er zitten 6 fouten in dit lab.'
+  notes: |-
+    # Lab 2.1.6 - Eindlab Bouwmarkt De Spijker
+
+    **Leerdoel (CCNA 200-301 v2.0, 2.1):** netwerkinfrastructuur verbinden (switch-to-switch en switch-to-router): L2/L3-interfaces, 802.1Q-trunks, LACP-EtherChannel en SVI's.
+
+    ## Scenario
+    Bouwmarkt De Spijker heeft een nieuw netwerk laten aanleggen door een installateur die halverwege is gestopt. Het netwerk is "af", maar vrijwel niets werkt zoals het hoort. Jij krijgt het ontwerp en moet het netwerk werkend opleveren.
+
+    **Er zitten 6 fouten in dit lab.** EDGE is correct geconfigureerd.
+
+    ## Ontwerp
+    | Link | Ontwerp |
+    |---|---|
+    | DSW1 E0/0 - EDGE E0/0 | **routed port**, 10.0.0.0/30 (EDGE .1, DSW1 .2); DSW1 default route via EDGE |
+    | DSW1 E0/1-2 - ASW1 E0/0-1 | **Po1**, LACP (beide active), L2-trunk |
+    | DSW1 E0/3 - ASW2 E0/0 | L2-trunk |
+
+    - Alle trunks: 802.1Q, geen DTP, native VLAN **99**, allowed **10,20,30,99**.
+    - DSW1 is de multilayer switch en de gateway (SVI) voor alle VLAN's. ASW1 en ASW2 zijn laag-2-switches.
+    - EDGE doet NAT naar het **echte internet** (test: 8.8.8.8) en heeft een route naar 192.168.0.0/16 via DSW1.
+
+    | VLAN | Naam | Subnet | Gateway (DSW1) |
+    |---|---|---|---|
+    | 10 | KASSA | 192.168.10.0/24 | .1 |
+    | 20 | KANTOOR | 192.168.20.0/24 | .1 |
+    | 30 | MAGAZIJN | 192.168.30.0/24 | .1 |
+    | 99 | BEHEER (native) | 192.168.99.0/24 | .1 |
+
+    | Apparaat | Poort | VLAN | Adres |
+    |---|---|---|---|
+    | PC1 | ASW1 E0/2 | 10 | 192.168.10.11 |
+    | PC2 | ASW1 E0/3 | 20 | 192.168.20.11 |
+    | PC3 | ASW2 E0/1 | 30 | 192.168.30.11 |
+    | PC4 | ASW2 E0/2 | 10 | 192.168.10.12 |
+    | ASW1 / ASW2 | Vlan99 | 99 | 192.168.99.2 / .3 |
+
+    ## Inloggen
+    - Routers en switches: console, geen wachtwoord.
+    - Hosts (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**.
+
+    ## Opdrachten
+    1. Test systematisch: welke host bereikt wat (gateway, andere VLAN's, 10.0.0.1, 8.8.8.8, beheeradressen)? Noteer de symptomen.
+    2. Zoek en herstel de 6 fouten. Houd een **foutenlog** bij:
+
+    | # | Apparaat | Symptoom | Oorzaak | Oplossing (commando's) | Hoe geverifieerd |
+    |---|---|---|---|---|---|
+    | 1 | | | | | |
+    | 2 | | | | | |
+    | 3 | | | | | |
+    | 4 | | | | | |
+    | 5 | | | | | |
+    | 6 | | | | | |
+
+    3. Oplevering: toon aan dat alle pc's elkaar en 8.8.8.8 bereiken, dat beide access-switches via VLAN 99 bereikbaar zijn, en dat `show etherchannel summary` en `show interfaces trunk` overeenkomen met het ontwerp.
+
+    ### Reflectie
+    1. Welke fout was het lastigst te vinden, en waarom?
+    2. Welke fouten verborgen andere fouten?
+    3. Maak een korte checklist (5 tot 8 punten) die je voortaan gebruikt bij het opleveren van switch-to-switch- en switch-to-router-verbindingen.
+
+    Je docent bespreekt daarna je foutenlog.
+  title: Lab 2.1.6 - Eindlab Bouwmarkt De Spijker
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1

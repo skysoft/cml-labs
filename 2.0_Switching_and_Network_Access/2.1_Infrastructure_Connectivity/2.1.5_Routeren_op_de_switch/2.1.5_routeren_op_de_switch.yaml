@@ -1,0 +1,583 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 2.1.5 - ROUTEREN OP DE SWITCH (configuratielab)
+       MLS1 wordt gateway: SVI 10 / 20 / 30 = 192.168.x.1
+       VLAN 10 BALIE, 20 BEHANDELKAMERS, 30 PRINTERS (nieuw)
+       Routed port MLS1 E0/0 10.0.0.2/30 - EDGE 10.0.0.1
+       EDGE: NAT naar echt internet (test 8.8.8.8)
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+      Login hosts: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -560.0
+    y1: -450.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: default
+        content: NAT
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: INTERNET
+    node_definition: external_connector
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 350
+    y: -300
+    interfaces:
+      - id: i0
+        label: port
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname EDGE
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description Routed link naar MLS1
+           ip address 10.0.0.1 255.255.255.252
+           ip nat inside
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Internet (CML External Connector, NAT)
+           ip address dhcp
+           ip nat outside
+           no shutdown
+          !
+          ip access-list standard NAT-INTERN
+           permit 192.168.0.0 0.0.255.255
+           permit 10.0.0.0 0.0.0.3
+          !
+          ip nat inside source list NAT-INTERN interface Ethernet0/1 overload
+          !
+          ip route 192.168.0.0 255.255.0.0 10.0.0.2
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: EDGE
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 150
+    y: -300
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname MLS1
+          no ip domain lookup
+          vtp mode transparent
+          no ip routing
+          !
+          vlan 10
+           name BALIE
+          vlan 20
+           name BEHANDELKAMERS
+          vlan 30
+           name PRINTERS
+          !
+          interface Ethernet0/0
+           description Uplink EDGE
+          !
+          interface Ethernet0/1
+           description PC1
+           switchport mode access
+           switchport access vlan 10
+           spanning-tree portfast
+          !
+          interface Ethernet0/2
+           description PC2
+           switchport mode access
+           switchport access vlan 20
+           spanning-tree portfast
+          !
+          interface Ethernet0/3
+           description Trunk ASW1
+           switchport trunk encapsulation dot1q
+           switchport trunk allowed vlan 10,20
+           switchport mode trunk
+           switchport nonegotiate
+          !
+          interface Vlan1
+           no ip address
+           shutdown
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: MLS1
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -120
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname ASW1
+          no ip domain lookup
+          vtp mode transparent
+          no ip routing
+          !
+          vlan 10
+           name BALIE
+          vlan 20
+           name BEHANDELKAMERS
+          !
+          interface Ethernet0/0
+           description Trunk MLS1
+           switchport trunk encapsulation dot1q
+           switchport trunk allowed vlan 10,20
+           switchport mode trunk
+           switchport nonegotiate
+          !
+          interface Ethernet0/1
+           description PC3
+           switchport mode access
+           switchport access vlan 20
+           spanning-tree portfast
+          !
+          interface Ethernet0/2
+           description PRN1 (nieuwe printer)
+           switchport mode access
+           spanning-tree portfast
+          !
+          interface Ethernet0/3
+           shutdown
+          !
+          interface Vlan1
+           no ip address
+           shutdown
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: ASW1
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 250
+    y: 50
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.10.11/24 dev eth0
+          ip route add default via 192.168.10.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: PC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -200
+    y: 50
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC2
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.20.11/24 dev eth0
+          ip route add default via 192.168.20.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: PC2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: 80
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC3
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.20.12/24 dev eth0
+          ip route add default via 192.168.20.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n6
+    image_definition: null
+    label: PC3
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 150
+    y: 220
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PRN1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.30.10/24 dev eth0
+          ip route add default via 192.168.30.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n7
+    image_definition: null
+    label: PRN1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 350
+    y: 220
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i0
+    i2: i2
+    conditioning: {}
+    label: INTERNET-port<->EDGE-Ethernet0/1
+  - id: l1
+    n1: n1
+    n2: n2
+    i1: i1
+    i2: i1
+    conditioning: {}
+    label: EDGE-Ethernet0/0<->MLS1-Ethernet0/0
+  - id: l2
+    n1: n2
+    n2: n4
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: MLS1-Ethernet0/1<->PC1-eth0
+  - id: l3
+    n1: n2
+    n2: n5
+    i1: i3
+    i2: i0
+    conditioning: {}
+    label: MLS1-Ethernet0/2<->PC2-eth0
+  - id: l4
+    n1: n2
+    n2: n3
+    i1: i4
+    i2: i1
+    conditioning: {}
+    label: MLS1-Ethernet0/3<->ASW1-Ethernet0/0
+  - id: l5
+    n1: n3
+    n2: n6
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: ASW1-Ethernet0/1<->PC3-eth0
+  - id: l6
+    n1: n3
+    n2: n7
+    i1: i3
+    i2: i0
+    conditioning: {}
+    label: ASW1-Ethernet0/2<->PRN1-eth0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 2.1. Configuratielab: ip routing, SVI''s
+    (en wanneer een SVI up is) en een routed port naar de router.'
+  notes: |-
+    # Lab 2.1.5 - Routeren op de switch
+
+    **Leerdoel (CCNA 200-301 v2.0, 2.1):** netwerkinfrastructuur verbinden: Layer 3 physical interfaces en switch virtual interfaces (SVI).
+
+    ## Scenario
+    Bij tandartspraktijk De Witte Kies staat een multilayer switch (MLS1) die tot nu toe alleen als laag-2-switch werd gebruikt. Hij moet de **gateway** worden voor alle VLAN's en via een **routed port** verbonden worden met de internetrouter EDGE. Daarnaast komt er een nieuw VLAN voor de printers.
+
+    EDGE is al klaar: hij heeft internet (echt internet via de CML External Connector), NAT voor 192.168.0.0/16 en een route naar 192.168.0.0/16 via 10.0.0.2.
+
+    ## Ontwerp
+    | VLAN | Naam | Subnet | Gateway (SVI op MLS1) |
+    |---|---|---|---|
+    | 10 | BALIE | 192.168.10.0/24 | 192.168.10.1 |
+    | 20 | BEHANDELKAMERS | 192.168.20.0/24 | 192.168.20.1 |
+    | 30 | PRINTERS (nieuw) | 192.168.30.0/24 | 192.168.30.1 |
+
+    | Link | Ontwerp |
+    |---|---|
+    | MLS1 E0/0 - EDGE E0/0 | routed port, 10.0.0.0/30 (EDGE .1, MLS1 .2); default route van MLS1 via EDGE |
+    | MLS1 E0/3 - ASW1 E0/0 | trunk (bestaat al), moet ook VLAN 30 dragen |
+
+    | Apparaat | Poort | VLAN | Adres |
+    |---|---|---|---|
+    | PC1 | MLS1 E0/1 | 10 | 192.168.10.11/24 |
+    | PC2 | MLS1 E0/2 | 20 | 192.168.20.11/24 |
+    | PC3 | ASW1 E0/1 | 20 | 192.168.20.12/24 |
+    | PRN1 | ASW1 E0/2 | 30 | 192.168.30.10/24 |
+
+    ## Inloggen
+    - Routers en switches: console, geen wachtwoord.
+    - Hosts (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**.
+
+    ## Opdrachten
+
+    ### Deel 1 - Theorie
+    1. Wat is het verschil tussen een SVI, een routed port (`no switchport`) en een subinterface op een router?
+    2. Aan welke voorwaarden moet voldaan zijn voordat een SVI **up/up** is?
+    3. Wat doet `ip routing` op een multilayer switch?
+
+    ### Deel 2 - Uitgangssituatie
+    1. Bekijk op MLS1 `show ip route` en `show running-config | include routing`. Wat valt je op?
+    2. Ping vanaf PC1 naar zijn gateway en naar PC2.
+
+    ### Deel 3 - SVI's configureren
+    1. Zet routering aan op MLS1.
+    2. Maak de SVI's voor VLAN 10, 20 en 30 aan met de adressen uit het ontwerp.
+    3. Bekijk `show ip interface brief`. Welke SVI is niet up/up? Verklaar dat met de voorwaarden uit deel 1 (tip: `show vlan brief` en `show interfaces trunk`).
+    4. Ping vanaf PC1 naar PC2 en PC3.
+
+    ### Deel 4 - Routed port naar EDGE
+    1. Maak van MLS1 E0/0 een routed port met het adres uit het ontwerp.
+    2. Configureer een default route op MLS1 naar EDGE.
+    3. Vergelijk `show interfaces Ethernet0/0 switchport` voor en na. Staat E0/0 nog in `show spanning-tree`?
+    4. Ping vanaf PC1 naar 10.0.0.1 en naar 8.8.8.8.
+
+    ### Deel 5 - Het printer-VLAN
+    1. Zorg dat PRN1 in VLAN 30 terechtkomt: VLAN 30 moet op ASW1 bestaan, de poort van PRN1 moet in VLAN 30 staan, en de trunk moet VLAN 30 aan beide kanten doorlaten.
+    2. Wanneer precies wordt SVI 30 op MLS1 up/up? Kijk na elke stap.
+    3. Ping vanaf PRN1 naar 192.168.30.1, PC1 en 8.8.8.8.
+
+    ### Deel 6 - Reflectie
+    1. Waarom gebruik je voor de link naar EDGE liever een routed port dan een access-poort met een SVI in een apart VLAN?
+    2. Wat gebeurt er met SVI 10 als je E0/1 (PC1) op MLS1 uitzet? Probeer het en zet het terug.
+    3. Waarom heeft EDGE een route naar 192.168.0.0/16 nodig, en wat zou er gebeuren zonder die route?
+
+    Je docent bespreekt daarna je antwoorden.
+  title: Lab 2.1.5 - Routeren op de switch
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1

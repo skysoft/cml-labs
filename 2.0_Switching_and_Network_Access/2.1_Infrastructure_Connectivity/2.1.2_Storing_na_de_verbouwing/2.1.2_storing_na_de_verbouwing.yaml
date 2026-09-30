@@ -1,0 +1,668 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 2.1.2 - STORING NA DE VERBOUWING
+       Er zitten 4 fouten in dit lab.
+       VLAN 10 KANTOOR / 20 VERKOOP / 30 MAGAZIJN / 99 BEHEER (native)
+       Ontwerp trunks: altijd trunk, geen DTP, native 99,
+                       allowed 10,20,30,99
+       Beheer: SW-KERN .2 / SW-A .3 / SW-B .4 (192.168.99.0/24)
+      Ontwerp en opdracht: open de Lab Notes (tabblad Notes).
+      Login hosts: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -560.0
+    y1: -450.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R1
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description Trunk naar SW-KERN
+           no ip address
+           no shutdown
+          !
+          interface Ethernet0/0.10
+           description KANTOOR
+           encapsulation dot1Q 10
+           ip address 192.168.10.1 255.255.255.0
+          !
+          interface Ethernet0/0.20
+           description VERKOOP
+           encapsulation dot1Q 20
+           ip address 192.168.20.1 255.255.255.0
+          !
+          interface Ethernet0/0.30
+           description MAGAZIJN
+           encapsulation dot1Q 30
+           ip address 192.168.30.1 255.255.255.0
+          !
+          interface Ethernet0/0.99
+           description BEHEER (native)
+           encapsulation dot1Q 99 native
+           ip address 192.168.99.1 255.255.255.0
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: R1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -300
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname SW-KERN
+          no ip domain lookup
+          vtp mode transparent
+          no ip routing
+          !
+          vlan 10
+           name KANTOOR
+          vlan 20
+           name VERKOOP
+          vlan 99
+           name BEHEER
+          !
+          interface Ethernet0/0
+           description Trunk naar R1
+           switchport trunk encapsulation dot1q
+           switchport trunk native vlan 99
+           switchport trunk allowed vlan 10,30,99
+           switchport mode trunk
+           switchport nonegotiate
+          !
+          interface Ethernet0/1
+           description Trunk naar SW-A
+           switchport trunk encapsulation dot1q
+           switchport trunk native vlan 99
+           switchport trunk allowed vlan 10,20,30,99
+           switchport mode dynamic auto
+          !
+          interface Ethernet0/2
+           description Trunk naar SW-B
+           switchport trunk encapsulation dot1q
+           switchport trunk native vlan 99
+           switchport trunk allowed vlan 10,20,30,99
+           switchport mode trunk
+           switchport nonegotiate
+          !
+          interface Ethernet0/3
+           shutdown
+          !
+          interface Vlan1
+           no ip address
+           shutdown
+          !
+          interface Vlan99
+           description Beheer
+           ip address 192.168.99.2 255.255.255.0
+           no shutdown
+          !
+          ip default-gateway 192.168.99.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: SW-KERN
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -120
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname SW-A
+          no ip domain lookup
+          vtp mode transparent
+          no ip routing
+          !
+          vlan 10
+           name KANTOOR
+          vlan 20
+           name VERKOOP
+          vlan 30
+           name MAGAZIJN
+          vlan 99
+           name BEHEER
+          !
+          interface Ethernet0/0
+           description Trunk naar SW-KERN
+           switchport trunk encapsulation dot1q
+           switchport trunk native vlan 99
+           switchport trunk allowed vlan 10,20,30,99
+           switchport mode dynamic auto
+          !
+          interface Ethernet0/1
+           description PC-A1
+           switchport mode access
+           switchport access vlan 10
+          !
+          interface Ethernet0/2
+           description PC-A2
+           switchport mode access
+           switchport access vlan 20
+          !
+          interface Ethernet0/3
+           shutdown
+          !
+          interface Vlan1
+           no ip address
+           shutdown
+          !
+          interface Vlan99
+           description Beheer
+           ip address 192.168.99.3 255.255.255.0
+           no shutdown
+          !
+          ip default-gateway 192.168.99.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: SW-A
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -250
+    y: 50
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname SW-B
+          no ip domain lookup
+          vtp mode transparent
+          no ip routing
+          !
+          vlan 10
+           name KANTOOR
+          vlan 20
+           name VERKOOP
+          vlan 30
+           name MAGAZIJN
+          vlan 99
+           name BEHEER
+          !
+          interface Ethernet0/0
+           description Trunk naar SW-KERN
+           switchport trunk encapsulation dot1q
+           switchport trunk allowed vlan 10,20,30,99
+           switchport mode trunk
+           switchport nonegotiate
+          !
+          interface Ethernet0/1
+           description PC-B1
+           switchport mode access
+           switchport access vlan 10
+          !
+          interface Ethernet0/2
+           description PC-B2
+           switchport mode access
+           switchport access vlan 30
+          !
+          interface Ethernet0/3
+           shutdown
+          !
+          interface Vlan1
+           no ip address
+           shutdown
+          !
+          interface Vlan99
+           description Beheer
+           ip address 192.168.99.4 255.255.255.0
+           no shutdown
+          !
+          ip default-gateway 192.168.99.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: SW-B
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 250
+    y: 50
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC-A1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.10.11/24 dev eth0
+          ip route add default via 192.168.10.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: PC-A1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -350
+    y: 220
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC-A2
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.20.11/24 dev eth0
+          ip route add default via 192.168.20.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: PC-A2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -150
+    y: 220
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC-B1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.10.12/24 dev eth0
+          ip route add default via 192.168.10.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n6
+    image_definition: null
+    label: PC-B1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 150
+    y: 220
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC-B2
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.30.11/24 dev eth0
+          ip route add default via 192.168.30.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n7
+    image_definition: null
+    label: PC-B2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 350
+    y: 220
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i1
+    i2: i1
+    conditioning: {}
+    label: R1-Ethernet0/0<->SW-KERN-Ethernet0/0
+  - id: l1
+    n1: n1
+    n2: n2
+    i1: i2
+    i2: i1
+    conditioning: {}
+    label: SW-KERN-Ethernet0/1<->SW-A-Ethernet0/0
+  - id: l2
+    n1: n1
+    n2: n3
+    i1: i3
+    i2: i1
+    conditioning: {}
+    label: SW-KERN-Ethernet0/2<->SW-B-Ethernet0/0
+  - id: l3
+    n1: n2
+    n2: n4
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: SW-A-Ethernet0/1<->PC-A1-eth0
+  - id: l4
+    n1: n2
+    n2: n5
+    i1: i3
+    i2: i0
+    conditioning: {}
+    label: SW-A-Ethernet0/2<->PC-A2-eth0
+  - id: l5
+    n1: n3
+    n2: n6
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: SW-B-Ethernet0/1<->PC-B1-eth0
+  - id: l6
+    n1: n3
+    n2: n7
+    i1: i3
+    i2: i0
+    conditioning: {}
+    label: SW-B-Ethernet0/2<->PC-B2-eth0
+lab:
+  description: CCNA 200-301 v2.0 - leerdoel 2.1. Troubleshootinglab 802.1Q-trunks.
+    Er zitten 4 fouten in dit lab.
+  notes: |-
+    # Lab 2.1.2 - Storing na de verbouwing
+
+    **Leerdoel (CCNA 200-301 v2.0, 2.1):** netwerkinfrastructuur verbinden (switch-to-switch en switch-to-router): 802.1Q-trunks.
+
+    ## Scenario
+    Groothandel Het Pakhuis is verbouwd. Tijdens de verbouwing zijn de switches losgekoppeld en door een uitzendkracht opnieuw aangesloten en deels opnieuw geconfigureerd. Sindsdien komen er meldingen binnen:
+    - "Op de eerste verdieping (SW-A) kan niemand meer bij de printers en het internet (de gateway)."
+    - "Verkoop komt nergens meer uit."
+    - "In het magazijn werkt de pc niet meer."
+    - "Ik kan SW-B niet meer beheren via 192.168.99.4."
+
+    **Er zitten 4 fouten in dit lab.** R1 is correct geconfigureerd als router-on-a-stick; de fouten zitten in de switches.
+
+    ## Ontwerp
+    - Alle verbindingen tussen switches en naar R1 zijn **802.1Q-trunks**: altijd trunk (geen DTP), native VLAN **99**, allowed VLAN's **10,20,30,99**.
+    - Alle switches kennen alle VLAN's.
+
+    | VLAN | Naam | Subnet | Gateway (R1) |
+    |---|---|---|---|
+    | 10 | KANTOOR | 192.168.10.0/24 | .1 |
+    | 20 | VERKOOP | 192.168.20.0/24 | .1 |
+    | 30 | MAGAZIJN | 192.168.30.0/24 | .1 |
+    | 99 | BEHEER (native) | 192.168.99.0/24 | .1 |
+
+    | Apparaat | Poort | VLAN | Adres |
+    |---|---|---|---|
+    | PC-A1 | SW-A E0/1 | 10 | 192.168.10.11 |
+    | PC-A2 | SW-A E0/2 | 20 | 192.168.20.11 |
+    | PC-B1 | SW-B E0/1 | 10 | 192.168.10.12 |
+    | PC-B2 | SW-B E0/2 | 30 | 192.168.30.11 |
+    | SW-KERN / SW-A / SW-B | Vlan99 | 99 | 192.168.99.2 / .3 / .4 |
+
+    Verbindingen: R1 E0/0 - SW-KERN E0/0, SW-KERN E0/1 - SW-A E0/0, SW-KERN E0/2 - SW-B E0/0.
+
+    ## Inloggen
+    - Routers en switches: console, geen wachtwoord.
+    - Hosts (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**.
+
+    ## Handige commando's
+    `show interfaces trunk`, `show interfaces <poort> switchport`, `show vlan brief`, `show cdp neighbors detail`, `show logging`, `show spanning-tree vlan <nr>`
+
+    ## Opdrachten
+    1. Test de meldingen en noteer de symptomen.
+    2. Zoek en herstel de 4 fouten. Houd een **foutenlog** bij:
+
+    | # | Apparaat | Symptoom | Oorzaak | Oplossing (commando's) | Hoe geverifieerd |
+    |---|---|---|---|---|---|
+    | 1 | | | | | |
+    | 2 | | | | | |
+    | 3 | | | | | |
+    | 4 | | | | | |
+
+    3. Toon aan het eind aan dat elke pc zijn gateway en de pc's in de andere VLAN's bereikt, en dat alle switches via VLAN 99 bereikbaar zijn.
+
+    Je docent bespreekt daarna je foutenlog.
+  title: Lab 2.1.2 - Storing na de verbouwing
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1
