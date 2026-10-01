@@ -1,0 +1,623 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 2.4.3 - ONBEREIKBARE VESTIGINGEN
+       Er zitten 4 fouten in dit lab.
+       Gereedschap: ping, extended ping (source/size/df-bit), traceroute
+       HQ 192.168.1.0/24 - R1 - R2 - R3 (A: 192.168.3.0/24)
+                                 R2 - R4 (B: 192.168.4.0/24, 192.168.5.0/24)
+      Ontwerp en opdracht: open de Lab Notes (tabblad Notes).
+      Login hosts: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -560.0
+    y1: -450.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: default
+        content: NAT
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: INTERNET
+    node_definition: external_connector
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -300
+    y: -300
+    interfaces:
+      - id: i0
+        label: port
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R1
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description LAN hoofdkantoor
+           ip address 192.168.1.1 255.255.255.0
+           ip nat inside
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Internet
+           ip address dhcp
+           ip nat outside
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Naar R2
+           ip address 10.0.12.1 255.255.255.252
+           ip nat inside
+           no shutdown
+          !
+          ip access-list standard NAT-INTERN
+           permit 192.168.0.0 0.0.255.255
+           permit 10.0.0.0 0.255.255.255
+          !
+          ip nat inside source list NAT-INTERN interface Ethernet0/1 overload
+          !
+          ip route 10.0.23.0 255.255.255.252 10.0.12.2
+          ip route 10.0.24.0 255.255.255.252 10.0.12.2
+          ip route 192.168.3.0 255.255.255.0 10.0.12.2
+          ip route 192.168.4.0 255.255.255.0 10.0.12.2
+          ip route 192.168.5.0 255.255.255.0 10.0.12.6
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: R1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -200
+    y: -150
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R2
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description Naar R1
+           ip address 10.0.12.2 255.255.255.252
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Naar R3 (vestiging A)
+           ip address 10.0.23.1 255.255.255.252
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Naar R4 (vestiging B)
+           ip address 10.0.24.1 255.255.255.252
+           ip mtu 1300
+           no shutdown
+          !
+          ip route 0.0.0.0 0.0.0.0 10.0.12.1
+          ip route 192.168.3.0 255.255.255.0 10.0.23.2
+          ip route 192.168.4.0 255.255.255.0 10.0.12.1
+          ip route 192.168.5.0 255.255.255.0 10.0.24.2
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: R2
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 50
+    y: -150
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R3
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description Naar R2
+           ip address 10.0.23.2 255.255.255.252
+           no shutdown
+          !
+          interface Ethernet0/1
+           description LAN vestiging A
+           ip address 192.168.3.1 255.255.255.0
+           no shutdown
+          !
+          ip route 10.0.0.0 255.0.0.0 10.0.23.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: R3
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 300
+    y: -250
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R4
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description Naar R2
+           ip address 10.0.24.2 255.255.255.252
+           no shutdown
+          !
+          interface Ethernet0/1
+           description LAN vestiging B
+           ip address 192.168.4.1 255.255.255.0
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Printer-LAN vestiging B
+           ip address 192.168.5.1 255.255.255.0
+           no shutdown
+          !
+          ip route 0.0.0.0 0.0.0.0 10.0.24.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: R4
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 300
+    y: -50
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.1.11/24 dev eth0
+          ip route add default via 192.168.1.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: PC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -200
+    y: 0
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname SRV-A
+          USERNAME=cisco
+          PASSWORD=cisco
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.3.10/24 dev eth0
+          ip route add default via 192.168.3.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n6
+    image_definition: null
+    label: SRV-A
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 500
+    y: -250
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname SRV-B
+          USERNAME=cisco
+          PASSWORD=cisco
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.4.10/24 dev eth0
+          ip route add default via 192.168.4.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n7
+    image_definition: null
+    label: SRV-B
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 500
+    y: -100
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PRN-B
+          USERNAME=cisco
+          PASSWORD=cisco
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.5.10/24 dev eth0
+          ip route add default via 192.168.5.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n8
+    image_definition: null
+    label: PRN-B
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 500
+    y: 50
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i0
+    i2: i2
+    conditioning: {}
+    label: INTERNET-port<->R1-Ethernet0/1
+  - id: l1
+    n1: n1
+    n2: n5
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: R1-Ethernet0/0<->PC1-eth0
+  - id: l2
+    n1: n1
+    n2: n2
+    i1: i3
+    i2: i1
+    conditioning: {}
+    label: R1-Ethernet0/2<->R2-Ethernet0/0
+  - id: l3
+    n1: n2
+    n2: n3
+    i1: i2
+    i2: i1
+    conditioning: {}
+    label: R2-Ethernet0/1<->R3-Ethernet0/0
+  - id: l4
+    n1: n2
+    n2: n4
+    i1: i3
+    i2: i1
+    conditioning: {}
+    label: R2-Ethernet0/2<->R4-Ethernet0/0
+  - id: l5
+    n1: n3
+    n2: n6
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: R3-Ethernet0/1<->SRV-A-eth0
+  - id: l6
+    n1: n4
+    n2: n7
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: R4-Ethernet0/1<->SRV-B-eth0
+  - id: l7
+    n1: n4
+    n2: n8
+    i1: i3
+    i2: i0
+    conditioning: {}
+    label: R4-Ethernet0/2<->PRN-B-eth0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 2.4. Troubleshootinglab laag 3: vind
+    de oorzaken met ping, extended ping en traceroute. Er zitten 4 fouten in dit lab.'
+  notes: |-
+    # Lab 2.4.3 - Onbereikbare vestigingen
+
+    **Leerdoel (CCNA 200-301 v2.0, 2.4):** basisproblemen op laag 2 en 3 troubleshooten met show-commando's, ping, extended ping, traceroute en packet capture.
+
+    ## Scenario
+    Groothandel De Vrachtwagen heeft een hoofdkantoor (R1) en twee vestigingen: A (R3) en B (R4), verbonden via R2. Meldingen:
+    - "PC1 kan SRV-A (192.168.3.10) niet bereiken. Vreemd: vanaf R1 zelf lukt een ping naar SRV-A wel."
+    - "SRV-B (192.168.4.10) is onbereikbaar."
+    - "De printer van vestiging B (192.168.5.10) is onbereikbaar."
+    - "De back-upsoftware stuurt pakketten van 1400 bytes met het DF-bit naar vestiging B en krijgt foutmeldingen."
+
+    **Er zitten 4 fouten in dit lab.** Gebruik vooral **ping, extended ping (met `source`, `size`, `df-bit`) en traceroute** om de plek van elk probleem te vinden, voordat je in de configuratie duikt.
+
+    ## Ontwerp
+    ```
+    PC1 192.168.1.11 - E0/0 R1 E0/2 --10.0.12.0/30-- E0/0 R2 E0/1 --10.0.23.0/30-- E0/0 R3 E0/1 - SRV-A 192.168.3.10
+                       R1 E0/1 = internet                  R2 E0/2 --10.0.24.0/30-- E0/0 R4 E0/1 - SRV-B 192.168.4.10
+                                                                                       R4 E0/2 - PRN-B 192.168.5.10
+    ```
+    | Router | Interfaces |
+    |---|---|
+    | R1 | E0/0 192.168.1.1/24, E0/2 10.0.12.1/30, E0/1 DHCP (internet, NAT) |
+    | R2 | E0/0 10.0.12.2, E0/1 10.0.23.1, E0/2 10.0.24.1 (alle /30) |
+    | R3 | E0/0 10.0.23.2/30, E0/1 192.168.3.1/24 |
+    | R4 | E0/0 10.0.24.2/30, E0/1 192.168.4.1/24, E0/2 192.168.5.1/24 |
+
+    - **Routering (statisch):** R1 heeft een route naar elk vestigings-LAN via R2 en een default route naar internet. R2 heeft routes naar de LAN's van R3 en R4 en een default route naar R1. R3 en R4 hebben een default route naar R2.
+    - **MTU:** alle links 1500 bytes.
+    - Hosts gebruiken als gateway het .1-adres van hun LAN. R1 geeft **echt internet** (test: 8.8.8.8).
+
+    ## Inloggen
+    - Routers: console, geen wachtwoord.
+    - Hosts (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**.
+
+    ## Handig
+    - IOS: `ping <adres> source <interface>`, `ping <adres> size <bytes> df-bit`, `traceroute <adres>`, of interactief: `ping` (extended commands: y). Stoppen: Ctrl-Shift-6.
+    - Alpine: `ping -c 3 <adres>`, `traceroute -n <adres>`
+
+    ## Opdrachten
+    1. Test elke melding met ping en traceroute, vanaf PC1 én vanaf de routers (met verschillende bronadressen). Noteer bij elke melding **tot welke hop** het verkeer komt.
+    2. Zoek en herstel de 4 fouten. Houd een **foutenlog** bij:
+
+    | # | Apparaat | Symptoom | Gevonden met (ping/traceroute + uitvoer) | Oorzaak | Oplossing | Hoe geverifieerd |
+    |---|---|---|---|---|---|---|
+    | 1 | | | | | | |
+    | 2 | | | | | | |
+    | 3 | | | | | | |
+    | 4 | | | | | | |
+
+    ### Reflectie
+    1. Waarom lukte de ping van R1 naar SRV-A wel, en die van PC1 niet?
+    2. Hoe herken je een routinglus in de uitvoer van traceroute?
+    3. Waar ging het verkeer naar de printer van vestiging B naartoe vóór het herstel? Hoe zag je dat?
+
+    Je docent bespreekt daarna je foutenlog.
+  title: Lab 2.4.3 - Onbereikbare vestigingen
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1

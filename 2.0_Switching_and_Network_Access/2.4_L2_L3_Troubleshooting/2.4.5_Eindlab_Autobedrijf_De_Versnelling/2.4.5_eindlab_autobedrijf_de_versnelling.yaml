@@ -1,0 +1,685 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 2.4.5 - EINDLAB AUTOBEDRIJF DE VERSNELLING
+       Er zitten 6 fouten in dit lab.
+       Gereedschap: logs, show, (extended) ping, traceroute,
+       packet capture - noteer per fout wat je gebruikte.
+       VLAN 10 KANTOOR, 20 WERKPLAATS, 99 BEHEER
+       DMS 192.168.30.200 achter R2 (web poort 80)
+      Ontwerp en opdracht: open de Lab Notes (tabblad Notes).
+      Login hosts: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -760.0
+    y1: -500.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: default
+        content: NAT
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: INTERNET
+    node_definition: external_connector
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -350
+    y: -350
+    interfaces:
+      - id: i0
+        label: port
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R1
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description Trunk naar SW1
+           no ip address
+           no shutdown
+          !
+          interface Ethernet0/0.10
+           description KANTOOR
+           encapsulation dot1Q 10
+           ip address 192.168.10.1 255.255.255.0
+           ip nat inside
+          !
+          interface Ethernet0/0.20
+           description WERKPLAATS
+           encapsulation dot1Q 20
+           ip address 192.168.20.1 255.255.255.0
+           ip nat inside
+          !
+          interface Ethernet0/0.99
+           description BEHEER
+           encapsulation dot1Q 99 native
+           ip address 192.168.99.1 255.255.255.0
+           ip nat inside
+          !
+          interface Ethernet0/1
+           description Naar R2 (serverruimte)
+           ip address 10.0.12.1 255.255.255.252
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Internet
+           ip address dhcp
+           ip nat outside
+           no shutdown
+          !
+          ip access-list standard NAT-INTERN
+           permit 192.168.0.0 0.0.255.255
+          !
+          ip nat inside source list NAT-INTERN interface Ethernet0/2 overload
+          !
+          ip route 192.168.30.0 255.255.255.0 10.0.12.2
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: R1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -150
+    y: -250
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R2
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description Naar R1
+           ip address 10.0.12.2 255.255.255.252
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Serverruimte (DMS)
+           ip address 192.168.30.1 255.255.255.128
+           ip mtu 1400
+           no shutdown
+          !
+          ip route 192.168.10.0 255.255.255.0 10.0.12.1
+          ip route 192.168.99.0 255.255.255.0 10.0.12.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: R2
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 150
+    y: -250
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname SW1
+          no ip domain lookup
+          vtp mode transparent
+          no ip routing
+          !
+          vlan 10
+           name KANTOOR
+          vlan 20
+           name WERKPLAATS
+          vlan 99
+           name BEHEER
+          !
+          interface Ethernet0/0
+           description Trunk naar R1
+           switchport trunk encapsulation dot1q
+           switchport trunk native vlan 99
+           switchport trunk allowed vlan 10,20,99
+           switchport mode trunk
+           switchport nonegotiate
+          !
+          interface Ethernet0/1
+           description PC1
+           switchport mode access
+           switchport access vlan 10
+           spanning-tree portfast
+          !
+          interface Ethernet0/2
+           description Trunk naar SW2
+           switchport trunk encapsulation dot1q
+           switchport trunk native vlan 99
+           switchport trunk allowed vlan 10,20,99
+           switchport mode trunk
+           switchport nonegotiate
+          !
+          interface Vlan1
+           no ip address
+           shutdown
+          !
+          interface Vlan99
+           ip address 192.168.99.2 255.255.255.0
+           no shutdown
+          !
+          ip default-gateway 192.168.99.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: SW1
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -150
+    y: -100
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname SW2
+          no ip domain lookup
+          vtp mode transparent
+          no ip routing
+          !
+          vlan 10
+           name KANTOOR
+          vlan 20
+           name WERKPLAATS
+          vlan 99
+           name BEHEER
+          !
+          interface Ethernet0/0
+           description Trunk naar SW1
+           switchport trunk encapsulation dot1q
+           switchport trunk allowed vlan 10,20,99
+           switchport mode trunk
+           switchport nonegotiate
+          !
+          interface Ethernet0/1
+           description PC2
+           switchport mode access
+           switchport access vlan 10
+           spanning-tree portfast
+          !
+          interface Ethernet0/2
+           description PC3
+           switchport mode access
+           switchport access vlan 20
+           spanning-tree portfast
+          !
+          interface Vlan1
+           no ip address
+           shutdown
+          !
+          interface Vlan99
+           ip address 192.168.99.3 255.255.255.0
+           no shutdown
+          !
+          ip default-gateway 192.168.99.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: SW2
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -350
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.10.11/24 dev eth0
+          ip route add default via 192.168.10.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: PC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -50
+    y: 50
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC2
+          USERNAME=cisco
+          PASSWORD=cisco
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.20.11/24 dev eth0
+          ip route add default via 192.168.20.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n6
+    image_definition: null
+    label: PC2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -450
+    y: 150
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC3
+          USERNAME=cisco
+          PASSWORD=cisco
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.20.12/24 dev eth0
+          ip route add default via 192.168.20.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n7
+    image_definition: null
+    label: PC3
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -250
+    y: 150
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname SRV-DMS
+          USERNAME=cisco
+          PASSWORD=cisco
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.30.200/24 dev eth0
+          ip route add default via 192.168.30.1
+          # DMS-webinterface
+          (while true; do printf 'HTTP/1.0 200 OK\r\nContent-Type: text/html\r\n\r\n<h1>DMS De Versnelling</h1>\n' | nc -l -p 8080 >/dev/null 2>&1; done) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n8
+    image_definition: null
+    label: SRV-DMS
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 350
+    y: -250
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i0
+    i2: i3
+    conditioning: {}
+    label: INTERNET-port<->R1-Ethernet0/2
+  - id: l1
+    n1: n1
+    n2: n3
+    i1: i1
+    i2: i1
+    conditioning: {}
+    label: R1-Ethernet0/0<->SW1-Ethernet0/0
+  - id: l2
+    n1: n1
+    n2: n2
+    i1: i2
+    i2: i1
+    conditioning: {}
+    label: R1-Ethernet0/1<->R2-Ethernet0/0
+  - id: l3
+    n1: n2
+    n2: n8
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: R2-Ethernet0/1<->SRV-DMS-eth0
+  - id: l4
+    n1: n3
+    n2: n5
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: SW1-Ethernet0/1<->PC1-eth0
+  - id: l5
+    n1: n3
+    n2: n4
+    i1: i3
+    i2: i1
+    conditioning: {}
+    label: SW1-Ethernet0/2<->SW2-Ethernet0/0
+  - id: l6
+    n1: n4
+    n2: n6
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: SW2-Ethernet0/1<->PC2-eth0
+  - id: l7
+    n1: n4
+    n2: n7
+    i1: i3
+    i2: i0
+    conditioning: {}
+    label: SW2-Ethernet0/2<->PC3-eth0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 2.4. Integraal eindlab: show-commando''s,
+    logs, (extended) ping, traceroute en packet capture. Er zitten 6 fouten in dit
+    lab.'
+  notes: |-
+    # Lab 2.4.5 - Eindlab Autobedrijf De Versnelling
+
+    **Leerdoel (CCNA 200-301 v2.0, 2.4):** basisproblemen op laag 2 en 3 troubleshooten met show-commando's (inclusief logs), ping, extended ping, traceroute en packet capture.
+
+    ## Scenario
+    Autobedrijf De Versnelling heeft een kantoor en een werkplaats (VLAN 10 en 20 op R1) en een serverruimte achter R2 met het dealer-managementsysteem **DMS**. Na een onderhoudsweekend:
+    - "De beheerder kan SW2 niet bereiken (192.168.99.3)."
+    - "PC2 in de werkplaats heeft geen netwerk."
+    - "Niemand bereikt het DMS (192.168.30.200)."
+    - "Het exporteren van grote DMS-rapporten mislukt (de software stuurt pakketten van 1450 bytes met het DF-bit)."
+    - "De DMS-webinterface (http://192.168.30.200) opent niet."
+
+    **Er zitten 6 fouten in dit lab.** Voor elke fout is een ander gereedschap het handigst. Vermeld in je foutenlog steeds **welk gereedschap** de fout aantoonde.
+
+    ## Ontwerp
+    ```
+    INTERNET - R1 E0/2
+    R1 E0/0 (trunk: .10 192.168.10.1, .20 192.168.20.1, .99 native 192.168.99.1) - SW1 E0/0
+       SW1 E0/1 PC1 (VLAN 10), SW1 E0/2 - SW2 E0/0 (trunk, native 99)
+       SW2 E0/1 PC2 (VLAN 20), SW2 E0/2 PC3 (VLAN 20)
+    R1 E0/1 10.0.12.1/30 --- R2 E0/0 10.0.12.2/30
+                              R2 E0/1 192.168.30.1/24 - SRV-DMS 192.168.30.200 (web op poort 80)
+    ```
+    | Apparaat | Adres | VLAN |
+    |---|---|---|
+    | PC1 | 192.168.10.11/24 | 10 |
+    | PC2 | 192.168.20.11/24 | 20 |
+    | PC3 | 192.168.20.12/24 | 20 |
+    | SW1 / SW2 | 192.168.99.2 / .3 | 99 |
+    | SRV-DMS | 192.168.30.200/24, gateway .1 | - |
+
+    - **R1:** route naar 192.168.30.0/24 via R2, default route naar internet (NAT).
+    - **R2:** routes naar de LAN's 192.168.10.0/24, 192.168.20.0/24 en 192.168.99.0/24 via R1. **Geen** default route (het DMS mag niet het internet op).
+    - Alle links: MTU 1500. Alle trunks: native VLAN 99.
+
+    ## Inloggen
+    - Routers en switches: console, geen wachtwoord.
+    - Hosts (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**.
+
+    ## Opdrachten
+    1. Reproduceer elke klacht en kies bewust je gereedschap: `show logging`, show-commando's, ping/extended ping (`source`, `size`, `df-bit`), traceroute, of een packet capture in CML.
+    2. Zoek en herstel de 6 fouten. Houd een **foutenlog** bij:
+
+    | # | Apparaat | Symptoom | Gereedschap + wat je zag | Oorzaak | Oplossing | Hoe geverifieerd |
+    |---|---|---|---|---|---|---|
+    | 1 | | | | | | |
+    | 2 | | | | | | |
+    | 3 | | | | | | |
+    | 4 | | | | | | |
+    | 5 | | | | | | |
+    | 6 | | | | | | |
+
+    3. Oplevering: alle pc's bereiken elkaar, 8.8.8.8 en het DMS (ook met 1450 bytes + DF vanaf R1), de webinterface van het DMS werkt, en beide switches zijn beheerbaar.
+
+    ### Reflectie
+    1. Welke fout verborg een andere fout?
+    2. Welk gereedschap zou je voortaan als eerste gebruiken bij (a) "één pc doet het niet", (b) "een hele vestiging is onbereikbaar", (c) "een applicatie werkt niet maar ping wel"?
+
+    Je docent bespreekt daarna je foutenlog.
+  title: Lab 2.4.5 - Eindlab Autobedrijf De Versnelling
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1
