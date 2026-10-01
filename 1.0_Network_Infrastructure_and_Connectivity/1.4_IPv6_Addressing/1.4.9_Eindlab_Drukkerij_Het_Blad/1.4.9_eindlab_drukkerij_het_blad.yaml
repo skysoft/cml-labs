@@ -5,7 +5,7 @@ annotations:
     rotation: 0
     text_bold: false
     text_content: |-
-      LAB 1.4.10 - EINDLAB DRUKKERIJ HET BLAD
+      LAB 1.4.9 - EINDLAB DRUKKERIJ HET BLAD
        Bedrijfsprefix: 2001:db8:c0de::/48
        HQ  VLAN10 STAFF   :10::/64  SLAAC       GW ::1 / FE80::1
            VLAN20 SERVERS :20::/64  HQ-SRV ::10 GW ::1 / FE80::1
@@ -628,7 +628,7 @@ lab:
   description: 'CCNA 200-301 v2.0 - leerdoel 1.4: integraal eindlab. Een IPv6-bedrijfsnetwerk
     met twee locaties. Laat het netwerk overeenkomen met het ontwerpdocument.'
   notes: |-
-    # Lab 1.4.10 - Eindlab Drukkerij Het Blad
+    # Lab 1.4.9 - Eindlab Drukkerij Het Blad
 
     **Leerdoel (CCNA 200-301 v2.0, 1.4):** IPv6-adresconfiguratie, -toewijzing en prefixgrootte troubleshooten. Dit is het integrale eindlab van leerdoel 1.4.
 
@@ -714,7 +714,7 @@ lab:
     2. Welke fouten verborgen een andere fout? Geef een voorbeeld.
     3. Welke drie maatregelen zou je nemen om dit soort fouten in de toekomst te voorkomen?
     4. Welke verschillen tussen IPv4- en IPv6-troubleshooting ben je in dit lab tegengekomen?
-  title: Lab 1.4.10 - Eindlab Drukkerij Het Blad
+  title: Lab 1.4.9 - Eindlab Drukkerij Het Blad
   node_staging:
     enabled: false
     start_remaining: true

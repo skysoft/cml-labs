@@ -14,5 +14,4 @@ Domein: [Network Infrastructure and Connectivity](../) (25% van het examen)
 | 1.4.6 | Klachten over internettoegang | [1.4.6_klachten_over_internettoegang.yaml](1.4.6_Klachten_over_internettoegang/1.4.6_klachten_over_internettoegang.yaml) |
 | 1.4.7 | Adresplan nieuwe vestiging | [1.4.7_adresplan_nieuwe_vestiging.yaml](1.4.7_Adresplan_nieuwe_vestiging/1.4.7_adresplan_nieuwe_vestiging.yaml) |
 | 1.4.8 | Nieuwe clients zonder configuratie | [1.4.8_nieuwe_clients_zonder_configuratie.yaml](1.4.8_Nieuwe_clients_zonder_configuratie/1.4.8_nieuwe_clients_zonder_configuratie.yaml) |
-| 1.4.9 | Storing na IPv6-uitrol | [1.4.9_storing_na_ipv6-uitrol.yaml](1.4.9_Storing_na_IPv6-uitrol/1.4.9_storing_na_ipv6-uitrol.yaml) |
-| 1.4.10 | Eindlab Drukkerij Het Blad | [1.4.10_eindlab_drukkerij_het_blad.yaml](1.4.10_Eindlab_Drukkerij_Het_Blad/1.4.10_eindlab_drukkerij_het_blad.yaml) |
+| 1.4.9 | Eindlab Drukkerij Het Blad | [1.4.9_eindlab_drukkerij_het_blad.yaml](1.4.9_Eindlab_Drukkerij_Het_Blad/1.4.9_eindlab_drukkerij_het_blad.yaml) |
