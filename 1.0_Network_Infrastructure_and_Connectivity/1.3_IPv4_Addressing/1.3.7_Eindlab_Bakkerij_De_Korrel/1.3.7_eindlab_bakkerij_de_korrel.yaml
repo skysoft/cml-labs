@@ -5,7 +5,7 @@ annotations:
     rotation: 0
     text_bold: false
     text_content: |-
-      LAB 1.3.10 - EINDLAB BAKKERIJ DE KORREL
+      LAB 1.3.7 - EINDLAB BAKKERIJ DE KORREL
        HQ  VLAN10 STAFF   10.20.10.0/24 GW .1  (DHCP)
            VLAN20 SERVERS 10.20.20.0/26 GW .1  HQ-SRV .10
        BR  LAN 10.20.30.0/25 GW .1 (DHCP-relay), BR-PRN .100
@@ -691,7 +691,7 @@ lab:
   description: 'CCNA 200-301 v2.0 - leerdoel 1.3: integraal eindlab. Een bedrijfsnetwerk
     met twee locaties. Laat het netwerk overeenkomen met het ontwerpdocument.'
   notes: |-
-    # Lab 1.3.10 - Eindlab Bakkerij De Korrel
+    # Lab 1.3.7 - Eindlab Bakkerij De Korrel
 
     **Leerdoel (CCNA 200-301 v2.0, 1.3):** IPv4-adresconfiguratie, -toewijzing en subnetting troubleshooten. Dit is het integrale eindlab van leerdoel 1.3.
 
@@ -779,7 +779,7 @@ lab:
     2. Welke fouten verborgen een andere fout? Geef een voorbeeld.
     3. Welke drie maatregelen zou je nemen om dit soort fouten in de toekomst te voorkomen?
     4. Hoe kan een AI-assistent helpen bij dit soort troubleshooting, en waar moet je zelf kritisch blijven? (koppeling met leerdoel 5.1/5.2)
-  title: Lab 1.3.10 - Eindlab Bakkerij De Korrel
+  title: Lab 1.3.7 - Eindlab Bakkerij De Korrel
   node_staging:
     enabled: false
     start_remaining: true
