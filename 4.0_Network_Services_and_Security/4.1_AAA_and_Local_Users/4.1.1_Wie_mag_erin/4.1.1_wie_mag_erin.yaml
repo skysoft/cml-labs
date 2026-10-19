@@ -1,0 +1,212 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 4.1.1 - WIE MAG ERIN? (configuratielab)
+       R1 E0/0 10.51.10.1   BEHEER-PC 10.51.10.50
+       Nu: telnet met gedeeld wachtwoord 'cisco'
+       Doel: enable secret, persoonlijke accounts, SSH, login block-for
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+      Login BEHEER-PC: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -650.0
+    y1: -350.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R1
+          no ip domain lookup
+          enable password cisco
+          !
+          interface Ethernet0/0
+           description Beheerlan
+           ip address 10.51.10.1 255.255.255.0
+           no shutdown
+          !
+          line vty 0 4
+           password cisco
+           login
+           transport input telnet
+          !
+          line con 0
+           privilege level 15
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: R1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname BEHEER-PC
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.51.10.50/24 dev eth0
+          ip route add default via 10.51.10.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: BEHEER-PC
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -300
+    y: 0
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n1
+    n2: n0
+    i1: i0
+    i2: i1
+    conditioning: {}
+    label: BEHEER-PC-eth0<->R1-Ethernet0/0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 4.1. Configuratielab: enable secret,
+    lokale gebruikers met privilegeniveaus, SSH, exec-timeout en login block-for.'
+  notes: |-
+    # Lab 4.1.1 - Wie mag erin?
+
+    **Leerdoel (CCNA 200-301 v2.0, 4.1):** netwerkapparaten configureren met lokale gebruikersnamen en als AAA-client (TACACS+ en RADIUS) voor beheer. Dit lab behandelt het eerste deel: **lokale gebruikers** en veilig beheer.
+
+    ## Scenario
+    Router R1 wordt beheerd vanaf de beheer-pc. De vorige beheerder heeft het zich makkelijk gemaakt: iedereen logt via **telnet** in met hetzelfde wachtwoord (`cisco`), en het enable-wachtwoord staat leesbaar in de configuratie. Jij maakt van R1 een router die je veilig en persoonlijk beheert.
+
+    Dit is een **configuratielab**.
+
+    ## Topologie
+    | Apparaat | Interface | IPv4 |
+    |---|---|---|
+    | R1 | E0/0 | 10.51.10.1/24 |
+    | BEHEER-PC | eth0 | 10.51.10.50/24 |
+
+    ## Inloggen
+    - R1: via de console in CML. In dit lab staat de console ingesteld op direct beheerdersniveau, zodat je jezelf niet kunt buitensluiten (tot deel 6).
+    - BEHEER-PC (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**. Vanaf hier test je het beheer op afstand met `telnet 10.51.10.1` en `ssh <gebruiker>@10.51.10.1`.
+
+    ## Gebruikers die je aanmaakt
+    | Gebruiker | Wachtwoord | Privilegeniveau | Rol |
+    |---|---|---|---|
+    | beheer | Beheer2026 | 15 | netwerkbeheerder |
+    | stagiair | Stage2026 | 1 | mag alleen kijken |
+    | enable secret | Enable2026 | - | voor `enable` |
+
+    ## Opdrachten
+
+    ### Deel 1 - Uitgangssituatie
+    1. Log vanaf de beheer-pc met telnet in op R1. Welk wachtwoord heb je nodig? Weet R1 wie er inlogde?
+    2. Bekijk op R1 `show running-config | include password|secret`. Wat is er mis met hoe de wachtwoorden zijn opgeslagen?
+    3. Waarom is telnet geen geschikt beheerprotocol? (Denk aan wat iemand met een packet capture ziet.)
+
+    ### Deel 2 - Het enable-wachtwoord
+    1. Stel een **enable secret** in (Enable2026) met het sterkste hash-algoritme dat IOS XE aanbiedt, en verwijder het oude enable password.
+    2. Vergelijk in de running-config de typenummers (type 5, 8, 9 en 7). Welk type gebruik jij, en wat betekenen de andere?
+    3. Zet `service password-encryption` aan. Wat verandert er aan het vty-wachtwoord? Waarom is dat geen echte beveiliging?
+
+    ### Deel 3 - Persoonlijke accounts
+    1. Maak de gebruikers **beheer** en **stagiair** aan met het juiste privilegeniveau, met een gehasht wachtwoord (secret, niet password).
+    2. Laat de vty-lijnen inloggen met de **lokale gebruikersdatabase** in plaats van het gedeelde lijnwachtwoord.
+    3. Test met telnet als beheer en als stagiair. Controleer na het inloggen met `show privilege` en `show users`. Wat is het verschil tussen de prompts?
+
+    ### Deel 4 - SSH in plaats van telnet
+    1. Richt SSH versie 2 in. Wat heeft R1 daarvoor nodig, naast de gebruikers? (Tip: een domeinnaam en een RSA-sleutelpaar van minimaal 2048 bits. IOS XE adviseert zelfs 3072 bits en meldt dat het commando voor het sleutelpaar in configuratiemodus verouderd is: voer het in exec-modus uit.)
+    2. Sta op de vty-lijnen **alleen nog SSH** toe.
+    3. Test vanaf de beheer-pc: `ssh beheer@10.51.10.1` en `telnet 10.51.10.1`. Wat gebeurt er bij telnet?
+    4. Controleer op R1 met `show ip ssh` en `show ssh` welke versie en welke sessies er zijn.
+    5. Zorg dat een vergeten sessie na 5 minuten zonder activiteit automatisch wordt afgesloten.
+
+    ### Deel 5 - Bescherming tegen raden
+    1. Configureer R1 zo dat na **3 mislukte inlogpogingen binnen 30 seconden** 60 seconden lang niemand meer kan inloggen.
+    2. Test dit door drie keer een verkeerd wachtwoord te gebruiken. Wat zie je in `show login` en in de log?
+
+    ### Deel 6 - De console
+    1. Laat ook de console inloggen met de lokale gebruikersdatabase en een exec-timeout van 10 minuten. (Haal daarvoor `privilege level 15` op de console weg.)
+    2. Waarom is het verstandig om op de console óók een gebruikersnaam te vragen?
+    3. Wat gebeurt er als je het wachtwoord van alle gebruikers vergeet? (Denk aan password recovery.)
+
+    ## Reflectie
+    1. Wat is het verschil tussen `username … password` en `username … secret`?
+    2. Waarom geef je een stagiair privilegeniveau 1 en niet 15?
+    3. Wat is het nadeel van lokale gebruikers als je honderd routers beheert? (Dat lossen we op in lab 4.1.2.)
+
+    Je docent bespreekt daarna je antwoorden.
+  title: Lab 4.1.1 - Wie mag erin
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1

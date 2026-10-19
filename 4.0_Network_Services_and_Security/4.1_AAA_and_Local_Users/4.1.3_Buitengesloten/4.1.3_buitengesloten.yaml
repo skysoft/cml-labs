@@ -1,0 +1,941 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 4.1.3 - BUITENGESLOTEN
+       Er zitten 5 fouten in dit lab (alleen op de routers).
+       R1, R3 -> TACACS-SRV 10.53.100.10 (key tacacs123)
+       R2 -> RADIUS-SRV 10.53.100.20 (key radius123, UDP 1812/1813)
+       Bronadres AAA = Loopback0; noodaccount nood / Nood2026
+      Ontwerp en opdracht: open de Lab Notes (tabblad Notes).
+      Login servers/BEHEER-PC: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -780.0
+    y1: -470.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: default
+        content: NAT
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: INTERNET
+    node_definition: external_connector
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -400
+    interfaces:
+      - id: i0
+        label: port
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname EDGE
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description Uplink naar het echte internet (CML External Connector, NAT)
+           ip address dhcp
+           ip nat outside
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Serverlan (AAA-servers)
+           ip address 10.53.100.1 255.255.255.0
+           ip nat inside
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Beheerlan
+           ip address 10.53.10.1 255.255.255.0
+           ip nat inside
+           no shutdown
+          !
+          interface Ethernet0/3
+           description Naar R1
+           ip address 10.53.255.1 255.255.255.252
+           no shutdown
+          !
+          ip route 10.53.1.1 255.255.255.255 10.53.255.2
+          !
+          interface Ethernet1/0
+           description Naar R2
+           ip address 10.53.255.5 255.255.255.252
+           no shutdown
+          !
+          ip route 10.53.2.2 255.255.255.255 10.53.255.6
+          !
+          interface Ethernet1/1
+           description Naar R3
+           ip address 10.53.255.9 255.255.255.252
+           no shutdown
+          !
+          ip route 10.53.3.3 255.255.255.255 10.53.255.10
+          !
+          ip access-list standard NAT-INTERN
+           permit 10.53.100.0 0.0.0.255
+          ip nat inside source list NAT-INTERN interface Ethernet0/0 overload
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: EDGE
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -230
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i5
+        label: Ethernet1/0
+        mac_address: null
+        type: physical
+        slot: 4
+      - id: i6
+        label: Ethernet1/1
+        mac_address: null
+        type: physical
+        slot: 5
+      - id: i7
+        label: Ethernet1/2
+        mac_address: null
+        type: physical
+        slot: 6
+      - id: i8
+        label: Ethernet1/3
+        mac_address: null
+        type: physical
+        slot: 7
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: SW-SRV
+    node_definition: unmanaged_switch
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 300
+    y: -230
+    interfaces:
+      - id: i0
+        label: port0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: port1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i2
+        label: port2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i3
+        label: port3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname TACACS-SRV
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.53.100.10/24 dev eth0
+          ip route add default via 10.53.100.1
+          echo "nameserver 8.8.8.8" > /etc/resolv.conf
+          # --- TACACS+-server (lab): script, configuratie en starten ---
+          mkdir -p /opt
+          cat > /opt/tacplus.py <<'PYEOF'
+          #!/usr/bin/env python3
+          # Eenvoudige TACACS+-server (RFC 8907) voor CCNA-labs.
+          # Ondersteunt: authenticatie (ASCII en PAP), exec-autorisatie (priv-lvl), accounting.
+          # Configuratie: /etc/tacplus.conf   Log: /var/log/tacplus.log
+          import hashlib
+          import os
+          import socket
+          import struct
+          import threading
+          import time
+
+          CONF = os.environ.get("TACPLUS_CONF", "/etc/tacplus.conf")
+          LOG = os.environ.get("TACPLUS_LOG", "/var/log/tacplus.log")
+          PORT = int(os.environ.get("TACPLUS_PORT", "49"))
+
+
+          def log(msg):
+              line = time.strftime("%Y-%m-%d %H:%M:%S ") + msg
+              print(line, flush=True)
+              with open(LOG, "a") as f:
+                  f.write(line + "\n")
+
+
+          def load():
+              key, clients, users = "", [], {}
+              for raw in open(CONF):
+                  p = raw.split("#")[0].split()
+                  if not p:
+                      continue
+                  if p[0] == "key":
+                      key = p[-1]
+                  elif p[0] == "client":
+                      clients.append(p[1])
+                  elif p[0] == "user":
+                      users[p[1]] = (p[2], int(p[3]))
+              return key, clients, users
+
+
+          def crypt(hdr, body, key):
+              sid, ver, seq = hdr[4:8], hdr[0], hdr[2]
+              out, prev = b"", b""
+              while len(out) < len(body):
+                  prev = hashlib.md5(sid + key.encode() + bytes([ver, seq]) + prev).digest()
+                  out += prev
+              return bytes(a ^ b for a, b in zip(body, out))
+
+
+          def recv_exact(c, n):
+              data = b""
+              while len(data) < n:
+                  chunk = c.recv(n - len(data))
+                  if not chunk:
+                      raise EOFError
+                  data += chunk
+              return data
+
+
+          def send(c, req_hdr, body, key):
+              hdr = bytes([req_hdr[0], req_hdr[1], req_hdr[2] + 1, req_hdr[3] & 0x04]) + req_hdr[4:8] + struct.pack("!I", len(body))
+              c.sendall(hdr + crypt(hdr, body, key))
+
+
+          class BadKey(Exception):
+              pass
+
+
+          def authen_reply(status, msg="", flags=0):
+              m = msg.encode()
+              return struct.pack("!BBHH", status, flags, len(m), 0) + m
+
+
+          def check_login(users, user, pw, nas):
+              ok = user in users and users[user][0] == pw
+              log(f"AUTHENTICATIE {'GESLAAGD' if ok else 'MISLUKT'}: gebruiker={user or '-'} router={nas}")
+              return authen_reply(1 if ok else 2, "" if ok else "Ongeldige gebruikersnaam of wachtwoord")
+
+
+          def handle(c, addr):
+              nas = addr[0]
+              key, clients, users = load()
+              if clients and nas not in clients:
+                  log(f"GEWEIGERD: {nas} staat niet als client in {CONF}; verbinding gesloten")
+                  c.close()
+                  return
+              pending = {}
+              try:
+                  while True:
+                      hdr = recv_exact(c, 12)
+                      length = struct.unpack("!I", hdr[8:12])[0]
+                      body = recv_exact(c, length)
+                      if not hdr[3] & 0x01:
+                          body = crypt(hdr, body, key)
+                      sid = hdr[4:8]
+                      ptype = hdr[1]
+                      if ptype == 1 and hdr[2] == 1:  # authenticatie START
+                          action, priv, atype, svc, ul, pl, rl, dl = body[:8]
+                          if 8 + ul + pl + rl + dl != len(body) or not 1 <= atype <= 8:
+                              raise BadKey
+                          user = body[8:8 + ul].decode(errors="replace")
+                          off = 8 + ul + pl + rl
+                          data = body[off:off + dl].decode(errors="replace")
+                          if atype == 2:  # PAP
+                              send(c, hdr, check_login(users, user, data, nas), key)
+                          else:  # ASCII-dialoog
+                              pending[sid] = user
+                              if user:
+                                  send(c, hdr, authen_reply(5, "Password: ", 0x01), key)
+                              else:
+                                  send(c, hdr, authen_reply(4, "Username: "), key)
+                      elif ptype == 1:  # authenticatie CONTINUE
+                          uml, dl, flags = struct.unpack("!HHB", body[:5])
+                          if 5 + uml + dl != len(body):
+                              raise BadKey
+                          msg = body[5:5 + uml].decode(errors="replace")
+                          if not pending.get(sid):
+                              pending[sid] = msg
+                              send(c, hdr, authen_reply(5, "Password: ", 0x01), key)
+                          else:
+                              send(c, hdr, check_login(users, pending.pop(sid), msg, nas), key)
+                      elif ptype == 2:  # autorisatie
+                          meth, priv, atype, svc, ul, pl, rl, ac = body[:8]
+                          lens = list(body[8:8 + ac])
+                          if 8 + ac + ul + pl + rl + sum(lens) != len(body):
+                              raise BadKey
+                          off = 8 + ac
+                          user = body[off:off + ul].decode(errors="replace")
+                          off += ul + pl + rl
+                          args = []
+                          for n in lens:
+                              args.append(body[off:off + n].decode(errors="replace"))
+                              off += n
+                          cmd = next((a.split("=", 1)[1] for a in args if a.startswith("cmd=")), "")
+                          if user not in users:
+                              log(f"AUTORISATIE GEWEIGERD: onbekende gebruiker={user} router={nas}")
+                              reply = struct.pack("!BBHH", 0x10, 0, 0, 0)
+                          elif cmd:
+                              log(f"AUTORISATIE commando toegestaan: gebruiker={user} commando='{cmd}' router={nas}")
+                              reply = struct.pack("!BBHH", 0x01, 0, 0, 0)
+                          else:
+                              lvl = f"priv-lvl={users[user][1]}".encode()
+                              log(f"AUTORISATIE exec: gebruiker={user} {lvl.decode()} router={nas}")
+                              reply = struct.pack("!BBHH", 0x01, 1, 0, 0) + bytes([len(lvl)]) + lvl
+                          send(c, hdr, reply, key)
+                      elif ptype == 3:  # accounting
+                          flags, meth, priv, atype, svc, ul, pl, rl, ac = body[:9]
+                          lens = list(body[9:9 + ac])
+                          if 9 + ac + ul + pl + rl + sum(lens) != len(body):
+                              raise BadKey
+                          off = 9 + ac
+                          user = body[off:off + ul].decode(errors="replace")
+                          off += ul + pl + rl
+                          args = []
+                          for n in lens:
+                              args.append(body[off:off + n].decode(errors="replace"))
+                              off += n
+                          kind = "START" if flags & 0x02 else "STOP" if flags & 0x04 else "UPDATE"
+                          log(f"ACCOUNTING {kind}: gebruiker={user} router={nas} {' '.join(args)}")
+                          send(c, hdr, struct.pack("!HHB", 0, 0, 1), key)
+              except BadKey:
+                  log(f"FOUT: pakket van {nas} niet te ontsleutelen, de shared key klopt niet; verbinding gesloten")
+              except (EOFError, ConnectionResetError, OSError):
+                  pass
+              finally:
+                  c.close()
+
+
+          def main():
+              s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+              s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+              s.bind(("0.0.0.0", PORT))
+              s.listen(16)
+              log(f"TACACS+-server gestart op TCP-poort {PORT}")
+              while True:
+                  c, addr = s.accept()
+                  threading.Thread(target=handle, args=(c, addr), daemon=True).start()
+
+
+          if __name__ == "__main__":
+              main()
+          PYEOF
+          cat > /etc/tacplus.conf <<'EOF'
+          key = tacacs123
+          client 10.53.1.1
+          client 10.53.3.3
+          user tacadmin TacAdmin1 15
+          user tacoper TacOper1 1
+          EOF
+          # python3 installeren via internet (kan even duren na het opstarten) en de server starten
+          (for i in $(seq 1 40); do apk add -q python3 >/dev/null 2>&1 && break; sleep 10; done; nohup python3 /opt/tacplus.py >/dev/null 2>&1 &) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: TACACS-SRV
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 500
+    y: -320
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname RADIUS-SRV
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.53.100.20/24 dev eth0
+          ip route add default via 10.53.100.1
+          echo "nameserver 8.8.8.8" > /etc/resolv.conf
+          # --- RADIUS-server (lab): FreeRADIUS via internet installeren, configureren en starten ---
+          cat > /tmp/clients.add <<'EOF'
+          client R2 {
+              ipaddr = 10.53.2.2
+              secret = radius123
+              require_message_authenticator = no
+          }
+          EOF
+          cat > /tmp/users.add <<'EOF'
+          radadmin Cleartext-Password := "RadAdmin1"
+                  Service-Type = NAS-Prompt-User,
+                  Cisco-AVPair = "shell:priv-lvl=15"
+          radoper Cleartext-Password := "RadOper1"
+                  Service-Type = NAS-Prompt-User,
+                  Cisco-AVPair = "shell:priv-lvl=1"
+          EOF
+          (for i in $(seq 1 40); do apk add -q freeradius >/dev/null 2>&1 && break; sleep 10; done;
+           cat /tmp/clients.add >> /etc/raddb/clients.conf;
+           cat /tmp/users.add /etc/raddb/mods-config/files/authorize > /tmp/authorize;
+           cp /tmp/authorize /etc/raddb/mods-config/files/authorize;
+           sed -i 's/^\(\s*auth = \)no/\1yes/' /etc/raddb/radiusd.conf;
+           rm -f /etc/raddb/mods-enabled/eap; sed -i '/^\s*eap\s*{/,/^\s*}/d; /^\s*eap\s*$/d' /etc/raddb/sites-enabled/default /etc/raddb/sites-enabled/inner-tunnel;
+           radiusd) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: RADIUS-SRV
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 500
+    y: -140
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname BEHEER-PC
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.53.10.50/24 dev eth0
+          ip route add default via 10.53.10.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: BEHEER-PC
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -350
+    y: -230
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R1
+          no ip domain lookup
+          ip domain name lab.local
+          enable algorithm-type scrypt secret Enable2026
+          username nood privilege 15 algorithm-type scrypt secret Nood2026
+          aaa new-model
+          !
+          interface Loopback0
+           description Beheeradres
+           ip address 10.53.1.1 255.255.255.255
+          !
+          interface Ethernet0/0
+           description Naar EDGE
+           ip address 10.53.255.2 255.255.255.252
+           no shutdown
+          !
+          ip route 0.0.0.0 0.0.0.0 10.53.255.1
+          !
+          crypto key generate rsa modulus 2048
+          ip ssh version 2
+          !
+          aaa authentication login CONSOLE none
+
+          ip tacacs source-interface Loopback0
+          tacacs server TACSRV
+           address ipv4 10.53.100.10
+           key tacacs124
+          aaa group server tacacs+ TACGROUP
+           server name TACSRV
+          !
+          aaa authentication login VTY group TACGROUP local
+          aaa authorization exec VTY group TACGROUP local
+          aaa accounting exec default start-stop group TACGROUP
+
+          line vty 0 4
+           login authentication VTY
+           authorization exec VTY
+           transport input ssh
+           exec-timeout 5 0
+          !
+          line con 0
+           login authentication CONSOLE
+           privilege level 15
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n6
+    image_definition: null
+    label: R1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -250
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R2
+          no ip domain lookup
+          ip domain name lab.local
+          enable algorithm-type scrypt secret Enable2026
+          username nood privilege 15 algorithm-type scrypt secret Nood2026
+          aaa new-model
+          !
+          interface Loopback0
+           description Beheeradres
+           ip address 10.53.2.2 255.255.255.255
+          !
+          interface Ethernet0/0
+           description Naar EDGE
+           ip address 10.53.255.6 255.255.255.252
+           no shutdown
+          !
+          ip route 0.0.0.0 0.0.0.0 10.53.255.5
+          !
+          crypto key generate rsa modulus 2048
+          ip ssh version 2
+          !
+          aaa authentication login CONSOLE none
+
+          ip radius source-interface Loopback0
+          radius server RADSRV
+           address ipv4 10.53.100.20 auth-port 1645 acct-port 1646
+           key radius123
+          aaa group server radius RADGROUP
+           server name RADSRV
+          !
+          aaa authentication login VTY group RADGROUP local
+          aaa authorization exec VTY group RADGROUP local
+
+          line vty 0 4
+           login authentication VTY
+
+           transport input ssh
+           exec-timeout 5 0
+          !
+          line con 0
+           login authentication CONSOLE
+           privilege level 15
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n7
+    image_definition: null
+    label: R2
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R3
+          no ip domain lookup
+          ip domain name lab.local
+          enable algorithm-type scrypt secret Enable2026
+          username nood privilege 15 algorithm-type scrypt secret Nood2026
+          aaa new-model
+          !
+          interface Loopback0
+           description Beheeradres
+           ip address 10.53.3.3 255.255.255.255
+          !
+          interface Ethernet0/0
+           description Naar EDGE
+           ip address 10.53.255.10 255.255.255.252
+           no shutdown
+          !
+          ip route 0.0.0.0 0.0.0.0 10.53.255.9
+          !
+          crypto key generate rsa modulus 2048
+          ip ssh version 2
+          !
+          aaa authentication login CONSOLE none
+
+          tacacs server TACSRV
+           address ipv4 10.53.100.10
+           key tacacs123
+          aaa group server tacacs+ TACGROUP
+           server name TACSRV
+          !
+          aaa authentication login VTY group TACGROUP
+          aaa authorization exec VTY group TACGROUP local
+          aaa accounting exec default start-stop group TACGROUP
+
+          line vty 0 4
+           login authentication VTY
+           authorization exec VTY
+           transport input ssh
+           exec-timeout 5 0
+          !
+          line con 0
+           login authentication CONSOLE
+           privilege level 15
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n8
+    image_definition: null
+    label: R3
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 250
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i0
+    i2: i1
+    conditioning: {}
+    label: INTERNET-port<->EDGE-Ethernet0/0
+  - id: l1
+    n1: n1
+    n2: n2
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: EDGE-Ethernet0/1<->SW-SRV-port0
+  - id: l2
+    n1: n2
+    n2: n3
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: SW-SRV-port1<->TACACS-SRV-eth0
+  - id: l3
+    n1: n2
+    n2: n4
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: SW-SRV-port2<->RADIUS-SRV-eth0
+  - id: l4
+    n1: n1
+    n2: n5
+    i1: i3
+    i2: i0
+    conditioning: {}
+    label: EDGE-Ethernet0/2<->BEHEER-PC-eth0
+  - id: l5
+    n1: n1
+    n2: n6
+    i1: i4
+    i2: i1
+    conditioning: {}
+    label: EDGE-Ethernet0/3<->R1-Ethernet0/0
+  - id: l6
+    n1: n1
+    n2: n7
+    i1: i5
+    i2: i1
+    conditioning: {}
+    label: EDGE-Ethernet1/0<->R2-Ethernet0/0
+  - id: l7
+    n1: n1
+    n2: n8
+    i1: i6
+    i2: i1
+    conditioning: {}
+    label: EDGE-Ethernet1/1<->R3-Ethernet0/0
+lab:
+  description: CCNA 200-301 v2.0 - leerdoel 4.1. Troubleshootinglab met 5 fouten in
+    de AAA-clientconfiguratie (TACACS+ en RADIUS).
+  notes: |-
+    # Lab 4.1.3 - Buitengesloten
+
+    **Leerdoel (CCNA 200-301 v2.0, 4.1):** netwerkapparaten configureren met lokale gebruikersnamen en als AAA-client (TACACS+ en RADIUS) voor beheer.
+
+    ## Scenario
+    Een externe partij heeft drie routers aangesloten op de centrale AAA-servers. Sinds de oplevering klagen de beheerders dat ze niet (goed) op de routers kunnen inloggen.
+
+    **Er zitten 5 fouten in dit lab.** Alle fouten zitten in de AAA- of beheerconfiguratie van de **routers**. De servers zijn correct en pas je niet aan; je mag er wel op inloggen om de logs te bekijken.
+
+    ## Klachten
+    1. Op **R1** komen de beheerders met hun TACACS+-account niet binnen. Met het noodaccount lukt het wel.
+    2. Op **R2** duurt inloggen met een RADIUS-account erg lang en mislukt het daarna. Met het noodaccount lukt het pas na een flinke wachttijd.
+    3. Op **R3** komt niemand meer binnen via SSH, ook niet met het noodaccount.
+
+    ## Ontwerp
+    | Onderdeel | Ontwerp |
+    |---|---|
+    | R1 en R3 | AAA-client van **TACACS-SRV** 10.53.100.10, TCP 49, key `tacacs123`, groep TACGROUP |
+    | R2 | AAA-client van **RADIUS-SRV** 10.53.100.20, UDP **1812/1813**, key `radius123`, groep RADGROUP |
+    | Bronadres AAA-verkeer | altijd **Loopback0** (de servers accepteren alleen de loopbackadressen 10.53.1.1, 10.53.2.2 en 10.53.3.3) |
+    | Login (vty) | method list VTY: eerst de servergroep, **lokaal alleen als de server niet bereikbaar is** |
+    | Exec-autorisatie (vty) | method list VTY: servergroep, dan lokaal. Het privilegeniveau komt van de server (beheerders krijgen 15) |
+    | Accounting | TACACS+-routers: exec start-stop naar TACGROUP |
+    | Console | method list CONSOLE (none): noodtoegang voor het lab |
+    | Beheer | alleen SSH op de vty-lijnen |
+
+    | Account | Wachtwoord | Waar | Privilegeniveau |
+    |---|---|---|---|
+    | tacadmin / tacoper | TacAdmin1 / TacOper1 | TACACS-SRV | 15 / 1 |
+    | radadmin / radoper | RadAdmin1 / RadOper1 | RADIUS-SRV | 15 / 1 |
+    | nood | Nood2026 | lokaal op elke router | 15 |
+
+    Test vanaf **BEHEER-PC** (10.53.10.50) met `ssh <account>@10.53.N.N` naar het loopbackadres van de router. De servers installeren hun software na het starten via internet; wacht ongeveer **5 minuten**. Logs: TACACS-SRV `/var/log/tacplus.log`, RADIUS-SRV `/var/log/radius/radius.log` (lezen met `sudo`).
+
+    ## Inloggen
+    - Routers: console (noodtoegang, direct beheerdersniveau).
+    - Servers en BEHEER-PC (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**.
+
+    ## Opdracht
+    1. Zoek en herstel de 5 fouten. Gebruik `show aaa servers`, `show tacacs`, `show running-config | section aaa|tacacs|radius|line`, `test aaa group …` en de serverlogs. Houd een **foutenlog** bij:
+
+    | # | Router | Symptoom (log, teller, test) | Oorzaak | Oplossing (commando's) | Hoe geverifieerd |
+    |---|---|---|---|---|---|
+
+    2. Toon na afloop aan dat op elke router een beheerder met het juiste privilegeniveau binnenkomt, en dat het noodaccount werkt als de AAA-server uitvalt.
+
+    ## Reflectie
+    1. Bij welke fout gaf de serverlog de doorslag, en bij welke juist de router?
+    2. Waarom is een method list zonder `local` op het einde gevaarlijk?
+
+    Je docent bespreekt daarna je foutenlog.
+  title: Lab 4.1.3 - Buitengesloten
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1

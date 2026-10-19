@@ -60,7 +60,7 @@ Gebruikte node-types: `iol-xe`, `ioll2-xe`, `unmanaged_switch` en `alpine`.
 
 | Leerdoel | Labs |
 |---|---|
-| [4.1 AAA and Local Users](4.0_Network_Services_and_Security/4.1_AAA_and_Local_Users/) | - |
+| [4.1 AAA and Local Users](4.0_Network_Services_and_Security/4.1_AAA_and_Local_Users/) | 3 |
 | [4.2 SFTP and SCP](4.0_Network_Services_and_Security/4.2_SFTP_and_SCP/) | - |
 | [4.3 NAT and PAT](4.0_Network_Services_and_Security/4.3_NAT_and_PAT/) | 4 |
 | [4.4 DNS Records](4.0_Network_Services_and_Security/4.4_DNS_Records/) | - |

@@ -2,7 +2,7 @@
 
 | Leerdoel | Omschrijving | Labs |
 |---|---|---|
-| [4.1](4.1_AAA_and_Local_Users/) | Configure network devices with local usernames and as an AAA client (TACACS+ and RADIUS) for management | 0 |
+| [4.1](4.1_AAA_and_Local_Users/) | Configure network devices with local usernames and as an AAA client (TACACS+ and RADIUS) for management | 3 |
 | [4.2](4.2_SFTP_and_SCP/) | Manage device configuration and software files using secure file transfer operations with SFTP/SCP | 0 |
 | [4.3](4.3_NAT_and_PAT/) | Configure NAT/PAT on IOS XE routers | 4 |
 | [4.4](4.4_DNS_Records/) | Diagnose issues with DNS records (A, AAAA, CNAME, MX, NS, and PTR) to support host, web application, and mail server access by name | 0 |
