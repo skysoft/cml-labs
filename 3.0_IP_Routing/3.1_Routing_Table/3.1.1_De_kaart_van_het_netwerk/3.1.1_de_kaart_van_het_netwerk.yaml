@@ -1,0 +1,685 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 3.1.1 - DE KAART VAN HET NETWERK (verkenningslab)
+       HQ-NOORD: OSPF   HQ-ZUID: EIGRP   HQ-ISP: echt internet
+       PC1 10.31.10.11  PC2 10.31.20.11  PC3 10.31.30.11
+       Niets is kapot: lees en interpreteer de routeringstabellen
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+      Login PC's: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -620.0
+    y1: -420.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: default
+        content: NAT
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: INTERNET
+    node_definition: external_connector
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 450
+    y: -250
+    interfaces:
+      - id: i0
+        label: port
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname ISP
+          no ip domain lookup
+          ipv6 unicast-routing
+          !
+          interface Loopback1
+           description Internetsimulatie IPv6
+           ipv6 address 2001:DB8:F00D::1/128
+          !
+          interface Ethernet0/1
+           description Klant HQ
+           ip address 198.51.100.1 255.255.255.252
+           ip nat inside
+           ipv6 address 2001:DB8:FFFF::1/64
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Uplink naar het echte internet (CML External Connector, NAT)
+           ip address dhcp
+           ip nat outside
+           no shutdown
+          !
+          ip access-list standard NAT-KLANT
+           permit 198.51.100.0 0.0.0.3
+          ip nat inside source list NAT-KLANT interface Ethernet0/2 overload
+          ipv6 route 2001:DB8:31::/48 2001:DB8:FFFF::2
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: ISP
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 450
+    y: -100
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname HQ
+          no ip domain lookup
+          ipv6 unicast-routing
+          !
+          interface Ethernet0/0
+           description LAN hoofdkantoor
+           ip address 10.31.10.1 255.255.255.0
+           ip nat inside
+           ipv6 address 2001:DB8:31:10::1/64
+           ipv6 ospf 1 area 0
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Naar NOORD
+           ip address 10.31.255.1 255.255.255.252
+           ip nat inside
+           ipv6 address 2001:DB8:31:FF01::1/64
+           ipv6 ospf 1 area 0
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Naar ZUID
+           ip address 10.31.255.5 255.255.255.252
+           ip nat inside
+           ipv6 address 2001:DB8:31:FF02::1/64
+           no shutdown
+          !
+          interface Ethernet0/3
+           description Naar ISP
+           ip address 198.51.100.2 255.255.255.252
+           ip nat outside
+           ipv6 address 2001:DB8:FFFF::2/64
+           no shutdown
+          !
+          router ospf 1
+           router-id 1.1.1.1
+           passive-interface Ethernet0/0
+           network 10.31.10.0 0.0.0.255 area 0
+           network 10.31.255.0 0.0.0.3 area 0
+           redistribute eigrp 31 subnets
+           default-information originate
+          !
+          ipv6 router ospf 1
+           router-id 1.1.1.1
+           passive-interface Ethernet0/0
+           default-information originate
+          !
+          router eigrp 31
+           eigrp router-id 1.1.1.1
+           network 10.31.255.4 0.0.0.3
+           redistribute ospf 1 metric 10000 100 255 1 1500
+           redistribute static metric 10000 100 255 1 1500 route-map ALLEEN-DEFAULT
+          !
+          ip prefix-list DEFAULT seq 5 permit 0.0.0.0/0
+          route-map ALLEEN-DEFAULT permit 10
+           match ip address prefix-list DEFAULT
+          !
+          ip route 0.0.0.0 0.0.0.0 198.51.100.1
+          ip route 192.168.31.0 255.255.255.0 10.31.255.6
+          ipv6 route 2001:DB8:31:30::/64 2001:DB8:31:FF02::2
+          ipv6 route ::/0 2001:DB8:FFFF::1
+          !
+          ip access-list standard NAT-INTERN
+           permit 10.31.0.0 0.0.255.255
+           permit 192.168.31.0 0.0.0.255
+          ip nat inside source list NAT-INTERN interface Ethernet0/3 overload
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: HQ
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 200
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname NOORD
+          no ip domain lookup
+          ipv6 unicast-routing
+          !
+          interface Loopback1
+           description Afdeling planning
+           ip address 10.31.21.1 255.255.255.192
+           ip ospf network point-to-point
+           ipv6 address 2001:DB8:31:21::1/64
+           ipv6 ospf network point-to-point
+           ipv6 ospf 1 area 0
+          !
+          interface Ethernet0/0
+           description LAN Noord
+           ip address 10.31.20.1 255.255.255.0
+           ipv6 address 2001:DB8:31:20::1/64
+           ipv6 ospf 1 area 0
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Naar HQ
+           ip address 10.31.255.2 255.255.255.252
+           ipv6 address 2001:DB8:31:FF01::2/64
+           ipv6 ospf 1 area 0
+           no shutdown
+          !
+          router ospf 1
+           router-id 2.2.2.2
+           passive-interface Ethernet0/0
+           network 10.31.20.0 0.0.0.255 area 0
+           network 10.31.21.0 0.0.0.63 area 0
+           network 10.31.255.0 0.0.0.3 area 0
+          !
+          ipv6 router ospf 1
+           router-id 2.2.2.2
+           passive-interface Ethernet0/0
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: NOORD
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -100
+    y: -150
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname ZUID
+          no ip domain lookup
+          ipv6 unicast-routing
+          !
+          interface Loopback1
+           description Beheernetwerk
+           ip address 192.168.31.1 255.255.255.0
+          !
+          interface Ethernet0/0
+           description LAN Zuid
+           ip address 10.31.30.1 255.255.255.0
+           ipv6 address 2001:DB8:31:30::1/64
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Naar HQ
+           ip address 10.31.255.6 255.255.255.252
+           ipv6 address 2001:DB8:31:FF02::2/64
+           no shutdown
+          !
+          router eigrp 31
+           eigrp router-id 3.3.3.3
+           passive-interface Ethernet0/0
+           network 10.31.30.0 0.0.0.255
+           network 10.31.255.4 0.0.0.3
+          !
+          ipv6 route ::/0 2001:DB8:31:FF02::1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: ZUID
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -100
+    y: 150
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.31.10.11/24 dev eth0
+          ip route add default via 10.31.10.1
+          ip -6 address add 2001:db8:31:10::11/64 dev eth0
+          ip -6 route add default via 2001:db8:31:10::1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: PC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 200
+    y: 200
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC2
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.31.20.11/24 dev eth0
+          ip route add default via 10.31.20.1
+          ip -6 address add 2001:db8:31:20::11/64 dev eth0
+          ip -6 route add default via 2001:db8:31:20::1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n6
+    image_definition: null
+    label: PC2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -350
+    y: -150
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC3
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.31.30.11/24 dev eth0
+          ip route add default via 10.31.30.1
+          ip -6 address add 2001:db8:31:30::11/64 dev eth0
+          ip -6 route add default via 2001:db8:31:30::1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n7
+    image_definition: null
+    label: PC3
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -350
+    y: 150
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i0
+    i2: i3
+    conditioning: {}
+    label: INTERNET-port<->ISP-Ethernet0/2
+  - id: l1
+    n1: n1
+    n2: n2
+    i1: i2
+    i2: i4
+    conditioning: {}
+    label: ISP-Ethernet0/1<->HQ-Ethernet0/3
+  - id: l2
+    n1: n2
+    n2: n3
+    i1: i2
+    i2: i2
+    conditioning: {}
+    label: HQ-Ethernet0/1<->NOORD-Ethernet0/1
+  - id: l3
+    n1: n2
+    n2: n4
+    i1: i3
+    i2: i2
+    conditioning: {}
+    label: HQ-Ethernet0/2<->ZUID-Ethernet0/1
+  - id: l4
+    n1: n2
+    n2: n5
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: HQ-Ethernet0/0<->PC1-eth0
+  - id: l5
+    n1: n3
+    n2: n6
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: NOORD-Ethernet0/0<->PC2-eth0
+  - id: l6
+    n1: n4
+    n2: n7
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: ZUID-Ethernet0/0<->PC3-eth0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 3.1. Verkenningslab: routeringstabellen
+    (IPv4 en IPv6) lezen en interpreteren.'
+  notes: |-
+    # Lab 3.1.1 - De kaart van het netwerk
+
+    **Leerdoel (CCNA 200-301 v2.0, 3.1):** een routeringstabel interpreteren om de next hop van een pakket te bepalen (routeringsprotocol, prefix/masker, administratieve afstand, metric en default route).
+
+    ## Scenario
+    Je bent net begonnen als netwerkbeheerder bij een bedrijf met een hoofdkantoor (HQ) en twee vestigingen (NOORD en ZUID). Je voorganger heeft het netwerk werkend achtergelaten, maar zonder documentatie. De enige "kaart" die je hebt, zijn de **routeringstabellen** van de routers.
+
+    Dit is een **verkenningslab**: er zit niets kapot en je hoeft niets te configureren. Je leest, interpreteert en voorspelt.
+
+    Wat je vooraf weet:
+    - HQ en NOORD wisselen routes uit met **OSPF**.
+    - HQ en ZUID wisselen routes uit met **EIGRP** (een Cisco-protocol; je hoeft het niet te kunnen configureren, alleen te herkennen).
+    - HQ is via de ISP verbonden met het **echte internet** (testadres 8.8.8.8).
+
+    ## Topologie
+    | Apparaat | Interface | IPv4 | IPv6 |
+    |---|---|---|---|
+    | PC1 | eth0 | 10.31.10.11/24 | 2001:db8:31:10::11/64 |
+    | PC2 | eth0 | 10.31.20.11/24 | 2001:db8:31:20::11/64 |
+    | PC3 | eth0 | 10.31.30.11/24 | 2001:db8:31:30::11/64 |
+    | HQ | E0/0 / E0/1 / E0/2 / E0/3 | zie `show ip interface brief` | |
+
+    De rest van de adressen zoek je zelf op; dat is onderdeel van de opdracht.
+
+    ## Inloggen
+    - Routers: console, geen wachtwoord.
+    - PC's (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**.
+
+    Wacht na het starten ongeveer twee minuten tot alle routeringsprotocollen hun buren hebben gevonden.
+
+    ## Opdrachten
+
+    ### Deel 1 - De legenda
+    1. Bekijk de routeringstabel van HQ. Leg in eigen woorden uit wat de codes **C, L, S, S\*, O, O E2, D** en **D EX** betekenen. Welke van deze codes zie je op HQ, NOORD en ZUID?
+    2. Waarom staat er bij elk verbonden netwerk een **C**- én een **L**-regel? Welke prefixlengte heeft de L-regel en waarom?
+    3. Vul de tabel met standaardwaarden voor de **administratieve afstand** (AD) in: verbonden, statisch, EIGRP (intern), OSPF, RIP, EIGRP (extern). Welke waarden kun je in de tabellen van dit lab terugvinden?
+
+    ### Deel 2 - De tabel van HQ ontleden
+    Vul voor **elke** IPv4-route in de tabel van HQ een regel in (sla de L-regels over):
+
+    | Code | Netwerk | Prefixlengte | Masker (decimaal) | AD | Metric | Next hop | Uitgaande interface |
+    |---|---|---|---|---|---|---|---|
+
+    Beantwoord daarna:
+    1. Bovenaan staat "10.0.0.0/8 is variably subnetted, … subnets, … masks". Wat betekent dat? Welke maskers kom je tegen?
+    2. Bij welke routes ontbreekt een metric of is die 0? Waarom?
+    3. De OSPF-route naar 10.31.20.0/24 heeft een andere metric dan die naar 10.31.21.0/26. Verklaar het verschil. (Tip: een Ethernet-interface op deze routers telt als 10 Mbit/s.)
+    4. Kun je de metric van de EIGRP-route vergelijken met die van een OSPF-route? Waarom wel of niet?
+
+    ### Deel 3 - De gateway of last resort
+    1. Wat is de gateway of last resort van **HQ**, **NOORD** en **ZUID**? Noteer per router de code van de default route.
+    2. Leg per router uit hoe hij aan zijn default route komt: zelf ingesteld of geleerd, en van wie?
+    3. Wat zou er met een pakket naar 8.8.8.8 gebeuren op een router **zonder** gateway of last resort?
+
+    ### Deel 4 - Eén route in detail
+    1. Bekijk op HQ de details van de route naar 10.31.20.0 (`show ip route 10.31.20.0`). Zoek op: de bron (Known via), de afstand, de metric, het type, de next hop en hoe lang geleden de route is geleerd.
+    2. Doe hetzelfde op NOORD voor 10.31.30.0. Wat betekent "type extern 2" en waarom heeft deze route bij NOORD een ander type dan bij HQ?
+    3. Bekijk op ZUID de route naar 10.31.20.0. Welke AD heeft deze route? Vergelijk die met de AD van de EIGRP-route naar 10.31.30.0 op HQ en verklaar het verschil.
+
+    ### Deel 5 - De IPv6-tabel
+    1. Bekijk de IPv6-tabel van HQ (`show ipv6 route`). Welke codes kom je tegen en welke AD's horen erbij?
+    2. Waarom heeft een L-regel bij IPv6 de prefixlengte /128?
+    3. Wat is de route naar **FF00::/8** en waarom staat die er?
+    4. Wat is de next hop van de OSPFv3-route naar 2001:db8:31:20::/64? Is dat een globaal adres of een link-local adres? Wat is het verschil met de statische route naar 2001:db8:31:30::/64?
+
+    ### Deel 6 - De next hop bepalen
+    Voorspel voor elk bestemmingsadres welke regel HQ gebruikt, met welke next hop en via welke interface. Controleer je voorspelling daarna op HQ met `show ip route <adres>` en, waar dat kan, met `traceroute` vanaf PC1.
+
+    | Bestemming | Regel (netwerk/prefix + code) | Next hop | Interface |
+    |---|---|---|---|
+    | 10.31.21.40 | | | |
+    | 10.31.21.100 | | | |
+    | 10.31.30.11 | | | |
+    | 192.168.31.1 | | | |
+    | 8.8.8.8 | | | |
+    | 10.31.99.1 | | | |
+    | 2001:db8:31:20::11 | | | |
+    | 2001:db8:f00d::1 | | | |
+
+    Bij sommige adressen antwoordt `show ip route <adres>` met **% Subnet not in table**. Wat betekent dat, en welke regel gebruikt HQ dan toch?
+
+    ## Reflectie
+    1. 10.31.21.40 en 10.31.21.100 liggen dicht bij elkaar. Waarom volgen ze toch een verschillende regel?
+    2. Een router kent een bestemming via OSPF en via EIGRP. Welke kiest hij en waarom maakt de metric daarbij niet uit?
+    3. Wat is het voordeel van de default route op NOORD en ZUID ten opzichte van een route naar elk internetnetwerk?
+
+    Je docent bespreekt daarna je antwoorden.
+  title: Lab 3.1.1 - De kaart van het netwerk
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1

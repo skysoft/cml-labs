@@ -1,0 +1,519 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 3.1.2 - WELKE ROUTE WINT? (onderzoekslab)
+       KANTOOR-DC: lijn A en lijn B (OSPF), MPLS-provider (EIGRP)
+       PC1 10.32.10.11   SRV 10.32.60.10 en 10.32.60.200
+       Niets is kapot: voorspel, controleer en doe de proeven
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+      Login PC1/SRV: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -600.0
+    y1: -400.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.32.10.11/24 dev eth0
+          ip route add default via 10.32.10.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: PC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -400
+    y: 0
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname KANTOOR
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description LAN kantoor
+           ip address 10.32.10.1 255.255.255.0
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Lijn A naar DC
+           ip address 10.32.255.1 255.255.255.252
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Lijn B naar DC
+           ip address 10.32.255.5 255.255.255.252
+           ip ospf cost 20
+           no shutdown
+          !
+          interface Ethernet0/3
+           description Naar MPLS-provider
+           ip address 10.32.254.1 255.255.255.252
+           no shutdown
+          !
+          router ospf 1
+           router-id 1.1.1.1
+           passive-interface Ethernet0/0
+           network 10.32.10.0 0.0.0.255 area 0
+           network 10.32.255.0 0.0.0.7 area 0
+          !
+          router eigrp 32
+           eigrp router-id 1.1.1.1
+           network 10.32.254.0 0.0.0.3
+          !
+          ip route 10.32.60.192 255.255.255.192 10.32.255.6
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: KANTOOR
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -150
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname MPLS
+          no ip domain lookup
+          !
+          interface Loopback1
+           description Netwerk andere klanten
+           ip address 10.40.0.1 255.255.0.0
+          !
+          interface Ethernet0/1
+           description Klant KANTOOR
+           ip address 10.32.254.2 255.255.255.252
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Klant DC
+           ip address 10.32.254.6 255.255.255.252
+           no shutdown
+          !
+          router eigrp 32
+           eigrp router-id 3.3.3.3
+           network 10.32.254.0 0.0.0.7
+           network 10.40.0.0 0.0.255.255
+          !
+          ip route 10.32.10.0 255.255.255.0 10.32.254.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: MPLS
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 100
+    y: -200
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname DC
+          no ip domain lookup
+          !
+          interface Loopback1
+           description Serverblok applicaties
+           ip address 10.32.50.1 255.255.255.0
+           ip ospf network point-to-point
+          !
+          interface Loopback2
+           description Testomgeving
+           ip address 10.40.7.1 255.255.255.0
+           ip ospf network point-to-point
+          !
+          interface Ethernet0/0
+           description Serverruimte
+           ip address 10.32.60.1 255.255.255.0
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Lijn A naar KANTOOR
+           ip address 10.32.255.2 255.255.255.252
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Lijn B naar KANTOOR
+           ip address 10.32.255.6 255.255.255.252
+           ip ospf cost 20
+           no shutdown
+          !
+          interface Ethernet0/3
+           description Naar MPLS-provider
+           ip address 10.32.254.5 255.255.255.252
+           no shutdown
+          !
+          router ospf 1
+           router-id 2.2.2.2
+           passive-interface Ethernet0/0
+           network 10.32.50.0 0.0.0.255 area 0
+           network 10.32.60.0 0.0.0.255 area 0
+           network 10.32.255.0 0.0.0.7 area 0
+           network 10.40.7.0 0.0.0.255 area 0
+           default-information originate
+          !
+          router eigrp 32
+           eigrp router-id 2.2.2.2
+           network 10.32.50.0 0.0.0.255
+           network 10.32.254.4 0.0.0.3
+          !
+          ip route 0.0.0.0 0.0.0.0 Null0
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: DC
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 350
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname SRV
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.32.60.10/24 dev eth0
+          ip address add 10.32.60.200/24 dev eth0
+          ip route add default via 10.32.60.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: SRV
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 600
+    y: 0
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i0
+    i2: i1
+    conditioning: {}
+    label: PC1-eth0<->KANTOOR-Ethernet0/0
+  - id: l1
+    n1: n1
+    n2: n3
+    i1: i2
+    i2: i2
+    conditioning: {}
+    label: KANTOOR-Ethernet0/1<->DC-Ethernet0/1
+  - id: l2
+    n1: n1
+    n2: n3
+    i1: i3
+    i2: i3
+    conditioning: {}
+    label: KANTOOR-Ethernet0/2<->DC-Ethernet0/2
+  - id: l3
+    n1: n1
+    n2: n2
+    i1: i4
+    i2: i2
+    conditioning: {}
+    label: KANTOOR-Ethernet0/3<->MPLS-Ethernet0/1
+  - id: l4
+    n1: n2
+    n2: n3
+    i1: i3
+    i2: i4
+    conditioning: {}
+    label: MPLS-Ethernet0/2<->DC-Ethernet0/3
+  - id: l5
+    n1: n3
+    n2: n4
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: DC-Ethernet0/0<->SRV-eth0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 3.1. Onderzoekslab: longest prefix match,
+    administratieve afstand en metric (incl. ECMP).'
+  notes: |-
+    # Lab 3.1.2 - Welke route wint?
+
+    **Leerdoel (CCNA 200-301 v2.0, 3.1):** een routeringstabel interpreteren om de next hop van een pakket te bepalen (routeringsprotocol, prefix/masker, administratieve afstand, metric en default route).
+
+    ## Scenario
+    Het kantoor (KANTOOR) is op drie manieren verbonden met het datacenter (DC):
+    - **Lijn A** en **lijn B**: twee directe lijnen waarover **OSPF** draait. Lijn B is als langzamer ingesteld.
+    - Een **MPLS-verbinding** van een provider (router MPLS) waarover **EIGRP** draait.
+
+    Daardoor kent KANTOOR veel bestemmingen op meer dan één manier. Jij zoekt uit welke route de router kiest, en waarom.
+
+    Dit is een **onderzoekslab**: er zit niets kapot. Je voorspelt eerst, controleert daarna en doet dan een paar proeven waarbij je één ding verandert en kijkt wat er in de tabel gebeurt.
+
+    ## De beslisregels van een router
+    Een router kiest per pakket één regel uit zijn routeringstabel:
+    1. **Longest prefix match**: de regel met het langste passende prefix wint, ongeacht de bron.
+    2. Komt hetzelfde prefix uit meerdere bronnen, dan bepaalt de **administratieve afstand** (AD) welke route in de tabel komt.
+    3. Heeft één bron meerdere paden naar hetzelfde prefix, dan wint de laagste **metric**. Zijn de metrics gelijk, dan komen alle paden in de tabel (**ECMP**, load balancing).
+
+    ## Topologie
+    | Apparaat | Interface | IPv4 | Opmerking |
+    |---|---|---|---|
+    | PC1 | eth0 | 10.32.10.11/24 | gateway 10.32.10.1 |
+    | KANTOOR | E0/1 / E0/2 / E0/3 | 10.32.255.1 / 10.32.255.5 / 10.32.254.1 | lijn A / lijn B / MPLS |
+    | DC | E0/1 / E0/2 / E0/3 | 10.32.255.2 / 10.32.255.6 / 10.32.254.5 | lijn A / lijn B / MPLS |
+    | MPLS | E0/1 / E0/2 | 10.32.254.2 / 10.32.254.6 | provider |
+    | SRV | eth0 | 10.32.60.10/24 en 10.32.60.200/24 | twee adressen op één server |
+
+    DC heeft daarnaast nog twee interne netwerken (loopbacks); zoek die zelf op.
+
+    ## Inloggen
+    - Routers: console, geen wachtwoord.
+    - PC1 en SRV (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**.
+
+    Wacht na het starten ongeveer twee minuten tot OSPF en EIGRP hun buren hebben gevonden.
+
+    ## Opdrachten
+
+    ### Deel 1 - Wat weet KANTOOR?
+    1. Bekijk de routeringstabel van KANTOOR. Noteer per route: code, prefix, AD/metric en next hop.
+    2. Welke route staat er naar 10.32.50.0/24? Die server wordt door DC zowel in OSPF als in EIGRP aangeboden. Toon met `show ip ospf database` (of `show ip ospf rib`) aan dat KANTOOR de OSPF-route wél kent. Waarom staat hij niet in de routeringstabel?
+    3. Naar 10.32.60.0/24 zijn er twee OSPF-paden (lijn A en lijn B). Welk pad staat in de tabel? Bereken de metric van beide paden.
+
+    ### Deel 2 - Voorspellen
+    Voorspel voor elk adres welke regel KANTOOR gebruikt (prefix + code), de next hop en welke beslisregel (longest match, AD of metric) de doorslag geeft.
+
+    | # | Bestemming | Regel | Next hop | Beslisregel |
+    |---|---|---|---|---|
+    | 1 | 10.32.60.10 | | | |
+    | 2 | 10.32.60.200 | | | |
+    | 3 | 10.32.50.1 | | | |
+    | 4 | 10.40.7.1 | | | |
+    | 5 | 10.40.0.1 | | | |
+    | 6 | 8.8.8.8 | | | |
+
+    ### Deel 3 - Controleren
+    1. Controleer elke voorspelling op KANTOOR met `show ip route <adres>`. Let op de regel "Routing entry for …": dat is de regel die wint.
+    2. Controleer de paden ook met `traceroute` vanaf KANTOOR en vanaf PC1. Aan het adres van de tweede hop zie je over welke lijn het pakket ging.
+    3. Bestemming 4 en 5 liggen allebei in 10.40.0.0/16. Waarom gaat de ene via DC en de andere via de provider, terwijl EIGRP een lagere AD heeft dan OSPF?
+    4. Bestemming 6 lukt niet. Is dat een fout? Wat doet DC met het pakket?
+
+    ### Deel 4 - Proeven
+    Voer de proeven één voor één uit. Bekijk na elke proef opnieuw de tabel en noteer wat er veranderde. Zet daarna de oude situatie terug, tenzij anders vermeld. De configuratiecommando's staan erbij, want configureren is hier niet het doel; het gaat om wat je in de tabel ziet.
+
+    **Proef 1 - De MPLS-verbinding valt uit.** Stop in CML de link tussen KANTOOR E0/3 en MPLS (rechtermuisknop op de link, *Stop*). Wacht ongeveer 20 seconden.
+    - Wat gebeurt er met de route naar 10.32.50.0/24? Welke bron neemt het over, en met welke AD?
+    - Welke regel gebruikt KANTOOR nu voor 10.40.0.1? Lukt de ping nog?
+    - Start de link daarna weer en controleer dat de oude situatie terugkomt.
+
+    **Proef 2 - Gelijke kosten.** Maak lijn B net zo "goed" als lijn A:
+    ```
+    KANTOOR(config)# interface Ethernet0/2
+    KANTOOR(config-if)# ip ospf cost 10
+    ```
+    - Hoeveel next hops staan er nu bij 10.32.60.0/24 en bij de default route?
+    - Bekijk `show ip route 10.32.60.0`. Wat betekenen het sterretje en "traffic share count"?
+    - Zet de cost daarna terug naar 20.
+
+    **Proef 3 - De specifieke route verdwijnt.**
+    ```
+    KANTOOR(config)# no ip route 10.32.60.192 255.255.255.192 10.32.255.6
+    ```
+    - Welke regel gebruikt KANTOOR nu voor 10.32.60.200, en via welke lijn?
+    - Zet de route daarna terug.
+
+    **Proef 4 - De testomgeving gaat uit.**
+    ```
+    DC(config)# interface Loopback2
+    DC(config-if)# shutdown
+    ```
+    - Welke regel gebruikt KANTOOR nu voor 10.40.7.1? Wat is de next hop?
+    - Zet de interface daarna weer aan (`no shutdown`).
+
+    ## Reflectie
+    1. Zet de drie beslisregels in de juiste volgorde en geef bij elke regel een voorbeeld uit dit lab.
+    2. Een collega zegt: "EIGRP heeft een lagere AD, dus al het verkeer naar 10.40.0.0/16 gaat via de provider." Klopt dat? Leg uit.
+    3. Waarom vergelijkt een router de metric van een OSPF-route nooit met die van een EIGRP-route?
+
+    Je docent bespreekt daarna je antwoorden.
+  title: Lab 3.1.2 - Welke route wint
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1
