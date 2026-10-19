@@ -53,7 +53,7 @@ Gebruikte node-types: `iol-xe`, `ioll2-xe`, `unmanaged_switch` en `alpine`.
 |---|---|
 | [3.1 Routing Table](3.0_IP_Routing/3.1_Routing_Table/) | 3 |
 | [3.2 Static Routing](3.0_IP_Routing/3.2_Static_Routing/) | 3 |
-| [3.3 OSPF](3.0_IP_Routing/3.3_OSPF/) | - |
+| [3.3 OSPF](3.0_IP_Routing/3.3_OSPF/) | 4 |
 | [3.4 FHRP](3.0_IP_Routing/3.4_FHRP/) | - |
 
 ### [4.0 Network Services and Security](4.0_Network_Services_and_Security/) (20%)

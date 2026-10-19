@@ -1,0 +1,606 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 3.3.1 - DRIE VESTIGINGEN, EEN AREA (configuratielab, OSPFv2)
+       Driehoek HQ - NOORD - ZUID, nog geen routering
+       HQ E0/3 -> ISP (echt internet; default route en NAT staan al)
+       PC1 172.16.10.11  PC2 172.16.20.11  PC3 172.16.30.11
+       Configureer: router-ID, OSPF area 0, passive, point-to-point, default
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+      Login PC's: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -760.0
+    y1: -470.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: default
+        content: NAT
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: INTERNET
+    node_definition: external_connector
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -420
+    interfaces:
+      - id: i0
+        label: port
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname ISP
+          no ip domain lookup
+          !
+          interface Ethernet0/1
+           description Klant HQ
+           ip address 198.51.100.29 255.255.255.252
+           ip nat inside
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Uplink naar het echte internet (CML External Connector, NAT)
+           ip address dhcp
+           ip nat outside
+           no shutdown
+          !
+          ip access-list standard NAT-KLANT
+           permit 198.51.100.28 0.0.0.3
+          ip nat inside source list NAT-KLANT interface Ethernet0/2 overload
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: ISP
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -280
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname HQ
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description LAN hoofdkantoor
+           ip address 172.16.10.1 255.255.255.0
+           ip nat inside
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Naar NOORD
+           ip address 172.16.255.1 255.255.255.252
+           ip nat inside
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Naar ZUID
+           ip address 172.16.255.5 255.255.255.252
+           ip nat inside
+           no shutdown
+          !
+          interface Ethernet0/3
+           description Naar ISP
+           ip address 198.51.100.30 255.255.255.252
+           ip nat outside
+           no shutdown
+          !
+          ip route 0.0.0.0 0.0.0.0 198.51.100.29
+          !
+          ip access-list standard NAT-INTERN
+           permit 172.16.0.0 0.0.255.255
+          ip nat inside source list NAT-INTERN interface Ethernet0/3 overload
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: HQ
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -120
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname NOORD
+          no ip domain lookup
+          !
+          interface Loopback1
+           description Beheeradres
+           ip address 10.255.0.2 255.255.255.255
+          !
+          interface Ethernet0/0
+           description LAN Noord
+           ip address 172.16.20.1 255.255.255.0
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Naar HQ
+           ip address 172.16.255.2 255.255.255.252
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Naar ZUID
+           ip address 172.16.255.9 255.255.255.252
+           no shutdown
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: NOORD
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -220
+    y: 120
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname ZUID
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description LAN Zuid
+           ip address 172.16.30.1 255.255.255.0
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Naar HQ
+           ip address 172.16.255.6 255.255.255.252
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Naar NOORD
+           ip address 172.16.255.10 255.255.255.252
+           no shutdown
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: ZUID
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 220
+    y: 120
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 172.16.10.11/24 dev eth0
+          ip route add default via 172.16.10.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: PC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -250
+    y: -120
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC2
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 172.16.20.11/24 dev eth0
+          ip route add default via 172.16.20.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n6
+    image_definition: null
+    label: PC2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -420
+    y: 250
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC3
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 172.16.30.11/24 dev eth0
+          ip route add default via 172.16.30.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n7
+    image_definition: null
+    label: PC3
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 420
+    y: 250
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i0
+    i2: i3
+    conditioning: {}
+    label: INTERNET-port<->ISP-Ethernet0/2
+  - id: l1
+    n1: n1
+    n2: n2
+    i1: i2
+    i2: i4
+    conditioning: {}
+    label: ISP-Ethernet0/1<->HQ-Ethernet0/3
+  - id: l2
+    n1: n5
+    n2: n2
+    i1: i0
+    i2: i1
+    conditioning: {}
+    label: PC1-eth0<->HQ-Ethernet0/0
+  - id: l3
+    n1: n2
+    n2: n3
+    i1: i2
+    i2: i2
+    conditioning: {}
+    label: HQ-Ethernet0/1<->NOORD-Ethernet0/1
+  - id: l4
+    n1: n2
+    n2: n4
+    i1: i3
+    i2: i2
+    conditioning: {}
+    label: HQ-Ethernet0/2<->ZUID-Ethernet0/1
+  - id: l5
+    n1: n3
+    n2: n4
+    i1: i3
+    i2: i3
+    conditioning: {}
+    label: NOORD-Ethernet0/2<->ZUID-Ethernet0/2
+  - id: l6
+    n1: n3
+    n2: n6
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: NOORD-Ethernet0/0<->PC2-eth0
+  - id: l7
+    n1: n4
+    n2: n7
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: ZUID-Ethernet0/0<->PC3-eth0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 3.3. Configuratielab OSPFv2: router-ID,
+    network/interface, passive, point-to-point, default route.'
+  notes: |-
+    # Lab 3.3.1 - Drie vestigingen, één area
+
+    **Leerdoel (CCNA 200-301 v2.0, 3.3):** single-area OSPFv2 configureren: neighbor adjacencies, point-to-point, broadcast (DR/BDR) en router-ID.
+
+    ## Scenario
+    Een bedrijf heeft drie locaties (HQ, NOORD en ZUID) die in een driehoek met elkaar verbonden zijn. Alle interfaces hebben een adres, maar er draait nog **geen routeringsprotocol**. HQ heeft al een default route naar de ISP (echt internet, testadres 8.8.8.8) en doet NAT.
+
+    Jij configureert **OSPFv2 in area 0**, zodat alle locaties elkaar en het internet kunnen bereiken, ook als er een link uitvalt.
+
+    Dit is een **configuratielab**: er zit niets kapot.
+
+    ## Topologie
+    | Apparaat | Interface | IPv4 | Opmerking |
+    |---|---|---|---|
+    | HQ | E0/0 | 172.16.10.1/24 | LAN (PC1 .11) |
+    | HQ | E0/1 / E0/2 | 172.16.255.1/30 / 172.16.255.5/30 | naar NOORD / naar ZUID |
+    | HQ | E0/3 | 198.51.100.30/30 | naar ISP (198.51.100.29) |
+    | NOORD | E0/0 | 172.16.20.1/24 | LAN (PC2 .11) |
+    | NOORD | E0/1 / E0/2 | 172.16.255.2/30 / 172.16.255.9/30 | naar HQ / naar ZUID |
+    | NOORD | Loopback1 | 10.255.0.2/32 | beheeradres |
+    | ZUID | E0/0 | 172.16.30.1/24 | LAN (PC3 .11) |
+    | ZUID | E0/1 / E0/2 | 172.16.255.6/30 / 172.16.255.10/30 | naar HQ / naar NOORD |
+
+    De ISP-router is van de provider: bekijken mag, aanpassen niet. De link naar de ISP hoort **niet** in OSPF.
+
+    ## Inloggen
+    - Routers: console, geen wachtwoord.
+    - PC's (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**.
+
+    ## Opdrachten
+    Gebruik overal OSPF-proces **1** en **area 0**.
+
+    ### Deel 1 - Het router-ID
+    1. Een OSPF-router kiest zijn router-ID in een vaste volgorde. Schrijf die volgorde op.
+    2. **Voorspel** voor HQ, NOORD en ZUID welk router-ID ze krijgen als je OSPF start zonder iets in te stellen.
+    3. Start op alle drie de routers alleen het OSPF-proces (nog geen netwerken) en controleer je voorspelling (`show ip protocols` of `show ip ospf`).
+    4. Stel nu de router-ID's handmatig in: HQ **1.1.1.1**, NOORD **2.2.2.2**, ZUID **3.3.3.3**. Bekijk de logmelding (`show logging | include OSPF`). Is het nieuwe router-ID meteen in gebruik? Wat gebeurt er volgens de melding met buren die al FULL zijn? (Op oudere IOS-versies werd het nieuwe router-ID pas actief na `clear ip ospf process`; dat kom je in veel lesmateriaal nog tegen.)
+    5. Waarom is een handmatig router-ID in de praktijk beter dan een automatisch gekozen?
+
+    ### Deel 2 - OSPF aanzetten
+    Zet OSPF aan op alle interfaces binnen het bedrijf (LAN's en links), op **twee verschillende manieren**:
+    1. Op **HQ** met `network`-regels. Gebruik per interface een zo precies mogelijke wildcard.
+    2. Op **NOORD** per interface (interfaceconfiguratie).
+    3. Op **ZUID** met één enkele `network`-regel die alle bedrijfsinterfaces in één keer dekt.
+    4. Hoort het beheeradres van NOORD (Loopback1) in OSPF? Zet het erin, zodat het vanaf HQ te pingen is.
+
+    ### Deel 3 - Buren
+    1. Bekijk `show ip ospf neighbor` op alle routers. Welke states zie je? Noteer van elke buur het router-ID, de state en de rol (DR/BDR/DROTHER).
+    2. Waarom is er op een link met maar twee routers toch een DR en een BDR?
+    3. Noem vier voorwaarden waaraan twee routers moeten voldoen om buren te worden.
+    4. Zorg dat er op de **LAN's** geen OSPF-hello's meer worden verstuurd, terwijl het LAN wel wordt geadverteerd. Controleer met `show ip ospf interface brief` en de tabel.
+
+    ### Deel 4 - Point-to-point
+    1. Zet het network type van de drie **routerlinks** op point-to-point (aan beide kanten).
+    2. Wat verandert er in `show ip ospf neighbor` en in `show ip ospf interface` voor die links?
+    3. Waarom is point-to-point de betere keuze voor een link tussen twee routers?
+
+    ### Deel 5 - De default route verspreiden
+    1. NOORD en ZUID hebben nog geen route naar internet. Laat **HQ** zijn default route via OSPF aan de andere routers doorgeven.
+    2. Controleer de tabellen van NOORD en ZUID (welke code heeft de default route?) en test vanaf PC2 en PC3 naar 8.8.8.8.
+
+    ### Deel 6 - Verificatie en een uitval
+    1. Test PC1, PC2 en PC3 onderling. Welke OSPF-routes heeft HQ, en met welke cost?
+    2. Zet op **NOORD** en **ZUID** de interface naar elkaar (E0/2) uit. Wat gebeurt er met de buren en de routes? Kunnen PC2 en PC3 elkaar nog bereiken? Over welk pad?
+    3. Zet de interfaces weer aan en controleer dat de buren weer FULL worden.
+
+    ## Reflectie
+    1. Wat zijn de voor- en nadelen van `network`-regels tegenover OSPF per interface?
+    2. Wat is het verschil tussen een passieve interface en een interface die helemaal niet in OSPF zit?
+    3. Waarom wordt de link naar de ISP niet in OSPF opgenomen?
+
+    Je docent bespreekt daarna je antwoorden.
+  title: Lab 3.3.1 - Drie vestigingen, een area
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1

@@ -1,0 +1,663 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 3.3.3 - DEZELFDE KAART IN OSPFv3 (configuratielab, alleen IPv6)
+       R1, R2, R3 op backbone-segment 2001:db8:33:100::/64 (switch)
+       R3 - BRANCH point-to-point 2001:db8:33:fe01::/64
+       R1 -> ISP (default staat al; internetsimulatie 2001:db8:f00d::1)
+       Configureer: router-ID, OSPFv3 per interface, passive, DR/BDR, p2p
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+      Login PC's: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -780.0
+    y1: -470.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname ISP
+          no ip domain lookup
+          ipv6 unicast-routing
+          !
+          interface Loopback0
+           ip address 10.255.33.9 255.255.255.255
+          !
+          interface Loopback1
+           description Internetsimulatie IPv6
+           ipv6 address 2001:DB8:F00D::1/128
+          !
+          interface Ethernet0/1
+           description Klant R1
+           ipv6 address 2001:DB8:FFFF:33::1/64
+           no shutdown
+          !
+          ipv6 route 2001:DB8:33::/48 2001:DB8:FFFF:33::2
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: ISP
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -300
+    y: -300
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R1
+          no ip domain lookup
+          ipv6 unicast-routing
+          !
+          interface Loopback0
+           description IPv4 alleen voor het opstarten van de router
+           ip address 10.255.33.1 255.255.255.255
+          !
+          interface Ethernet0/0
+           description LAN R1
+           ipv6 address 2001:DB8:33:10::1/64
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Backbone-segment
+           ipv6 address 2001:DB8:33:100::1/64
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Naar ISP
+           ipv6 address 2001:DB8:FFFF:33::2/64
+           no shutdown
+          !
+          ipv6 route ::/0 2001:DB8:FFFF:33::1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: R1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -300
+    y: -120
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: SW-BACKBONE
+    node_definition: unmanaged_switch
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -120
+    interfaces:
+      - id: i0
+        label: port0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: port1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i2
+        label: port2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i3
+        label: port3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R2
+          no ip domain lookup
+          ipv6 unicast-routing
+          !
+          interface Loopback0
+           description IPv4 alleen voor het opstarten van de router
+           ip address 10.255.33.2 255.255.255.255
+          !
+          interface Ethernet0/0
+           description LAN R2
+           ipv6 address 2001:DB8:33:20::1/64
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Backbone-segment
+           ipv6 address 2001:DB8:33:100::2/64
+           no shutdown
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: R2
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 300
+    y: -120
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R3
+          no ip domain lookup
+          ipv6 unicast-routing
+          !
+          interface Loopback0
+           description IPv4 alleen voor het opstarten van de router
+           ip address 10.255.33.3 255.255.255.255
+          !
+          interface Ethernet0/1
+           description Backbone-segment
+           ipv6 address 2001:DB8:33:100::3/64
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Naar BRANCH
+           ipv6 address 2001:DB8:33:FE01::1/64
+           no shutdown
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: R3
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: 80
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname BRANCH
+          no ip domain lookup
+          ipv6 unicast-routing
+          !
+          interface Loopback0
+           description IPv4 alleen voor het opstarten van de router
+           ip address 10.255.33.4 255.255.255.255
+          !
+          interface Ethernet0/0
+           description LAN BRANCH
+           ipv6 address 2001:DB8:33:40::1/64
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Naar R3
+           ipv6 address 2001:DB8:33:FE01::2/64
+           no shutdown
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: BRANCH
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: 260
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische IPv6-host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip -6 address add 2001:db8:33:10::11/64 dev eth0
+          ip -6 route add default via 2001:db8:33:10::1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n6
+    image_definition: null
+    label: PC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -550
+    y: -120
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC2
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische IPv6-host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip -6 address add 2001:db8:33:20::11/64 dev eth0
+          ip -6 route add default via 2001:db8:33:20::1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n7
+    image_definition: null
+    label: PC2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 550
+    y: -120
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC4
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische IPv6-host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip -6 address add 2001:db8:33:40::11/64 dev eth0
+          ip -6 route add default via 2001:db8:33:40::1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n8
+    image_definition: null
+    label: PC4
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: 420
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i2
+    i2: i3
+    conditioning: {}
+    label: ISP-Ethernet0/1<->R1-Ethernet0/2
+  - id: l1
+    n1: n6
+    n2: n1
+    i1: i0
+    i2: i1
+    conditioning: {}
+    label: PC1-eth0<->R1-Ethernet0/0
+  - id: l2
+    n1: n1
+    n2: n2
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: R1-Ethernet0/1<->SW-BACKBONE-port0
+  - id: l3
+    n1: n3
+    n2: n2
+    i1: i2
+    i2: i1
+    conditioning: {}
+    label: R2-Ethernet0/1<->SW-BACKBONE-port1
+  - id: l4
+    n1: n4
+    n2: n2
+    i1: i2
+    i2: i2
+    conditioning: {}
+    label: R3-Ethernet0/1<->SW-BACKBONE-port2
+  - id: l5
+    n1: n3
+    n2: n7
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: R2-Ethernet0/0<->PC2-eth0
+  - id: l6
+    n1: n4
+    n2: n5
+    i1: i3
+    i2: i2
+    conditioning: {}
+    label: R3-Ethernet0/2<->BRANCH-Ethernet0/1
+  - id: l7
+    n1: n5
+    n2: n8
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: BRANCH-Ethernet0/0<->PC4-eth0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 3.3. Configuratielab OSPFv3: router-ID,
+    interfaceconfiguratie, passive, DR/BDR, point-to-point, default route.'
+  notes: |-
+    # Lab 3.3.3 - Dezelfde kaart in OSPFv3
+
+    **Leerdoel (CCNA 200-301 v2.0, 3.3):** single-area OSPFv3 voor IPv6 configureren: neighbor adjacencies, point-to-point, broadcast (DR/BDR) en router-ID.
+
+    ## Scenario
+    Een campusnetwerk werkt **alleen met IPv6**. R1, R2 en R3 zitten samen op een **backbone-segment** (een switch). R3 heeft een point-to-point-link naar de vestiging BRANCH. R1 is de internetrouter en heeft al een default route naar de ISP (gesimuleerd internet: **2001:db8:f00d::1**).
+
+    Er draait nog geen routeringsprotocol. Jij configureert **OSPFv3 in area 0**.
+
+    Dit is een **configuratielab**: er zit niets kapot.
+
+    ## Topologie
+    | Apparaat | Interface | IPv6 | Opmerking |
+    |---|---|---|---|
+    | R1 | E0/0 / E0/1 | 2001:db8:33:10::1/64 / 2001:db8:33:100::1/64 | LAN (PC1 ::11) / backbone |
+    | R1 | E0/2 | 2001:db8:ffff:33::2/64 | naar ISP |
+    | R2 | E0/0 / E0/1 | 2001:db8:33:20::1/64 / 2001:db8:33:100::2/64 | LAN (PC2 ::11) / backbone |
+    | R3 | E0/1 / E0/2 | 2001:db8:33:100::3/64 / 2001:db8:33:fe01::1/64 | backbone / naar BRANCH |
+    | BRANCH | E0/0 / E0/1 | 2001:db8:33:40::1/64 / 2001:db8:33:fe01::2/64 | LAN (PC4 ::11) / naar R3 |
+
+    Elke router heeft een IPv4-adres op Loopback0 (10.255.33.x). Dat is alleen nodig om de router te laten opstarten; het netwerk zelf gebruikt geen IPv4. De ISP-router is niet van jou: bekijken mag, aanpassen niet.
+
+    ## Inloggen
+    - Routers: console, geen wachtwoord.
+    - PC's (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**.
+
+    ## Opdrachten
+    Gebruik overal OSPFv3-proces **1** en **area 0**.
+
+    ### Deel 1 - Router-ID's
+    1. OSPFv3 gebruikt een router-ID in IPv4-formaat (32 bits). Waar haalt een router dat vandaan als je niets instelt?
+    2. Configureer op R1, R2 en R3 het OSPFv3-proces met de router-ID's **1.1.1.1**, **2.2.2.2** en **3.3.3.3**.
+    3. **Proef op BRANCH:** verwijder eerst het IPv4-adres van Loopback0, zodat BRANCH geen enkel IPv4-adres meer heeft. Maak daarna het OSPFv3-proces aan, zonder router-ID. Welke melding geeft IOS? Los het op met router-ID **4.4.4.4**.
+
+    ### Deel 2 - OSPFv3 op de interfaces
+    1. Zet OSPFv3 aan op alle interfaces van R1, R2, R3 en BRANCH, behalve de link naar de ISP. Bij OSPFv3 bestaat er geen `network`-commando: hoe dan wel?
+    2. Zorg dat de LAN-interfaces geen hello's versturen, terwijl de LAN's wel worden geadverteerd.
+    3. Bekijk `show ipv6 ospf neighbor`. Welke informatie staat er, en wat valt op aan de manier waarop de buren worden aangeduid?
+
+    ### Deel 3 - DR/BDR op het backbone-segment
+    1. **Voorspel** welke router DR en welke BDR wordt op het backbone-segment. Controleer met `show ipv6 ospf interface Ethernet0/1`.
+    2. Het ontwerp wil **R1** als DR (de internetrouter) en **R2** als BDR. Pas de prioriteiten aan en zorg dat de rollen ook echt veranderen. Welke stappen waren nodig, en waarom?
+    3. Werkt de DR/BDR-verkiezing in OSPFv3 anders dan in OSPFv2?
+
+    ### Deel 4 - Point-to-point
+    1. Zet de link R3 - BRANCH op network type point-to-point (aan beide kanten). Wat verandert er in `show ipv6 ospf neighbor`?
+    2. Zou je het backbone-segment ook op point-to-point kunnen zetten? Waarom niet?
+
+    ### Deel 5 - Default route en verificatie
+    1. Laat R1 zijn default route via OSPFv3 doorgeven.
+    2. Bekijk `show ipv6 route ospf` op BRANCH. Welke next hop-adressen zie je, en waarom zijn dat geen globale adressen?
+    3. Test vanaf PC4 naar PC1, PC2 en 2001:db8:f00d::1.
+
+    ## Reflectie
+    1. Noem drie verschillen tussen het configureren van OSPFv2 en OSPFv3.
+    2. Waarom moest je op BRANCH een router-ID instellen en op R1 t/m R3 eigenlijk niet?
+    3. Welke OSPF-onderdelen zijn in v2 en v3 precies hetzelfde gebleven?
+
+    Je docent bespreekt daarna je antwoorden.
+  title: Lab 3.3.3 - Dezelfde kaart in OSPFv3
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1

@@ -1,0 +1,894 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 3.3.4 - BUREN DIE ELKAAR NIET VINDEN
+       Er zitten 7 fouten in dit lab (OSPFv2 en OSPFv3).
+       HQ-NOORD en HQ-ZUID: point-to-point
+       Segment HQ/OOST/WEST: broadcast, HQ is DR
+       Router-ID's: HQ 1.1.1.1 ... WEST 5.5.5.5 (v2 en v3)
+      Ontwerp en opdracht: open de Lab Notes (tabblad Notes).
+      Login PC's: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -800.0
+    y1: -480.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: default
+        content: NAT
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: INTERNET
+    node_definition: external_connector
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -430
+    interfaces:
+      - id: i0
+        label: port
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname ISP
+          no ip domain lookup
+          ipv6 unicast-routing
+          !
+          interface Loopback1
+           description Internetsimulatie IPv6
+           ipv6 address 2001:DB8:F00D::1/128
+          !
+          interface Ethernet0/1
+           description Klant HQ
+           ip address 198.51.100.33 255.255.255.252
+           ip nat inside
+           ipv6 address 2001:DB8:FFFF:34::1/64
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Uplink naar het echte internet (CML External Connector, NAT)
+           ip address dhcp
+           ip nat outside
+           no shutdown
+          !
+          ip access-list standard NAT-KLANT
+           permit 198.51.100.32 0.0.0.3
+          ip nat inside source list NAT-KLANT interface Ethernet0/2 overload
+          ipv6 route 2001:DB8:34::/48 2001:DB8:FFFF:34::2
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: ISP
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -290
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname HQ
+          no ip domain lookup
+          ipv6 unicast-routing
+          !
+          interface Ethernet0/0
+           description LAN hoofdkantoor
+           ip address 10.34.10.1 255.255.255.0
+           ip nat inside
+           ip ospf 1 area 0
+           ipv6 address 2001:DB8:34:10::1/64
+           ipv6 ospf 1 area 0
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Naar NOORD
+           ip address 10.34.255.1 255.255.255.252
+           ip nat inside
+           ip ospf network point-to-point
+           ip ospf 1 area 0
+           ipv6 address 2001:DB8:34:FF01::1/64
+           ipv6 ospf network point-to-point
+           ipv6 ospf 1 area 0
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Naar ZUID
+           ip address 10.34.255.5 255.255.255.252
+           ip nat inside
+           ip ospf network point-to-point
+           ip ospf 1 area 0
+           ipv6 address 2001:DB8:34:FF02::1/64
+           ipv6 ospf network point-to-point
+           ipv6 ospf 1 area 0
+           no shutdown
+          !
+          interface Ethernet0/3
+           description Naar ISP
+           ip address 198.51.100.34 255.255.255.252
+           ip nat outside
+           ipv6 address 2001:DB8:FFFF:34::2/64
+           no shutdown
+          !
+          interface Ethernet1/0
+           description Segment OOST/WEST
+           ip address 10.34.100.1 255.255.255.0
+           ip nat inside
+           ip ospf priority 100
+           ip ospf 1 area 0
+           ipv6 address 2001:DB8:34:100::1/64
+           ipv6 ospf priority 0
+           ipv6 ospf 1 area 0
+           no shutdown
+          !
+          router ospf 1
+           router-id 1.1.1.1
+           passive-interface Ethernet0/0
+           default-information originate
+          !
+          ipv6 router ospf 1
+           router-id 1.1.1.1
+           passive-interface Ethernet0/0
+           default-information originate
+          !
+          ip route 0.0.0.0 0.0.0.0 198.51.100.33
+          ipv6 route ::/0 2001:DB8:FFFF:34::1
+          !
+          ip access-list standard NAT-INTERN
+           permit 10.34.0.0 0.0.255.255
+          ip nat inside source list NAT-INTERN interface Ethernet0/3 overload
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: HQ
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -120
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i5
+        label: Ethernet1/0
+        mac_address: null
+        type: physical
+        slot: 4
+      - id: i6
+        label: Ethernet1/1
+        mac_address: null
+        type: physical
+        slot: 5
+      - id: i7
+        label: Ethernet1/2
+        mac_address: null
+        type: physical
+        slot: 6
+      - id: i8
+        label: Ethernet1/3
+        mac_address: null
+        type: physical
+        slot: 7
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname NOORD
+          no ip domain lookup
+          ipv6 unicast-routing
+          !
+          interface Ethernet0/0
+           description LAN Noord
+           ip address 10.34.20.1 255.255.255.0
+           ip ospf 1 area 0
+           ipv6 address 2001:DB8:34:20::1/64
+           ipv6 ospf 1 area 0
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Naar HQ
+           ip address 10.34.255.2 255.255.255.252
+           ip ospf network point-to-point
+           ip ospf 1 area 1
+           ipv6 address 2001:DB8:34:FF01::2/64
+           ipv6 ospf network point-to-point
+           ipv6 ospf 1 area 0
+           no shutdown
+          !
+          router ospf 1
+           router-id 2.2.2.2
+           passive-interface Ethernet0/0
+          !
+          ipv6 router ospf 1
+           router-id 2.2.2.2
+           passive-interface Ethernet0/0
+           passive-interface Ethernet0/1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: NOORD
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -350
+    y: 50
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname ZUID
+          no ip domain lookup
+          ipv6 unicast-routing
+          !
+          interface Ethernet0/0
+           description LAN Zuid
+           ip address 10.34.30.1 255.255.255.0
+           ip ospf 1 area 0
+           ipv6 address 2001:DB8:34:30::1/64
+           ipv6 ospf 1 area 0
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Naar HQ
+           ip address 10.34.255.6 255.255.255.252
+           ip mtu 1400
+           ip ospf network point-to-point
+           ip ospf 1 area 0
+           ipv6 address 2001:DB8:34:FF02::2/64
+           ipv6 ospf 1 area 0
+           no shutdown
+          !
+          router ospf 1
+           router-id 3.3.3.3
+           passive-interface Ethernet0/0
+          !
+          ipv6 router ospf 1
+           router-id 3.3.3.3
+           passive-interface Ethernet0/0
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: ZUID
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 350
+    y: 50
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: SW-SEGMENT
+    node_definition: unmanaged_switch
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: 100
+    interfaces:
+      - id: i0
+        label: port0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: port1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i2
+        label: port2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i3
+        label: port3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname OOST
+          no ip domain lookup
+          ipv6 unicast-routing
+          !
+          interface Loopback1
+           description LAN Oost (gesimuleerd)
+           ip address 10.34.40.1 255.255.255.0
+           ip ospf network point-to-point
+           ip ospf 1 area 0
+           ipv6 address 2001:DB8:34:40::1/64
+           ipv6 ospf network point-to-point
+           ipv6 ospf 1 area 0
+          !
+          interface Ethernet0/1
+           description Segment OOST/WEST
+           ip address 10.34.100.2 255.255.255.0
+           ip ospf priority 0
+           ip ospf 1 area 0
+           ipv6 address 2001:DB8:34:100::2/64
+           ipv6 ospf priority 0
+           ipv6 ospf 1 area 0
+           no shutdown
+          !
+          router ospf 1
+           router-id 1.1.1.1
+          !
+          ipv6 router ospf 1
+           router-id 4.4.4.4
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n6
+    image_definition: null
+    label: OOST
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -120
+    y: 260
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname WEST
+          no ip domain lookup
+          ipv6 unicast-routing
+          !
+          interface Loopback1
+           description LAN West (gesimuleerd)
+           ip address 10.34.50.1 255.255.255.0
+           ip ospf network point-to-point
+           ip ospf 1 area 0
+           ipv6 address 2001:DB8:34:50::1/64
+           ipv6 ospf network point-to-point
+           ipv6 ospf 1 area 0
+          !
+          interface Ethernet0/1
+           description Segment OOST/WEST
+           ip address 10.34.100.3 255.255.255.0
+           ip ospf hello-interval 5
+           ip ospf priority 0
+           ip ospf 1 area 0
+           ipv6 address 2001:DB8:34:100::3/64
+           ipv6 ospf priority 0
+           ipv6 ospf 1 area 0
+           no shutdown
+          !
+          router ospf 1
+           router-id 5.5.5.5
+          !
+          ipv6 router ospf 1
+           router-id 5.5.5.5
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n7
+    image_definition: null
+    label: WEST
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 120
+    y: 260
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.34.10.11/24 dev eth0
+          ip route add default via 10.34.10.1
+          ip -6 address add 2001:db8:34:10::11/64 dev eth0
+          ip -6 route add default via 2001:db8:34:10::1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n8
+    image_definition: null
+    label: PC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -260
+    y: -120
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC2
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.34.20.11/24 dev eth0
+          ip route add default via 10.34.20.1
+          ip -6 address add 2001:db8:34:20::11/64 dev eth0
+          ip -6 route add default via 2001:db8:34:20::1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n9
+    image_definition: null
+    label: PC2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -550
+    y: 50
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC3
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.34.30.11/24 dev eth0
+          ip route add default via 10.34.30.1
+          ip -6 address add 2001:db8:34:30::11/64 dev eth0
+          ip -6 route add default via 2001:db8:34:30::1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n10
+    image_definition: null
+    label: PC3
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 550
+    y: 50
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i0
+    i2: i3
+    conditioning: {}
+    label: INTERNET-port<->ISP-Ethernet0/2
+  - id: l1
+    n1: n1
+    n2: n2
+    i1: i2
+    i2: i4
+    conditioning: {}
+    label: ISP-Ethernet0/1<->HQ-Ethernet0/3
+  - id: l2
+    n1: n8
+    n2: n2
+    i1: i0
+    i2: i1
+    conditioning: {}
+    label: PC1-eth0<->HQ-Ethernet0/0
+  - id: l3
+    n1: n2
+    n2: n3
+    i1: i2
+    i2: i2
+    conditioning: {}
+    label: HQ-Ethernet0/1<->NOORD-Ethernet0/1
+  - id: l4
+    n1: n2
+    n2: n4
+    i1: i3
+    i2: i2
+    conditioning: {}
+    label: HQ-Ethernet0/2<->ZUID-Ethernet0/1
+  - id: l5
+    n1: n2
+    n2: n5
+    i1: i5
+    i2: i0
+    conditioning: {}
+    label: HQ-Ethernet1/0<->SW-SEGMENT-port0
+  - id: l6
+    n1: n6
+    n2: n5
+    i1: i2
+    i2: i1
+    conditioning: {}
+    label: OOST-Ethernet0/1<->SW-SEGMENT-port1
+  - id: l7
+    n1: n7
+    n2: n5
+    i1: i2
+    i2: i2
+    conditioning: {}
+    label: WEST-Ethernet0/1<->SW-SEGMENT-port2
+  - id: l8
+    n1: n3
+    n2: n9
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: NOORD-Ethernet0/0<->PC2-eth0
+  - id: l9
+    n1: n4
+    n2: n10
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: ZUID-Ethernet0/0<->PC3-eth0
+lab:
+  description: CCNA 200-301 v2.0 - leerdoel 3.3. Troubleshootinglab met 7 fouten in
+    OSPFv2/OSPFv3-adjacencies.
+  notes: |-
+    # Lab 3.3.4 - Buren die elkaar niet vinden
+
+    **Leerdoel (CCNA 200-301 v2.0, 3.3):** single-area OSPFv2 en OSPFv3 troubleshooten: neighbor adjacencies, point-to-point, broadcast (DR/BDR) en router-ID.
+
+    ## Scenario
+    Een groothandel heeft het netwerk tussen het hoofdkantoor (HQ) en vier vestigingen (NOORD, ZUID, OOST en WEST) omgezet naar OSPF voor IPv4 én IPv6. Na het weekend werkt bijna niets meer buiten het hoofdkantoor. Alle kabels zitten goed en alle interfaces zijn up.
+
+    **Er zitten 7 fouten in dit lab.** Alle fouten zitten in de OSPF-configuratie of in instellingen die een OSPF-adjacency beïnvloeden. Authenticatie wordt niet gebruikt.
+
+    ## Klachten
+    1. Het LAN van NOORD is vanaf het hoofdkantoor niet bereikbaar, via IPv4 noch via IPv6.
+    2. Het LAN van ZUID is vanaf het hoofdkantoor niet bereikbaar, via IPv4 noch via IPv6.
+    3. De netwerken van OOST en WEST zijn vanaf het hoofdkantoor niet bereikbaar, via IPv4 noch via IPv6.
+    4. Geen enkele vestiging kan het internet bereiken (IPv4: 8.8.8.8, IPv6: 2001:db8:f00d::1).
+
+    ## Ontwerp
+    - Eén OSPF-proces (1) voor IPv4 en één OSPFv3-proces (1) voor IPv6, alles in **area 0**, configuratie per interface.
+    - Router-ID's (voor v2 en v3 gelijk): HQ **1.1.1.1**, NOORD **2.2.2.2**, ZUID **3.3.3.3**, OOST **4.4.4.4**, WEST **5.5.5.5**.
+    - Links HQ-NOORD en HQ-ZUID: network type **point-to-point** (v2 en v3), standaardtimers, MTU 1500.
+    - Segment OOST/WEST (switch): broadcast. **HQ is DR** (prioriteit 100 voor v2 en v3); OOST en WEST hebben prioriteit 0 (mogen nooit DR of BDR worden).
+    - LAN-interfaces zijn passief. HQ geeft zijn default route door (v2 en v3).
+
+    | Verbinding / netwerk | IPv4 | IPv6 |
+    |---|---|---|
+    | HQ E0/1 - NOORD E0/1 | 10.34.255.0/30 | 2001:db8:34:ff01::/64 |
+    | HQ E0/2 - ZUID E0/1 | 10.34.255.4/30 | 2001:db8:34:ff02::/64 |
+    | Segment (HQ E1/0 .1, OOST .2, WEST .3) | 10.34.100.0/24 | 2001:db8:34:100::/64 |
+    | LAN HQ / NOORD / ZUID | 10.34.10.0/24 / 10.34.20.0/24 / 10.34.30.0/24 | 2001:db8:34:10/20/30::/64 |
+    | LAN OOST / WEST (Loopback1) | 10.34.40.0/24 / 10.34.50.0/24 | 2001:db8:34:40/50::/64 |
+    | HQ E0/3 - ISP | 198.51.100.32/30 | 2001:db8:ffff:34::/64 |
+
+    Hosts: PC1 (HQ), PC2 (NOORD) en PC3 (ZUID) hebben adres .11 / ::11 in hun LAN. De ISP-router is van de provider: bekijken mag, aanpassen niet.
+
+    ## Inloggen
+    - Routers: console, geen wachtwoord.
+    - PC's (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**.
+
+    ## Opdracht
+    1. Breng per router de OSPF-buren in kaart, voor v2 én v3: welke buren zijn er, in welke state, en welke ontbreken?
+    2. Zoek en herstel de 7 fouten. Houd een **foutenlog** bij:
+
+    | # | Router | v2/v3 | Symptoom (state, log, tabel) | Oorzaak | Oplossing (commando's) | Hoe geverifieerd |
+    |---|---|---|---|---|---|---|
+
+    3. Toon na afloop aan dat alle adjacencies uit het ontwerp er zijn (met de juiste rol op het segment) en dat alle LAN's en het internet bereikbaar zijn.
+
+    ## Reflectie
+    1. Bij welke fout zag je de buur wel, maar kwam hij niet in FULL? In welke state bleef hij hangen en waarom juist daar?
+    2. Welke fouten waren alleen via een logmelding of een detail in `show ip ospf interface` / `show ipv6 ospf interface` te vinden?
+
+    Je docent bespreekt daarna je foutenlog.
+  title: Lab 3.3.4 - Buren die elkaar niet vinden
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1

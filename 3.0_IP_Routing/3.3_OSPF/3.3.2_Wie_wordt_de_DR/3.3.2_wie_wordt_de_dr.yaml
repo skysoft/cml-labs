@@ -1,0 +1,441 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 3.3.2 - WIE WORDT DE DR? (onderzoekslab, OSPFv2)
+       R1-R4 op een gedeeld segment 192.168.40.0/24 (switch)
+       Router-ID's 1.1.1.1 t/m 4.4.4.4, standaardprioriteit
+       OSPF staat al: voorspel, controleer en doe de proeven
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -650.0
+    y1: -400.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: SW-BACKBONE
+    node_definition: unmanaged_switch
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: 0
+    interfaces:
+      - id: i0
+        label: port0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: port1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i2
+        label: port2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i3
+        label: port3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R1
+          no ip domain lookup
+          !
+          interface Loopback1
+           description LAN vestiging 1 (gesimuleerd)
+           ip address 10.40.1.1 255.255.255.0
+           ip ospf network point-to-point
+          !
+          interface Ethernet0/0
+           description Gedeeld backbone-segment
+           ip address 192.168.40.1 255.255.255.0
+           no shutdown
+          !
+          router ospf 1
+           router-id 1.1.1.1
+           network 192.168.40.0 0.0.0.255 area 0
+           network 10.40.1.0 0.0.0.255 area 0
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: R1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -250
+    y: -150
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R2
+          no ip domain lookup
+          !
+          interface Loopback1
+           description LAN vestiging 2 (gesimuleerd)
+           ip address 10.40.2.1 255.255.255.0
+           ip ospf network point-to-point
+          !
+          interface Ethernet0/0
+           description Gedeeld backbone-segment
+           ip address 192.168.40.2 255.255.255.0
+           no shutdown
+          !
+          router ospf 1
+           router-id 2.2.2.2
+           network 192.168.40.0 0.0.0.255 area 0
+           network 10.40.2.0 0.0.0.255 area 0
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: R2
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 250
+    y: -150
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R3
+          no ip domain lookup
+          !
+          interface Loopback1
+           description LAN vestiging 3 (gesimuleerd)
+           ip address 10.40.3.1 255.255.255.0
+           ip ospf network point-to-point
+          !
+          interface Ethernet0/0
+           description Gedeeld backbone-segment
+           ip address 192.168.40.3 255.255.255.0
+           no shutdown
+          !
+          router ospf 1
+           router-id 3.3.3.3
+           network 192.168.40.0 0.0.0.255 area 0
+           network 10.40.3.0 0.0.0.255 area 0
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: R3
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -250
+    y: 150
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R4
+          no ip domain lookup
+          !
+          interface Loopback1
+           description LAN vestiging 4 (gesimuleerd)
+           ip address 10.40.4.1 255.255.255.0
+           ip ospf network point-to-point
+          !
+          interface Ethernet0/0
+           description Gedeeld backbone-segment
+           ip address 192.168.40.4 255.255.255.0
+           no shutdown
+          !
+          router ospf 1
+           router-id 4.4.4.4
+           network 192.168.40.0 0.0.0.255 area 0
+           network 10.40.4.0 0.0.0.255 area 0
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: R4
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 250
+    y: 150
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+links:
+  - id: l0
+    n1: n1
+    n2: n0
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: R1-Ethernet0/0<->SW-BACKBONE-port0
+  - id: l1
+    n1: n2
+    n2: n0
+    i1: i1
+    i2: i1
+    conditioning: {}
+    label: R2-Ethernet0/0<->SW-BACKBONE-port1
+  - id: l2
+    n1: n3
+    n2: n0
+    i1: i1
+    i2: i2
+    conditioning: {}
+    label: R3-Ethernet0/0<->SW-BACKBONE-port2
+  - id: l3
+    n1: n4
+    n2: n0
+    i1: i1
+    i2: i3
+    conditioning: {}
+    label: R4-Ethernet0/0<->SW-BACKBONE-port3
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 3.3. Onderzoekslab OSPFv2: DR/BDR-verkiezing,
+    niet-preemptief, prioriteit 0, uitval van de DR.'
+  notes: |-
+    # Lab 3.3.2 - Wie wordt de DR?
+
+    **Leerdoel (CCNA 200-301 v2.0, 3.3):** single-area OSPFv2: broadcastnetwerken en de DR/BDR-verkiezing.
+
+    ## Scenario
+    Vier vestigingsrouters (R1 t/m R4) zijn aangesloten op één gedeeld backbone-segment (192.168.40.0/24, een switch). Op zo'n **broadcastsegment** kiezen de OSPF-routers een **Designated Router (DR)** en een **Backup DR (BDR)**. Jij zoekt uit hoe die verkiezing werkt, en vooral wanneer ze **niet** opnieuw plaatsvindt.
+
+    OSPF is al volledig geconfigureerd. Dit is een **onderzoekslab**: je voorspelt, controleert en doet proeven.
+
+    ## Topologie
+    | Router | E0/0 (segment) | Router-ID | LAN (Loopback1) |
+    |---|---|---|---|
+    | R1 | 192.168.40.1/24 | 1.1.1.1 | 10.40.1.0/24 |
+    | R2 | 192.168.40.2/24 | 2.2.2.2 | 10.40.2.0/24 |
+    | R3 | 192.168.40.3/24 | 3.3.3.3 | 10.40.3.0/24 |
+    | R4 | 192.168.40.4/24 | 4.4.4.4 | 10.40.4.0/24 |
+
+    Alle interfaces hebben de standaard OSPF-prioriteit.
+
+    ## Inloggen
+    Routers: console, geen wachtwoord. Wacht na het starten ongeveer twee minuten: de verkiezing begint pas na de **wait timer** (gelijk aan de dead interval, 40 seconden).
+
+    ## Opdrachten
+
+    ### Deel 1 - De verkiezing
+    1. Schrijf de regels van de DR/BDR-verkiezing op: wat telt eerst, wat daarna, en welke prioriteit betekent "doet niet mee"?
+    2. **Voorspel** welke router DR en welke BDR wordt.
+    3. Controleer met `show ip ospf interface Ethernet0/0` (zoek "Designated Router" en "Backup Designated router") en met `show ip ospf neighbor`. Klopt je voorspelling? Zo niet: welke factor heb je over het hoofd gezien? (Denk aan het moment waarop elke router opstartte.)
+
+    ### Deel 2 - Rollen en states
+    1. Bekijk `show ip ospf neighbor` op **R1**. Met welke buren is R1 **FULL** en met welke **2WAY**? Verklaar.
+    2. Hoeveel adjacencies (FULL) zijn er in totaal op het segment? Hoeveel zouden het er zijn als iedere router met iedere router FULL werd?
+    3. Naar welk multicastadres stuurt een DROTHER zijn LSA-updates, en naar welk adres stuurt de DR ze door? Waarom deze twee adressen?
+
+    ### Deel 3 - Prioriteit (niet-preemptief)
+    1. Geef **R1** OSPF-prioriteit **255** op E0/0. Wordt R1 nu DR? Controleer en verklaar.
+    2. Herstart het OSPF-proces op de **huidige DR**. Wie wordt nu DR en wie BDR? Waarom wordt R1 niet meteen DR?
+    3. Herstart het OSPF-proces op de router die nu DR is. Wie is nu DR en wie BDR?
+    4. Wat leer je hieruit over het moment waarop je de prioriteit in een productienetwerk moet instellen?
+
+    ### Deel 4 - Prioriteit 0
+    1. Geef **R2** prioriteit **0**. Wat staat er bij R2 in `show ip ospf neighbor` op de andere routers, en in `show ip ospf interface` op R2 zelf?
+    2. Kan R2 nog DR of BDR worden? Kan R2 de routes van de anderen nog leren? Controleer met `show ip route ospf` op R2.
+
+    ### Deel 5 - De DR valt uit
+    1. Zet op de **huidige DR** interface E0/0 uit. Volg op de andere routers wat er gebeurt (het duurt tot de dead interval verloopt).
+    2. Wie wordt DR, en wie wordt de nieuwe BDR? Waarom R2 niet?
+    3. Zet de interface weer aan. Welke rol krijgt de router nu, ondanks zijn hoge prioriteit?
+
+    ### Deel 6 (optioneel) - Kijken op de lijn
+    Start in CML een packet capture op de link tussen R3 en de switch (rechtermuisknop op de link). Filter op `ospf`. Zoek een Hello-pakket: naar welk adres wordt het gestuurd, en welke DR en BDR staan erin vermeld?
+
+    ## Reflectie
+    1. Waarom hebben broadcastnetwerken een DR nodig, en point-to-point-links niet?
+    2. Een collega zegt: "De router met de hoogste prioriteit is altijd de DR." Klopt dat? Leg uit.
+    3. Hoe zorg je er in de praktijk voor dat een bepaalde router DR wordt, en blijft?
+
+    Je docent bespreekt daarna je antwoorden.
+  title: Lab 3.3.2 - Wie wordt de DR
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1
