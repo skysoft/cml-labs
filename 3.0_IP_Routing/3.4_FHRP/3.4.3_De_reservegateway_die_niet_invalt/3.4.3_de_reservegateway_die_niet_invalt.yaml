@@ -1,0 +1,625 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 3.4.3 - DE RESERVEGATEWAY DIE NIET INVALT
+       Er zitten 5 fouten in dit lab.
+       LAN-A: HSRP groep 10, VIP 10.43.10.1, R1 actief (tracking uplink)
+       LAN-B: VRRP groep 30, VIP 10.43.30.1, R2 master
+       Failovertest: shutdown op R1 E0/2
+      Ontwerp en opdracht: open de Lab Notes (tabblad Notes).
+      Login PC's: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -760.0
+    y1: -470.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: default
+        content: NAT
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: INTERNET
+    node_definition: external_connector
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -420
+    interfaces:
+      - id: i0
+        label: port
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname EDGE
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description Uplink naar het echte internet (CML External Connector, NAT)
+           ip address dhcp
+           ip nat outside
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Naar R1
+           ip address 10.43.255.1 255.255.255.252
+           ip nat inside
+           ip ospf network point-to-point
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Naar R2
+           ip address 10.43.255.5 255.255.255.252
+           ip nat inside
+           ip ospf network point-to-point
+           no shutdown
+          !
+          router ospf 1
+           router-id 9.9.9.9
+           network 10.43.255.0 0.0.0.7 area 0
+           default-information originate always
+          !
+          ip access-list standard NAT-INTERN
+           permit 10.43.0.0 0.0.255.255
+          ip nat inside source list NAT-INTERN interface Ethernet0/0 overload
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: EDGE
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -270
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R1
+          no ip domain lookup
+          !
+          track 1 interface Ethernet0/2 line-protocol
+          !
+          interface Ethernet0/0
+           description LAN-A (HSRP groep 10)
+           ip address 10.43.10.2 255.255.255.0
+           standby 10 ip 10.43.10.1
+           standby 10 priority 110
+           standby 10 preempt
+           standby 10 track 1 decrement 5
+           no shutdown
+          !
+          interface Ethernet0/1
+           description LAN-B (VRRP groep 30)
+           ip address 10.43.30.2 255.255.255.0
+           vrrp 30 ip 10.43.30.1
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Uplink naar EDGE
+           ip address 10.43.255.2 255.255.255.252
+           ip ospf network point-to-point
+           no shutdown
+          !
+          router ospf 1
+           router-id 1.1.1.1
+           passive-interface Ethernet0/0
+           passive-interface Ethernet0/1
+           network 10.43.0.0 0.0.255.255 area 0
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: R1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -200
+    y: -80
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R2
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description LAN-A (HSRP groep 10)
+           ip address 10.43.10.3 255.255.255.0
+           standby 10 ip 10.43.10.254
+           no shutdown
+          !
+          interface Ethernet0/1
+           description LAN-B (VRRP groep 30)
+           ip address 10.43.30.3 255.255.255.0
+           vrrp 31 ip 10.43.30.1
+           vrrp 31 priority 110
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Uplink naar EDGE
+           ip address 10.43.255.6 255.255.255.252
+           ip ospf network point-to-point
+           no shutdown
+          !
+          router ospf 1
+           router-id 2.2.2.2
+           passive-interface Ethernet0/0
+           passive-interface Ethernet0/1
+           network 10.43.0.0 0.0.255.255 area 0
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: R2
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 200
+    y: -80
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: SW-A
+    node_definition: unmanaged_switch
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -200
+    y: 130
+    interfaces:
+      - id: i0
+        label: port0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: port1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i2
+        label: port2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i3
+        label: port3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: SW-B
+    node_definition: unmanaged_switch
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 200
+    y: 130
+    interfaces:
+      - id: i0
+        label: port0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: port1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i2
+        label: port2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i3
+        label: port3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.43.10.11/24 dev eth0
+          ip route add default via 10.43.10.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n6
+    image_definition: null
+    label: PC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -330
+    y: 280
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC2
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.43.10.12/24 dev eth0
+          ip route add default via 10.43.10.2
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n7
+    image_definition: null
+    label: PC2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -130
+    y: 280
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC3
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.43.30.11/24 dev eth0
+          ip route add default via 10.43.30.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n8
+    image_definition: null
+    label: PC3
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 200
+    y: 280
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i0
+    i2: i1
+    conditioning: {}
+    label: INTERNET-port<->EDGE-Ethernet0/0
+  - id: l1
+    n1: n1
+    n2: n2
+    i1: i2
+    i2: i3
+    conditioning: {}
+    label: EDGE-Ethernet0/1<->R1-Ethernet0/2
+  - id: l2
+    n1: n1
+    n2: n3
+    i1: i3
+    i2: i3
+    conditioning: {}
+    label: EDGE-Ethernet0/2<->R2-Ethernet0/2
+  - id: l3
+    n1: n2
+    n2: n4
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: R1-Ethernet0/0<->SW-A-port0
+  - id: l4
+    n1: n3
+    n2: n4
+    i1: i1
+    i2: i1
+    conditioning: {}
+    label: R2-Ethernet0/0<->SW-A-port1
+  - id: l5
+    n1: n2
+    n2: n5
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: R1-Ethernet0/1<->SW-B-port0
+  - id: l6
+    n1: n3
+    n2: n5
+    i1: i2
+    i2: i1
+    conditioning: {}
+    label: R2-Ethernet0/1<->SW-B-port1
+  - id: l7
+    n1: n4
+    n2: n6
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: SW-A-port2<->PC1-eth0
+  - id: l8
+    n1: n4
+    n2: n7
+    i1: i3
+    i2: i0
+    conditioning: {}
+    label: SW-A-port3<->PC2-eth0
+  - id: l9
+    n1: n5
+    n2: n8
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: SW-B-port2<->PC3-eth0
+lab:
+  description: CCNA 200-301 v2.0 - leerdoel 3.4. Troubleshootinglab met 5 fouten in
+    HSRP/VRRP, gevonden door de status te interpreteren.
+  notes: |-
+    # Lab 3.4.3 - De reservegateway die niet invalt
+
+    **Leerdoel (CCNA 200-301 v2.0, 3.4):** de operationele status van First Hop Redundancy Protocols (HSRP en VRRP) interpreteren.
+
+    ## Scenario
+    Een bureau heeft twee routers (R1 en R2) die samen de gateway verzorgen voor twee LAN's. Een externe partij heeft HSRP en VRRP ingericht. Bij de jaarlijkse failovertest ging het mis, en de monitoring laat vreemde dingen zien.
+
+    **Er zitten 5 fouten in dit lab.** Alle fouten hebben te maken met de gatewayredundantie. Je vindt ze door de HSRP- en VRRP-status en de logs te interpreteren en te vergelijken met het ontwerp.
+
+    ## Klachten
+    1. De monitoring meldt voor LAN-B twee routers in de state **Master**.
+    2. Op R2 verschijnen regelmatig logmeldingen over HSRP.
+    3. Bij de failovertest (de uplink van R1 uitgezet met `shutdown` op R1 E0/2) had LAN-A geen of nauwelijks internet.
+    4. De gebruiker van PC2 meldt dat hij als enige op LAN-A bij elke storing aan R1 zonder internet zit, ook als de rest van LAN-A gewoon werkt.
+
+    ## Ontwerp
+    | | LAN-A 10.43.10.0/24 | LAN-B 10.43.30.0/24 |
+    |---|---|---|
+    | Protocol | HSRP versie 1, groep **10** | VRRP groep **30** |
+    | Virtueel IP (gateway van alle pc's) | **10.43.10.1** | **10.43.30.1** |
+    | Actief / master | **R1** (prioriteit 110, preempt) | **R2** (prioriteit 110) |
+    | Reserve | R2 (prioriteit 100, **preempt**) | R1 (prioriteit 100) |
+    | Tracking | R1 volgt zijn uplink (E0/2); valt die weg, dan moet R2 het overnemen | - |
+    | Echte adressen | R1 .2, R2 .3 | R1 .2, R2 .3 |
+    | Hosts | PC1 .11, PC2 .12 | PC3 .11 |
+
+    R1 en R2 zijn via hun uplink (E0/2) verbonden met EDGE, die toegang geeft tot het echte internet (8.8.8.8). R1, R2 en EDGE gebruiken OSPF; dat is correct en hoort niet bij de fouten.
+
+    **Failovertest:** zet op R1 de uplink E0/2 uit (`shutdown`) en controleer of LAN-A via R2 het internet bereikt. Zet de uplink daarna weer aan.
+
+    ## Inloggen
+    - Routers: console, geen wachtwoord.
+    - PC's (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**.
+
+    ## Opdracht
+    1. Zoek en herstel de 5 fouten. Houd een **foutenlog** bij:
+
+    | # | Apparaat | Wat zag je (status, log, ARP, traceroute)? | Oorzaak | Oplossing (commando's) | Hoe geverifieerd |
+    |---|---|---|---|---|---|
+
+    2. Voer na afloop de failovertest uit en toon aan dat PC1 én PC2 via R2 het internet bereiken.
+
+    ## Reflectie
+    1. Welke fout was alleen tijdens de failovertest te zien, en niet in de normale situatie? Waarom?
+    2. Welke `show`-uitvoer vond je het nuttigst om de fouten te vinden?
+
+    Je docent bespreekt daarna je foutenlog.
+  title: Lab 3.4.3 - De reservegateway die niet invalt
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1
