@@ -1,0 +1,549 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 2.5.1 - WIE IS DE BAAS? (configuratie- en verkenningslab)
+       Rapid PVST+: DSW1 root VLAN 10, DSW2 root VLAN 20
+       Twee links tussen DSW1 en DSW2 (E0/0 en E0/2)
+       PC1/SRV10 = VLAN 10, PC2/SRV20 = VLAN 20
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+      Login hosts: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -600.0
+    y1: -420.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname DSW1
+          no ip domain lookup
+          vtp mode transparent
+          no ip routing
+          !
+          vlan 10
+           name KANTOOR
+          vlan 20
+           name MAGAZIJN
+          !
+          interface range Ethernet0/0 - 2
+           switchport trunk encapsulation dot1q
+           switchport trunk allowed vlan 10,20
+           switchport mode trunk
+           switchport nonegotiate
+          !
+          interface Ethernet0/0
+           description DSW2 (link A)
+          interface Ethernet0/2
+           description DSW2 (link B)
+          interface Ethernet0/1
+           description ASW1
+          !
+          interface Ethernet0/3
+           description SRV20
+           switchport mode access
+           switchport access vlan 20
+           spanning-tree portfast
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: DSW1
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -200
+    y: -200
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname DSW2
+          no ip domain lookup
+          vtp mode transparent
+          no ip routing
+          !
+          vlan 10
+           name KANTOOR
+          vlan 20
+           name MAGAZIJN
+          !
+          interface range Ethernet0/0 - 2
+           switchport trunk encapsulation dot1q
+           switchport trunk allowed vlan 10,20
+           switchport mode trunk
+           switchport nonegotiate
+          !
+          interface Ethernet0/0
+           description DSW1 (link A)
+          interface Ethernet0/2
+           description DSW1 (link B)
+          interface Ethernet0/1
+           description ASW1
+          !
+          interface Ethernet0/3
+           description SRV10
+           switchport mode access
+           switchport access vlan 10
+           spanning-tree portfast
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: DSW2
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 200
+    y: -200
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname ASW1
+          no ip domain lookup
+          vtp mode transparent
+          no ip routing
+          !
+          vlan 10
+           name KANTOOR
+          vlan 20
+           name MAGAZIJN
+          !
+          interface range Ethernet0/0 - 1
+           switchport trunk encapsulation dot1q
+           switchport trunk allowed vlan 10,20
+           switchport mode trunk
+           switchport nonegotiate
+          !
+          interface Ethernet0/0
+           description DSW1
+          interface Ethernet0/1
+           description DSW2
+          !
+          interface Ethernet0/2
+           description PC1
+           switchport mode access
+           switchport access vlan 10
+           spanning-tree portfast
+          !
+          interface Ethernet0/3
+           description PC2
+           switchport mode access
+           switchport access vlan 20
+           spanning-tree portfast
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: ASW1
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.10.11/24 dev eth0
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: PC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -100
+    y: 150
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC2
+          USERNAME=cisco
+          PASSWORD=cisco
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.20.11/24 dev eth0
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: PC2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 100
+    y: 150
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname SRV10
+          USERNAME=cisco
+          PASSWORD=cisco
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.10.100/24 dev eth0
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: SRV10
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 400
+    y: -200
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname SRV20
+          USERNAME=cisco
+          PASSWORD=cisco
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.20.100/24 dev eth0
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n6
+    image_definition: null
+    label: SRV20
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -400
+    y: -200
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i1
+    i2: i1
+    conditioning: {}
+    label: DSW1-Ethernet0/0<->DSW2-Ethernet0/0
+  - id: l1
+    n1: n0
+    n2: n1
+    i1: i3
+    i2: i3
+    conditioning: {}
+    label: DSW1-Ethernet0/2<->DSW2-Ethernet0/2
+  - id: l2
+    n1: n0
+    n2: n2
+    i1: i2
+    i2: i1
+    conditioning: {}
+    label: DSW1-Ethernet0/1<->ASW1-Ethernet0/0
+  - id: l3
+    n1: n1
+    n2: n2
+    i1: i2
+    i2: i2
+    conditioning: {}
+    label: DSW2-Ethernet0/1<->ASW1-Ethernet0/1
+  - id: l4
+    n1: n2
+    n2: n3
+    i1: i3
+    i2: i0
+    conditioning: {}
+    label: ASW1-Ethernet0/2<->PC1-eth0
+  - id: l5
+    n1: n2
+    n2: n4
+    i1: i4
+    i2: i0
+    conditioning: {}
+    label: ASW1-Ethernet0/3<->PC2-eth0
+  - id: l6
+    n1: n1
+    n2: n5
+    i1: i4
+    i2: i0
+    conditioning: {}
+    label: DSW2-Ethernet0/3<->SRV10-eth0
+  - id: l7
+    n1: n0
+    n2: n6
+    i1: i4
+    i2: i0
+    conditioning: {}
+    label: DSW1-Ethernet0/3<->SRV20-eth0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 2.5. Configuratie- en verkenningslab
+    Rapid PVST+: rootverkiezing, poortrollen en -states, root primary/secondary per
+    VLAN, cost en port-priority, failover.'
+  notes: |-
+    # Lab 2.5.1 - Wie is de baas?
+
+    **Leerdoel (CCNA 200-301 v2.0, 2.5):** Rapid PVST+ configureren: root port, root bridge (primary/secondary) en andere poortnamen, port states en roles.
+
+    ## Scenario
+    Transportbedrijf De Snelweg heeft een nieuw switchnetwerk: twee distributieswitches (DSW1, DSW2) en een access-switch (ASW1). Alle switches zijn met elkaar verbonden (redundantie), en tussen DSW1 en DSW2 liggen zelfs **twee** kabels. Spanning tree draait in de standaardinstelling. De netwerkarchitect wil:
+    - **DSW1** als root bridge voor **VLAN 10** (en reserve voor VLAN 20);
+    - **DSW2** als root bridge voor **VLAN 20** (en reserve voor VLAN 10).
+    Zo worden beide uplinks van ASW1 gebruikt (loadbalancing per VLAN).
+
+    ## Netwerk
+    ```
+              SRV20 (V20) - E0/3 DSW1 E0/0 ==link A== E0/0 DSW2 E0/3 - SRV10 (V10)
+                                 E0/2 ==link B== E0/2
+                            DSW1 E0/1          DSW2 E0/1
+                                    \          /
+                               ASW1 E0/0    E0/1
+                               ASW1 E0/2 PC1 (V10)   E0/3 PC2 (V20)
+    ```
+    | Host | Adres | VLAN |
+    |---|---|---|
+    | PC1 | 192.168.10.11/24 | 10 |
+    | SRV10 | 192.168.10.100/24 | 10 |
+    | PC2 | 192.168.20.11/24 | 20 |
+    | SRV20 | 192.168.20.100/24 | 20 |
+
+    Alle links tussen switches zijn trunks (VLAN 10 en 20). De hostpoorten hebben al PortFast (zie leerdoel 2.2).
+
+    ## Inloggen
+    - Switches: console, geen wachtwoord.
+    - Hosts (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**.
+
+    ## Opdrachten
+
+    ### Deel 1 - Theorie
+    1. Waaruit bestaat de bridge-ID, en hoe wordt de root bridge gekozen? Wat is de *sys-id-ext*?
+    2. Hoe kiest een switch zijn root port (noem de drie tie-breakers in volgorde)?
+    3. Welke poortrollen en -states kent RSTP? Wat is het verschil tussen een *alternate* en een *backup* port?
+    4. Wat is de standaard path cost van een 10, 100 en 1000 Mbit/s-link (short method)?
+
+    ### Deel 2 - De standaardsituatie analyseren
+    1. Bekijk op elke switch `show spanning-tree vlan 10`. Welke switch is root, en waarom die? (Let op: in CML kan dat per keer verschillen.)
+    2. Teken de topologie en zet bij elke poort de rol (Root, Desg, Altn) en de state (FWD, BLK).
+    3. Welke kabels worden niet gebruikt voor VLAN 10? Waarom is dat een slecht ontwerp als de root een access-switch is?
+
+    ### Deel 3 - Root bridge per VLAN
+    1. Maak DSW1 root **primary** voor VLAN 10 en root **secondary** voor VLAN 20. Doe op DSW2 het omgekeerde.
+    2. Controleer met `show spanning-tree vlan 10` en `show spanning-tree vlan 20` op alle switches. Welke uplink van ASW1 is nu per VLAN de root port?
+    3. Bekijk `show running-config | include spanning-tree vlan`. Wat heeft `root primary` en `root secondary` eigenlijk geconfigureerd?
+
+    ### Deel 4 - De dubbele link tussen DSW1 en DSW2
+    1. Welke van de twee links (E0/0 of E0/2) gebruikt DSW2 voor VLAN 10 als root port, en waarom (welke tie-breaker)?
+    2. Zorg dat DSW2 voor VLAN 10 de **andere** link gebruikt door op **DSW1** de port-priority van E0/2 voor VLAN 10 te verlagen. Waarom moet dat op DSW1 en niet op DSW2?
+    3. Bonus: wat zou er gebeuren als je in plaats daarvan op DSW2 de cost van E0/0 verhoogt?
+
+    ### Deel 5 - Failover
+    1. Start op PC1 `ping -i 0.25 192.168.10.100` en stop in CML de link **DSW1 - ASW1** (rechtsklik op de link, *Stop*). Hoeveel pings gaan verloren? Bekijk `show spanning-tree vlan 10` op ASW1.
+    2. Start de link weer. (In CML gaat de interface zelf niet down als je een link stopt; RSTP merkt de uitval doordat er geen BPDU's meer komen, na 3 x 2 s.)
+    3. **Vergelijk:** zet op alle drie de switches `spanning-tree mode pvst` (klassieke STP) en herhaal de proef. Hoeveel pings gaan er nu verloren, en waarom? Zet daarna alles terug op `spanning-tree mode rapid-pvst`.
+    4. **Vergelijk:** haal PortFast weg op de poort van PC1 (ASW1 E0/2) en herhaal de proef met rapid-pvst. Wat zie je? Zet PortFast terug.
+
+    ### Deel 6 - Reflectie
+    1. Waarom is het slim om de root bridge altijd zelf te kiezen in plaats van het aan de MAC-adressen over te laten?
+    2. Wat is het voordeel van een verschillende root per VLAN?
+
+    Je docent bespreekt daarna je antwoorden.
+  title: Lab 2.5.1 - Wie is de baas
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1
