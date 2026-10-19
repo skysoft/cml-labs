@@ -1,0 +1,702 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 3.2.2 - DEZELFDE KAART IN IPv6 (configuratielab)
+       HQ-VESTIGING: hoofdlijn E0/1 (OSPFv3), backup E0/2
+       HQ E0/3 -> ISP (internetsimulatie 2001:db8:f00d::1)
+       HQ E1/0 -> PARTNER: alleen link-local (FE80::1 / FE80::99)
+       Bouw: ::/0, netwerkroute, hostroute, floating static
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+      Login PC's/CAM/PSRV: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -720.0
+    y1: -460.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname ISP
+          no ip domain lookup
+          ipv6 unicast-routing
+          !
+          interface Loopback0
+           ip address 10.255.22.9 255.255.255.255
+          !
+          interface Loopback1
+           description Internetsimulatie IPv6
+           ipv6 address 2001:DB8:F00D::1/128
+          !
+          interface Ethernet0/1
+           description Klant HQ
+           ipv6 address 2001:DB8:FFFF:22::1/64
+           no shutdown
+          !
+          ipv6 route 2001:DB8:22::/48 2001:DB8:FFFF:22::2
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: ISP
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -150
+    y: -250
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname HQ
+          no ip domain lookup
+          ipv6 unicast-routing
+          !
+          interface Loopback0
+           description Beheer (IPv4 alleen voor de router zelf)
+           ip address 10.255.22.1 255.255.255.255
+          !
+          interface Ethernet0/0
+           description LAN hoofdkantoor
+           ipv6 address 2001:DB8:22:10::1/64
+           ipv6 ospf 1 area 0
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Hoofdlijn naar VESTIGING (glasvezel, OSPFv3)
+           ipv6 address 2001:DB8:22:FF01::1/64
+           ipv6 ospf 1 area 0
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Backuplijn naar VESTIGING (4G, onbeperkt data)
+           ipv6 address 2001:DB8:22:FF02::1/64
+           no shutdown
+          !
+          interface Ethernet0/3
+           description Naar ISP
+           ipv6 address 2001:DB8:FFFF:22::2/64
+           no shutdown
+          !
+          interface Ethernet1/0
+           description Naar PARTNER (alleen link-local)
+           ipv6 address FE80::1 link-local
+           ipv6 enable
+           no shutdown
+          !
+          ipv6 router ospf 1
+           router-id 1.1.1.1
+           passive-interface Ethernet0/0
+           default-information originate
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: HQ
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -150
+    y: -50
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i5
+        label: Ethernet1/0
+        mac_address: null
+        type: physical
+        slot: 4
+      - id: i6
+        label: Ethernet1/1
+        mac_address: null
+        type: physical
+        slot: 5
+      - id: i7
+        label: Ethernet1/2
+        mac_address: null
+        type: physical
+        slot: 6
+      - id: i8
+        label: Ethernet1/3
+        mac_address: null
+        type: physical
+        slot: 7
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname VESTIGING
+          no ip domain lookup
+          ipv6 unicast-routing
+          !
+          interface Loopback0
+           description Beheer (IPv4 alleen voor de router zelf)
+           ip address 10.255.22.2 255.255.255.255
+          !
+          interface Ethernet0/0
+           description LAN vestiging
+           ipv6 address 2001:DB8:22:20::1/64
+           ipv6 ospf 1 area 0
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Hoofdlijn naar HQ (glasvezel, OSPFv3)
+           ipv6 address 2001:DB8:22:FF01::2/64
+           ipv6 ospf 1 area 0
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Backuplijn naar HQ (4G, onbeperkt data)
+           ipv6 address 2001:DB8:22:FF02::2/64
+           no shutdown
+          !
+          ipv6 router ospf 1
+           router-id 2.2.2.2
+           passive-interface Ethernet0/0
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: VESTIGING
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 250
+    y: -50
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname PARTNER
+          no ip domain lookup
+          ipv6 unicast-routing
+          !
+          interface Loopback0
+           ip address 10.255.22.99 255.255.255.255
+          !
+          interface Ethernet0/0
+           description Naar klant HQ (alleen link-local)
+           ipv6 address FE80::99 link-local
+           ipv6 enable
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Servernetwerk partner
+           ipv6 address 2001:DB8:99:10::1/64
+           no shutdown
+          !
+          ipv6 route 2001:DB8:22::/48 Ethernet0/0 FE80::1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: PARTNER
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -150
+    y: 170
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: SW1
+    node_definition: unmanaged_switch
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 450
+    y: -50
+    interfaces:
+      - id: i0
+        label: port0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: port1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i2
+        label: port2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i3
+        label: port3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische IPv6-host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip -6 address add 2001:db8:22:10::11/64 dev eth0
+          ip -6 route add default via 2001:db8:22:10::1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: PC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -400
+    y: -50
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC2
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische IPv6-host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip -6 address add 2001:db8:22:20::11/64 dev eth0
+          ip -6 route add default via 2001:db8:22:20::1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n6
+    image_definition: null
+    label: PC2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 650
+    y: -130
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname CAM
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische IPv6-host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip -6 address add 2001:db8:22:20::50/64 dev eth0
+          ip -6 route add default via 2001:db8:22:20::1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n7
+    image_definition: null
+    label: CAM
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 650
+    y: 30
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PSRV
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische IPv6-host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip -6 address add 2001:db8:99:10::80/64 dev eth0
+          ip -6 route add default via 2001:db8:99:10::1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n8
+    image_definition: null
+    label: PSRV
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -150
+    y: 350
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i2
+    i2: i4
+    conditioning: {}
+    label: ISP-Ethernet0/1<->HQ-Ethernet0/3
+  - id: l1
+    n1: n5
+    n2: n1
+    i1: i0
+    i2: i1
+    conditioning: {}
+    label: PC1-eth0<->HQ-Ethernet0/0
+  - id: l2
+    n1: n1
+    n2: n2
+    i1: i2
+    i2: i2
+    conditioning: {}
+    label: HQ-Ethernet0/1<->VESTIGING-Ethernet0/1
+  - id: l3
+    n1: n1
+    n2: n2
+    i1: i3
+    i2: i3
+    conditioning: {}
+    label: HQ-Ethernet0/2<->VESTIGING-Ethernet0/2
+  - id: l4
+    n1: n1
+    n2: n3
+    i1: i5
+    i2: i1
+    conditioning: {}
+    label: HQ-Ethernet1/0<->PARTNER-Ethernet0/0
+  - id: l5
+    n1: n3
+    n2: n8
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: PARTNER-Ethernet0/1<->PSRV-eth0
+  - id: l6
+    n1: n2
+    n2: n4
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: VESTIGING-Ethernet0/0<->SW1-port0
+  - id: l7
+    n1: n4
+    n2: n6
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: SW1-port1<->PC2-eth0
+  - id: l8
+    n1: n4
+    n2: n7
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: SW1-port2<->CAM-eth0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 3.2. Configuratielab IPv6: ::/0, netwerkroute
+    met link-local next hop, hostroute en floating static achter OSPFv3.'
+  notes: |-
+    # Lab 3.2.2 - Dezelfde kaart in IPv6
+
+    **Leerdoel (CCNA 200-301 v2.0, 3.2):** statische routering voor IPv6 configureren en troubleshooten: default route, netwerkroute, hostroute en floating static.
+
+    ## Scenario
+    Het hoofdkantoor (HQ) en de vestiging (VESTIGING) werken **alleen met IPv6**. Over de hoofdlijn draait al **OSPFv3**: de twee LAN's kennen elkaar al. Wat nog ontbreekt:
+    - een uitgang naar internet via de ISP (gesimuleerd internet: **2001:db8:f00d::1**);
+    - een route naar het servernetwerk van een **partnerbedrijf** (PARTNER). De link tussen HQ en PARTNER heeft geen globale adressen, alleen **link-local** adressen (HQ: FE80::1, PARTNER: FE80::99);
+    - een hostroute voor de camerarecorder (CAM) over de **backuplijn** (4G met onbeperkt data), net als in lab 3.2.1;
+    - reserveroutes over de backuplijn, voor als de hoofdlijn uitvalt.
+
+    Dit is een **configuratielab**: er zit niets kapot.
+
+    ## Topologie
+    | Apparaat | Interface | IPv6 | Opmerking |
+    |---|---|---|---|
+    | PC1 | eth0 | 2001:db8:22:10::11/64 | LAN HQ |
+    | PC2 | eth0 | 2001:db8:22:20::11/64 | LAN vestiging |
+    | CAM | eth0 | 2001:db8:22:20::50/64 | camerarecorder |
+    | PSRV | eth0 | 2001:db8:99:10::80/64 | server van de partner |
+    | HQ | E0/1 / E0/2 | 2001:db8:22:ff01::1 / 2001:db8:22:ff02::1 | hoofdlijn (OSPFv3) / backuplijn |
+    | HQ | E0/3 | 2001:db8:ffff:22::2/64 | naar ISP (2001:db8:ffff:22::1) |
+    | HQ | E1/0 | FE80::1 (alleen link-local) | naar PARTNER (FE80::99) |
+    | VESTIGING | E0/1 / E0/2 | 2001:db8:22:ff01::2 / 2001:db8:22:ff02::2 | hoofdlijn / backuplijn |
+    | PARTNER | E0/1 | 2001:db8:99:10::1/64 | servernetwerk partner |
+
+    ISP en PARTNER zijn niet van jou: bekijken mag, aanpassen niet. De routers hebben een IPv4-loopback; die is alleen nodig om de router te laten opstarten en speelt geen rol.
+
+    ## Inloggen
+    - Routers: console, geen wachtwoord.
+    - PC's, CAM en PSRV (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**. Gebruik `ping` en `traceroute` met een IPv6-adres.
+
+    Wacht na het starten ongeveer een minuut tot OSPFv3 zijn buur heeft gevonden.
+
+    ## Opdrachten
+
+    ### Deel 1 - Uitgangssituatie
+    1. Bekijk `show ipv6 route` op HQ en VESTIGING. Welke routes zijn er al, en waar komen ze vandaan?
+    2. Test vanaf PC1 naar PC2, naar 2001:db8:f00d::1 en naar PSRV. Verklaar de resultaten.
+    3. Welk commando moet aan staan voordat een router überhaupt IPv6-pakketten doorstuurt? Controleer dat het op beide routers aan staat.
+
+    ### Deel 2 - Default route
+    1. Geef HQ een default route (`::/0`) naar de ISP, met het globale adres van de ISP als next hop.
+    2. Bekijk daarna de tabel van **VESTIGING**. Er is een default route bijgekomen zonder dat je op VESTIGING iets hebt gedaan. Welke code heeft die route, en welke regel in de configuratie van HQ zorgt hiervoor?
+    3. Test PC2 → 2001:db8:f00d::1.
+
+    ### Deel 3 - Netwerkroute met een link-local next hop
+    1. Configureer op HQ een route naar het serverblok van de partner (2001:db8:99:10::/64) met **alleen** het link-local adres van PARTNER als next hop. Welke foutmelding geeft IOS, en waarom?
+    2. Configureer de route nu correct (fully specified).
+    3. Test PC1 → PSRV en PC2 → PSRV. Waarom werkt het vanaf PC2 ook, terwijl VESTIGING geen route naar 2001:db8:99:10::/64 heeft?
+
+    ### Deel 4 - Hostroute
+    1. Zorg dat HQ verkeer naar alleen de camerarecorder (2001:db8:22:20::50) over de **backuplijn** stuurt.
+    2. Toon met een traceroute vanaf PC1 naar CAM en naar PC2 aan dat de pakketten een andere lijn nemen.
+    3. De route naar het vestigings-LAN komt uit OSPF (AD 110), de hostroute is statisch (AD 1). Is de AD de reden dat de hostroute wint? Leg uit.
+
+    ### Deel 5 - Floating static achter OSPFv3
+    1. Configureer reserveroutes over de backuplijn:
+       - op HQ naar het vestigings-LAN (2001:db8:22:20::/64);
+       - op VESTIGING een reserve-default route.
+       Kies een administratieve afstand die **hoger** is dan die van OSPF.
+    2. Waarom zou AD 100 hier niet werken? Wat zou er dan gebeuren?
+    3. **Failovertest.** Stop in CML de link van de **hoofdlijn** (rechtermuisknop op de link, *Stop*). De interfaces blijven up, maar OSPFv3 merkt na de dead time (ongeveer 40 seconden) dat de buur weg is.
+       - Volg op HQ met `show ipv6 ospf neighbor` en `show ipv6 route` wat er gebeurt.
+       - Werkt PC2 → PC1 en PC2 → 2001:db8:f00d::1 nog? Over welke lijn?
+       - Start de link weer en controleer dat de OSPF-routes terugkomen en de reserveroutes uit de tabel verdwijnen.
+    4. Waar zie je de reserveroutes als ze niet actief zijn? (`show running-config | include ipv6 route`)
+
+    ## Reflectie
+    1. Wat zijn de verschillen tussen een statische IPv6-route en een statische IPv4-route? Noem er minstens twee.
+    2. Waarom is een link-local next hop handig, maar ook lastiger?
+    3. In lab 3.2.1 moest je voor de failovertest op beide routers een interface uitzetten. Waarom was dat hier niet nodig?
+
+    Je docent bespreekt daarna je antwoorden.
+  title: Lab 3.2.2 - Dezelfde kaart in IPv6
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1

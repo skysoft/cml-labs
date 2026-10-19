@@ -1,0 +1,579 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 3.2.1 - DE VESTIGING OP DE KAART (configuratielab, IPv4)
+       HQ-VESTIGING: hoofdlijn E0/1 (10.21.255.0/30), backup E0/2 (.4/30)
+       HQ E0/3 -> ISP 198.51.100.21 (echt internet, NAT staat al)
+       PC1 10.21.10.11   PC2 10.21.20.11   CAM 10.21.20.50
+       Bouw de statische routering op: netwerk, default, host, floating
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+      Login PC's/CAM: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -700.0
+    y1: -440.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: default
+        content: NAT
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: INTERNET
+    node_definition: external_connector
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -150
+    y: -380
+    interfaces:
+      - id: i0
+        label: port
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname ISP
+          no ip domain lookup
+          !
+          interface Ethernet0/1
+           description Klant HQ
+           ip address 198.51.100.21 255.255.255.252
+           ip nat inside
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Uplink naar het echte internet (CML External Connector, NAT)
+           ip address dhcp
+           ip nat outside
+           no shutdown
+          !
+          ip access-list standard NAT-KLANT
+           permit 198.51.100.20 0.0.0.3
+          ip nat inside source list NAT-KLANT interface Ethernet0/2 overload
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: ISP
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -150
+    y: -230
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname HQ
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description LAN hoofdkantoor
+           ip address 10.21.10.1 255.255.255.0
+           ip nat inside
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Hoofdlijn naar VESTIGING (glasvezel)
+           ip address 10.21.255.1 255.255.255.252
+           ip nat inside
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Backuplijn naar VESTIGING (4G, onbeperkt data)
+           ip address 10.21.255.5 255.255.255.252
+           ip nat inside
+           no shutdown
+          !
+          interface Ethernet0/3
+           description Naar ISP
+           ip address 198.51.100.22 255.255.255.252
+           ip nat outside
+           no shutdown
+          !
+          ip access-list standard NAT-INTERN
+           permit 10.21.0.0 0.0.255.255
+          ip nat inside source list NAT-INTERN interface Ethernet0/3 overload
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: HQ
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -150
+    y: -50
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname VESTIGING
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description LAN vestiging
+           ip address 10.21.20.1 255.255.255.0
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Hoofdlijn naar HQ (glasvezel)
+           ip address 10.21.255.2 255.255.255.252
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Backuplijn naar HQ (4G, onbeperkt data)
+           ip address 10.21.255.6 255.255.255.252
+           no shutdown
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: VESTIGING
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 250
+    y: -50
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: SW1
+    node_definition: unmanaged_switch
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 450
+    y: -50
+    interfaces:
+      - id: i0
+        label: port0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: port1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i2
+        label: port2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i3
+        label: port3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.21.10.11/24 dev eth0
+          ip route add default via 10.21.10.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: PC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -400
+    y: -50
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC2
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.21.20.11/24 dev eth0
+          ip route add default via 10.21.20.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n6
+    image_definition: null
+    label: PC2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 650
+    y: -130
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname CAM
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.21.20.50/24 dev eth0
+          ip route add default via 10.21.20.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n7
+    image_definition: null
+    label: CAM
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 650
+    y: 30
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i0
+    i2: i3
+    conditioning: {}
+    label: INTERNET-port<->ISP-Ethernet0/2
+  - id: l1
+    n1: n1
+    n2: n2
+    i1: i2
+    i2: i4
+    conditioning: {}
+    label: ISP-Ethernet0/1<->HQ-Ethernet0/3
+  - id: l2
+    n1: n5
+    n2: n2
+    i1: i0
+    i2: i1
+    conditioning: {}
+    label: PC1-eth0<->HQ-Ethernet0/0
+  - id: l3
+    n1: n2
+    n2: n3
+    i1: i2
+    i2: i2
+    conditioning: {}
+    label: HQ-Ethernet0/1<->VESTIGING-Ethernet0/1
+  - id: l4
+    n1: n2
+    n2: n3
+    i1: i3
+    i2: i3
+    conditioning: {}
+    label: HQ-Ethernet0/2<->VESTIGING-Ethernet0/2
+  - id: l5
+    n1: n3
+    n2: n4
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: VESTIGING-Ethernet0/0<->SW1-port0
+  - id: l6
+    n1: n4
+    n2: n6
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: SW1-port1<->PC2-eth0
+  - id: l7
+    n1: n4
+    n2: n7
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: SW1-port2<->CAM-eth0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 3.2. Configuratielab IPv4: netwerkroute,
+    default route, hostroute en floating static.'
+  notes: |-
+    # Lab 3.2.1 - De vestiging op de kaart
+
+    **Leerdoel (CCNA 200-301 v2.0, 3.2):** statische routering voor IPv4 configureren en troubleshooten: default route, netwerkroute, hostroute en floating static.
+
+    ## Scenario
+    Een bedrijf opent een nieuwe vestiging. De routers HQ en VESTIGING zijn al bekabeld en alle interfaces hebben een adres, maar er staat nog **geen enkele route** in. Er zijn twee lijnen tussen HQ en de vestiging:
+    - de **hoofdlijn** (glasvezel), voor al het normale verkeer;
+    - de **backuplijn** (4G met onbeperkt data), alleen als reserve, met één uitzondering: de **camerarecorder** (CAM, 10.21.20.50) stuurt zijn beelden altijd over de backuplijn, zodat de hoofdlijn niet volloopt.
+
+    HQ is via de ISP verbonden met het **echte internet** (testadres 8.8.8.8). NAT op HQ is al geconfigureerd.
+
+    Dit is een **configuratielab**: er zit niets kapot, je bouwt de routering zelf op.
+
+    ## Topologie
+    | Apparaat | Interface | IPv4 | Opmerking |
+    |---|---|---|---|
+    | PC1 | eth0 | 10.21.10.11/24 | gateway 10.21.10.1 |
+    | PC2 | eth0 | 10.21.20.11/24 | gateway 10.21.20.1 |
+    | CAM | eth0 | 10.21.20.50/24 | camerarecorder, gateway 10.21.20.1 |
+    | HQ | E0/0 | 10.21.10.1/24 | LAN hoofdkantoor |
+    | HQ | E0/1 | 10.21.255.1/30 | hoofdlijn |
+    | HQ | E0/2 | 10.21.255.5/30 | backuplijn |
+    | HQ | E0/3 | 198.51.100.22/30 | naar ISP (198.51.100.21) |
+    | VESTIGING | E0/0 | 10.21.20.1/24 | LAN vestiging |
+    | VESTIGING | E0/1 | 10.21.255.2/30 | hoofdlijn |
+    | VESTIGING | E0/2 | 10.21.255.6/30 | backuplijn |
+
+    De ISP-router is van de provider: bekijken mag, aanpassen niet.
+
+    ## Inloggen
+    - Routers: console, geen wachtwoord.
+    - PC's en CAM (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**.
+
+    ## Opdrachten
+    Gebruik bij elke route een **next hop-adres**, tenzij de opdracht iets anders vraagt. Controleer na elke stap de routeringstabel en test met ping of traceroute.
+
+    ### Deel 1 - Uitgangssituatie
+    1. Bekijk de routeringstabellen van HQ en VESTIGING. Welke routes staan er al en waarom precies deze?
+    2. Ping van PC1 naar PC2 en van PC2 naar 8.8.8.8. Verklaar het resultaat.
+
+    ### Deel 2 - Netwerkroutes
+    1. Zorg dat HQ het LAN van de vestiging kent, via de hoofdlijn.
+    2. Zorg dat VESTIGING het LAN van het hoofdkantoor kent, via de hoofdlijn.
+    3. Test PC1 ↔ PC2. Welke code, AD en metric hebben je routes in de tabel?
+
+    ### Deel 3 - Default routes
+    1. Geef HQ een default route naar de ISP.
+    2. De vestiging heeft maar één uitgang: HQ. Vervang de netwerkroute van stap 2.2 **niet**, maar geef VESTIGING een default route via de hoofdlijn.
+    3. Test vanaf PC2 naar 8.8.8.8. Wat is nu de gateway of last resort van beide routers?
+    4. Is de netwerkroute van stap 2.2 op VESTIGING nu nog nodig? Leg uit.
+
+    ### Deel 4 - Hostroute
+    1. Zorg dat HQ verkeer naar **alleen de camerarecorder** (10.21.20.50) over de **backuplijn** stuurt. Al het andere verkeer naar de vestiging blijft over de hoofdlijn gaan.
+    2. Toon met een traceroute vanaf PC1 naar CAM en naar PC2 aan dat beide pakketten een andere lijn nemen.
+    3. Waarom wint de hostroute, terwijl de netwerkroute ook past?
+
+    ### Deel 5 - Floating static routes
+    1. Configureer **reserveroutes** over de backuplijn, die alleen actief worden als de hoofdlijn wegvalt:
+       - op HQ naar het LAN van de vestiging;
+       - op VESTIGING als reserve-default route.
+       Gebruik administratieve afstand **200**.
+    2. Staan de reserveroutes in de routeringstabel? Waar kun je ze wel terugvinden? (Tip: `show running-config | include ip route`.)
+    3. **Failovertest.** In CML merkt een router niet dat een link is gestopt (de interface blijft up). Simuleer daarom de uitval van de hoofdlijn door op **beide** routers interface E0/1 uit te zetten.
+       - Bekijk de tabellen. Welke routes zijn verdwenen en welke zijn erbij gekomen?
+       - Werkt PC2 → PC1 en PC2 → 8.8.8.8 nog? Over welke lijn?
+       - Zet E0/1 op beide routers weer aan en controleer dat de reserveroutes weer uit de tabel verdwijnen.
+    4. Waarom zou het fout gaan als je maar op één router de interface uitzet? (Denk aan het terugverkeer.)
+
+    ### Deel 6 - Next hop, uitgaande interface of allebei?
+    1. Voeg op VESTIGING tijdelijk een default route toe die alleen een **uitgaande interface** gebruikt (E0/1), zonder next hop. Welke melding geeft IOS?
+    2. Hoe ziet die route eruit in de tabel? Ping vanaf VESTIGING naar 8.8.8.8 en bekijk daarna de ARP-tabel. Wat valt op, en welk mechanisme op HQ maakt dit mogelijk?
+    3. Verwijder de tijdelijke route weer.
+    4. Wat is een **fully specified** statische route, en wanneer is die nodig?
+
+    ## Reflectie
+    1. Wanneer kies je voor een netwerkroute en wanneer voor een default route?
+    2. Waarom kreeg de floating static AD 200 en niet bijvoorbeeld 1 of 255?
+    3. Noem een nadeel van statische routering ten opzichte van een routeringsprotocol, dat je in deel 5 tegenkwam.
+
+    Je docent bespreekt daarna je antwoorden.
+  title: Lab 3.2.1 - De vestiging op de kaart
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1
