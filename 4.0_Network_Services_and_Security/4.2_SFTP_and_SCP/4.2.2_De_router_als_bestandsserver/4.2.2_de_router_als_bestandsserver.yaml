@@ -1,0 +1,218 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 4.2.2 - DE ROUTER ALS BESTANDSSERVER (configuratielab)
+       R1 10.62.10.1 (SSH: beheer / Beheer2026)   BEHEER-PC 10.62.10.50
+       ~/software: iol-update-17.18.03.bin + RELEASENOTES.txt (MD5)
+       Router als SCP-server: config ophalen, software uploaden, MD5
+      Tip: scp -O (en -T voor system:running-config)
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+      Login BEHEER-PC: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -700.0
+    y1: -350.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R1
+          no ip domain lookup
+          ip domain name lab.local
+          username beheer privilege 15 algorithm-type scrypt secret Beheer2026
+          !
+          interface Ethernet0/0
+           description Beheerlan
+           ip address 10.62.10.1 255.255.255.0
+           no shutdown
+          !
+          crypto key generate rsa modulus 2048
+          ip ssh version 2
+          !
+          line vty 0 4
+           login local
+           transport input ssh
+          !
+          line con 0
+           privilege level 15
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: R1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname BEHEER-PC
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.62.10.50/24 dev eth0
+          ip route add default via 10.62.10.1
+          # nieuwe softwareversie (lab: 1 MB testbestand) en de releasenotes van de leverancier
+          mkdir -p /home/cisco/software
+          yes CCNA-LAB-IMAGE-17.18.03 | head -c 1048576 > /home/cisco/software/iol-update-17.18.03.bin
+          cat > /home/cisco/software/RELEASENOTES.txt <<'EOF'
+          Bestand : iol-update-17.18.03.bin
+          Grootte : 1048576 bytes
+          MD5     : e4dcdc3ace602467bb22b3b230007ad8
+          EOF
+          chown -R cisco:cisco /home/cisco/software
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: BEHEER-PC
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -300
+    y: 0
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n1
+    n2: n0
+    i1: i0
+    i2: i1
+    conditioning: {}
+    label: BEHEER-PC-eth0<->R1-Ethernet0/0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 4.2. Configuratielab: router als SCP-server
+    (AAA-voorwaarden), software uploaden, verify /md5, geen SFTP-server op IOS.'
+  notes: |-
+    # Lab 4.2.2 - De router als bestandsserver
+
+    **Leerdoel (CCNA 200-301 v2.0, 4.2):** configuratie- en softwarebestanden van netwerkapparaten beheren met veilige bestandsoverdracht (SFTP/SCP).
+
+    ## Scenario
+    De leverancier heeft een nieuwe softwareversie voor R1 uitgebracht. Je wilt het bestand vanaf de beheer-pc naar de router kopiëren, en controleren dat het onderweg niet is beschadigd. Ook wil je de configuratie van R1 direct vanaf de beheer-pc kunnen ophalen.
+
+    Dit keer is de router de **server**: de beheer-pc maakt de verbinding.
+
+    SSH werkt al op R1, met de gebruiker **beheer** (wachtwoord **Beheer2026**, privilege 15).
+
+    ## Topologie
+    | Apparaat | Interface | IPv4 |
+    |---|---|---|
+    | R1 | E0/0 | 10.62.10.1/24 |
+    | BEHEER-PC | eth0 | 10.62.10.50/24 |
+
+    Op BEHEER-PC staat in `~/software` de nieuwe versie `iol-update-17.18.03.bin` met de releasenotes van de leverancier (`RELEASENOTES.txt`).
+
+    ## Inloggen
+    - R1: console, geen wachtwoord.
+    - BEHEER-PC (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**.
+
+    **Tip voor SCP vanaf Linux:** nieuwe OpenSSH-versies gebruiken voor `scp` standaard het SFTP-protocol, en dat kent IOS niet als server. Gebruik daarom `scp -O` (het klassieke SCP-protocol). Bij het ophalen van `system:running-config` heb je ook `-T` nodig, omdat IOS een andere bestandsnaam terugstuurt dan je vroeg. Voorbeeld:
+    `scp -O -T beheer@10.62.10.1:system:running-config r1.cfg`
+
+    ## Opdrachten
+
+    ### Deel 1 - De SCP-server aanzetten
+    1. Probeer vanaf BEHEER-PC de running-config van R1 op te halen (zie de tip). Welke melding geeft de router?
+    2. Zet op R1 de SCP-server aan en probeer het opnieuw. Bekijk het bestand op de pc.
+    3. Bekijk op R1 de log (`show logging | include SSH`). Welke regels zie je bij een SCP-overdracht?
+    4. In veel (oudere) documentatie staat dat de SCP-server **AAA** nodig heeft, met lokale exec-autorisatie. Deze IOS XE-versie accepteert ook `login local` op de vty-lijnen, zolang de gebruiker **privilege 15** heeft. Als het netwerk wel AAA gebruikt (zoals in lab 4.1.2), welke method list moet er dan in elk geval zijn voor SCP?
+
+    ### Deel 2 - De nieuwe software uploaden
+    1. Bekijk op R1 welke bestandssystemen er zijn en hoeveel ruimte er vrij is. Op welk bestandssysteem zet je de nieuwe software? (In IOL heet dat `unix:`; op een echte router `flash:` of `bootflash:`.)
+    2. Kopieer `iol-update-17.18.03.bin` met SCP naar R1.
+    3. Controleer met `dir` of het bestand er staat en of de grootte klopt.
+
+    ### Deel 3 - Is het bestand onbeschadigd?
+    1. Bereken op R1 de MD5-hash van het bestand.
+    2. Vergelijk die met de waarde in `RELEASENOTES.txt` en met `md5sum` op de pc. Waarom is deze stap belangrijk voordat je een nieuwe softwareversie activeert?
+    3. Wat zou je doen als de hash niet klopt?
+
+    ### Deel 4 - SFTP?
+    1. Probeer vanaf BEHEER-PC met `sftp beheer@10.62.10.1` verbinding te maken. Wat gebeurt er?
+    2. Wat concludeer je over SFTP op IOS? Hoe gebruik je SFTP dan wel met een Cisco-router? (Denk aan lab 4.2.1.)
+
+    ### Deel 5 - Activeren (theorie) en opruimen
+    1. Bekijk `show version`. Vanaf welk bestand is deze router opgestart?
+    2. Op een echte router activeer je een nieuwe image met `boot system`, `copy running-config startup-config` en `reload`. Schrijf de commando's op voor deze nieuwe versie (op `flash:`). Waarom bewaar je de oude image nog even?
+    3. In IOL kun je niet van een andere image opstarten. Verwijder het bestand weer van R1.
+
+    ## Reflectie
+    1. Welke voorwaarden moeten er op een IOS-router zijn voordat de SCP-server werkt? Noem ze allemaal.
+    2. Waarom is het verstandig om de SCP-server na gebruik weer uit te zetten?
+
+    Je docent bespreekt daarna je antwoorden.
+  title: Lab 4.2.2 - De router als bestandsserver
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1

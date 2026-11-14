@@ -1,0 +1,533 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 4.2.3 - DE UPDATE DIE NIET AANKWAM
+       Er zitten 5 fouten in dit lab.
+       R1-R4 10.63.10.1-.4: SCP-server, beheer / Beheer2026 (priv 15)
+       BEHEER-PC 10.63.10.50: ~/software (image + RELEASENOTES met MD5)
+       Procedure: SCP-upload, verify /md5, pas dan activeren
+      Ontwerp en opdracht: open de Lab Notes (tabblad Notes).
+      Login BEHEER-PC: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -760.0
+    y1: -420.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: SW1
+    node_definition: unmanaged_switch
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: 0
+    interfaces:
+      - id: i0
+        label: port0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: port1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i2
+        label: port2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i3
+        label: port3
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i4
+        label: port4
+        mac_address: null
+        type: physical
+        slot: 4
+      - id: i5
+        label: port5
+        mac_address: null
+        type: physical
+        slot: 5
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname BEHEER-PC
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.63.10.50/24 dev eth0
+          # nieuwe softwareversie (lab: 1 MB testbestand) en de releasenotes van de leverancier
+          mkdir -p /home/cisco/software
+          { yes CCNA-LAB-IMAGE-17.18.03 | head -c 524288; printf X; yes CCNA-LAB-IMAGE-17.18.03 | head -c 524287; } > /home/cisco/software/iol-update-17.18.03.bin
+          cat > /home/cisco/software/RELEASENOTES.txt <<'EOF'
+          Bestand : iol-update-17.18.03.bin
+          Grootte : 1048576 bytes
+          MD5     : e4dcdc3ace602467bb22b3b230007ad8
+          EOF
+          chown -R cisco:cisco /home/cisco/software
+          # het origineel van de leverancier (de mirror), alleen-lezen
+          mkdir -p /srv/leverancier
+          yes CCNA-LAB-IMAGE-17.18.03 | head -c 1048576 > /srv/leverancier/iol-update-17.18.03.bin
+          cp /home/cisco/software/RELEASENOTES.txt /srv/leverancier/
+          chmod -R a+rX,go-w /srv/leverancier
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: BEHEER-PC
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -200
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R1
+          no ip domain lookup
+          ip domain name lab.local
+          username beheer privilege 15 algorithm-type scrypt secret Beheer2026
+          aaa new-model
+          aaa authentication login CONSOLE none
+          aaa authentication login default local
+          aaa authorization exec default local
+          !
+          interface Ethernet0/0
+           description Beheerlan
+           ip address 10.63.10.1 255.255.255.0
+           no shutdown
+          !
+          crypto key generate rsa modulus 2048
+          ip ssh version 2
+          !
+          line vty 0 4
+           transport input ssh
+          !
+          line con 0
+           login authentication CONSOLE
+          !
+          line con 0
+           privilege level 15
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: R1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -375
+    y: 200
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R2
+          no ip domain lookup
+          ip domain name lab.local
+          username beheer privilege 1 algorithm-type scrypt secret Beheer2026
+          aaa new-model
+          aaa authentication login CONSOLE none
+          aaa authentication login default local
+          aaa authorization exec default local
+          !
+          interface Ethernet0/0
+           description Beheerlan
+           ip address 10.63.10.2 255.255.255.0
+           no shutdown
+          !
+          crypto key generate rsa modulus 2048
+          ip ssh version 2
+          ip scp server enable
+          !
+          line vty 0 4
+           transport input ssh
+          !
+          line con 0
+           login authentication CONSOLE
+          !
+          line con 0
+           privilege level 15
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: R2
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -125
+    y: 200
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R3
+          no ip domain lookup
+          ip domain name lab.local
+          username beheer privilege 15 algorithm-type scrypt secret Beheer2026
+          aaa new-model
+          aaa authentication login CONSOLE none
+          aaa authentication login default local
+          !
+          interface Ethernet0/0
+           description Beheerlan
+           ip address 10.63.10.3 255.255.255.0
+           no shutdown
+          !
+          crypto key generate rsa modulus 2048
+          ip ssh version 2
+          ip scp server enable
+          !
+          line vty 0 4
+           transport input ssh
+          !
+          line con 0
+           login authentication CONSOLE
+          !
+          line con 0
+           privilege level 15
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: R3
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 125
+    y: 200
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R4
+          no ip domain lookup
+          ip domain name lab.local
+          username beheer privilege 15 algorithm-type scrypt secret Beheer2026
+          aaa new-model
+          aaa authentication login CONSOLE none
+          aaa authentication login default local
+          aaa authorization exec default local
+          !
+          interface Ethernet0/0
+           description Beheerlan
+           ip address 10.63.10.4 255.255.255.0
+           no shutdown
+          !
+          crypto key generate rsa modulus 2048
+          ip ssh version 2
+          ip scp server enable
+          !
+          line vty 0 4
+           transport input telnet
+          !
+          line con 0
+           login authentication CONSOLE
+          !
+          line con 0
+           privilege level 15
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: R4
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 375
+    y: 200
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+links:
+  - id: l0
+    n1: n1
+    n2: n0
+    i1: i0
+    i2: i0
+    conditioning: {}
+    label: BEHEER-PC-eth0<->SW1-port0
+  - id: l1
+    n1: n2
+    n2: n0
+    i1: i1
+    i2: i1
+    conditioning: {}
+    label: R1-Ethernet0/0<->SW1-port1
+  - id: l2
+    n1: n3
+    n2: n0
+    i1: i1
+    i2: i2
+    conditioning: {}
+    label: R2-Ethernet0/0<->SW1-port2
+  - id: l3
+    n1: n4
+    n2: n0
+    i1: i1
+    i2: i3
+    conditioning: {}
+    label: R3-Ethernet0/0<->SW1-port3
+  - id: l4
+    n1: n5
+    n2: n0
+    i1: i1
+    i2: i4
+    conditioning: {}
+    label: R4-Ethernet0/0<->SW1-port4
+lab:
+  description: CCNA 200-301 v2.0 - leerdoel 4.2. Troubleshootinglab met 5 fouten rond
+    SCP en de software-upgradeprocedure.
+  notes: |-
+    # Lab 4.2.3 - De update die niet aankwam
+
+    **Leerdoel (CCNA 200-301 v2.0, 4.2):** configuratie- en softwarebestanden van netwerkapparaten beheren met veilige bestandsoverdracht (SFTP/SCP).
+
+    ## Scenario
+    Vier vestigingsrouters (R1 t/m R4) moeten een nieuwe softwareversie krijgen. Een collega heeft de routers als SCP-server ingericht en het bestand op de beheer-pc gezet, maar het uploaden lukt op geen enkele router. Jij neemt het over.
+
+    **Er zitten 5 fouten in dit lab.** Vier zitten in de configuratie van de routers; één zit niet in een configuratie, maar je vindt hem als je de upgradeprocedure correct volgt.
+
+    ## Klachten
+    - De upload naar R1, R2 en R3 mislukt.
+    - Op R4 lukt zelfs geen SSH-verbinding.
+
+    ## Ontwerp
+    | Onderdeel | Ontwerp (voor R1 t/m R4) |
+    |---|---|
+    | Beheertoegang | alleen SSH versie 2 op de vty-lijnen |
+    | Account | **beheer** / **Beheer2026**, privilege **15** |
+    | AAA | `aaa new-model`, login `default` lokaal, **exec-autorisatie** `default` lokaal, console via method list CONSOLE (none) |
+    | Bestandsoverdracht | SCP-server **aan** |
+    | Software | `iol-update-17.18.03.bin` naar `unix:` (op echte apparatuur `flash:`) |
+
+    **Upgradeprocedure:**
+    1. upload het bestand met SCP;
+    2. controleer met `verify /md5` dat de hash gelijk is aan die in de releasenotes van de leverancier;
+    3. klopt de hash niet, dan installeer je het bestand **nooit**: verwijder het van de router en haal het opnieuw op uit de map van de leverancier, `/srv/leverancier` op BEHEER-PC;
+    4. pas na een geslaagde controle zou je de router opnieuw opstarten met de nieuwe versie (in dit lab niet mogelijk).
+
+    ## Topologie
+    | Apparaat | IPv4 |
+    |---|---|
+    | R1 / R2 / R3 / R4 | 10.63.10.1 / .2 / .3 / .4 |
+    | BEHEER-PC | 10.63.10.50 (software in `~/software`) |
+
+    ## Inloggen
+    - Routers: console (noodtoegang, direct beheerdersniveau).
+    - BEHEER-PC (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**.
+
+    **Tip:** gebruik vanaf Linux `scp -O` (het klassieke SCP-protocol), bijvoorbeeld:
+    `scp -O ~/software/iol-update-17.18.03.bin beheer@10.63.10.1:unix:iol-update-17.18.03.bin`
+
+    ## Opdracht
+    1. Zoek en herstel de 5 fouten. Houd een **foutenlog** bij:
+
+    | # | Apparaat | Symptoom (melding, log) | Oorzaak | Oplossing | Hoe geverifieerd |
+    |---|---|---|---|---|---|
+
+    2. Toon na afloop aan dat de upload naar alle vier de routers werkt en dat het bestand op elke router de juiste MD5-hash heeft.
+
+    ## Reflectie
+    1. Welke fout zou in de praktijk het meeste schade kunnen aanrichten als je hem niet vindt? Waarom?
+    2. Welke meldingen gaf de router zelf (log), en welke alleen de client?
+
+    Je docent bespreekt daarna je foutenlog.
+  title: Lab 4.2.3 - De update die niet aankwam
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1

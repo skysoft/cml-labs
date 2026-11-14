@@ -1,0 +1,348 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 4.2.1 - BACK-UP VOOR HET WEEKEND (configuratielab)
+       R1 10.61.10.1 (Lo0 10.61.1.1)   R2 10.61.10.2 (Lo0 10.61.2.2)
+       BACKUP-SRV 10.61.10.100: account backup / Backup2026
+       Router als client: copy ... scp:// en sftp://
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+      Login BACKUP-SRV: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -700.0
+    y1: -400.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: SW1
+    node_definition: unmanaged_switch
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: 0
+    interfaces:
+      - id: i0
+        label: port0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: port1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i2
+        label: port2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i3
+        label: port3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R1
+          no ip domain lookup
+          ip domain name lab.local
+          !
+          interface Loopback0
+           description Beheeradres
+           ip address 10.61.1.1 255.255.255.255
+          !
+          interface Ethernet0/0
+           description Serverlan
+           ip address 10.61.10.1 255.255.255.0
+           no shutdown
+          !
+          banner motd ^Router R1 - alleen voor bevoegd personeel^
+          !
+          line con 0
+           privilege level 15
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: R1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -250
+    y: 150
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R2
+          no ip domain lookup
+          ip domain name lab.local
+          !
+          interface Loopback0
+           description Beheeradres
+           ip address 10.61.2.2 255.255.255.255
+          !
+          interface Ethernet0/0
+           description Serverlan
+           ip address 10.61.10.2 255.255.255.0
+           no shutdown
+          !
+          banner motd ^Router R2 - alleen voor bevoegd personeel^
+          !
+          line con 0
+           privilege level 15
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: R2
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 250
+    y: 150
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname BACKUP-SRV
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.61.10.100/24 dev eth0
+          ip route add 10.61.1.1 via 10.61.10.1
+          ip route add 10.61.2.2 via 10.61.10.2
+          # back-upaccount voor de routers: backup / Backup2026
+          adduser -D -s /bin/sh backup
+          echo 'backup:Backup2026' | chpasswd
+          mkdir -p /home/backup/configs && chown -R backup:backup /home/backup
+          # een kleine configuratiewijziging die je in deel 4 terugzet op R1
+          cat > /home/backup/configs/R1-wijziging.cfg <<'EOF'
+          interface Loopback9
+           description Toegevoegd vanaf de back-upserver
+           ip address 10.61.99.1 255.255.255.255
+          !
+          banner motd ^Router R1 - configuratie hersteld vanaf BACKUP-SRV^
+          end
+          EOF
+          chown backup:backup /home/backup/configs/R1-wijziging.cfg
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: BACKUP-SRV
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -180
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n1
+    n2: n0
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: R1-Ethernet0/0<->SW1-port0
+  - id: l1
+    n1: n2
+    n2: n0
+    i1: i1
+    i2: i1
+    conditioning: {}
+    label: R2-Ethernet0/0<->SW1-port1
+  - id: l2
+    n1: n3
+    n2: n0
+    i1: i0
+    i2: i2
+    conditioning: {}
+    label: BACKUP-SRV-eth0<->SW1-port2
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 4.2. Configuratielab: router als SCP/SFTP-client,
+    back-up en herstel (merge) van configuraties.'
+  notes: |-
+    # Lab 4.2.1 - Back-up voor het weekend
+
+    **Leerdoel (CCNA 200-301 v2.0, 4.2):** configuratie- en softwarebestanden van netwerkapparaten beheren met veilige bestandsoverdracht (SFTP/SCP).
+
+    ## Scenario
+    Voor het onderhoudsweekend wil de beheerder van elke router een back-up van de configuratie op de back-upserver. Vroeger ging dat met TFTP; dat mag niet meer, want alles gaat dan onversleuteld over het netwerk. Voortaan gebruik je **SCP** en **SFTP**, die allebei over SSH werken.
+
+    In dit lab is de router de **client**: hij kopieert bestanden naar en van de server.
+
+    ## Topologie
+    | Apparaat | Interface | IPv4 |
+    |---|---|---|
+    | R1 | E0/0 / Loopback0 | 10.61.10.1/24 / 10.61.1.1 |
+    | R2 | E0/0 / Loopback0 | 10.61.10.2/24 / 10.61.2.2 |
+    | BACKUP-SRV | eth0 | 10.61.10.100/24 (OpenSSH: SCP en SFTP) |
+
+    Op de server staat het account **backup** (wachtwoord **Backup2026**) met de map `/home/backup/configs`.
+
+    ## Inloggen
+    - Routers: console, geen wachtwoord.
+    - BACKUP-SRV (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco** (om de bestanden te bekijken: `sudo ls -l /home/backup/configs`).
+
+    ## Opdrachten
+
+    ### Deel 1 - Voorbereiding
+    1. Bekijk `show file systems` op R1. Welke bestandssystemen zijn er, en welke hebben het type **network**? Op welk bestandssysteem staat de startup-config?
+    2. In dit lab draait IOS als IOL (een softwareversie in Docker). Daardoor is er geen `flash:` maar `unix:`. Hoe heet dit bestandssysteem op een echte router of switch?
+    3. Zorg dat R1 en R2 hun SSH-verkeer (dus ook SCP en SFTP) versturen vanaf **Loopback0**.
+
+    ### Deel 2 - Back-up met SCP
+    1. Kopieer op R1 de **running-config** met SCP naar de server, als `/home/backup/configs/R1-running.cfg`. Gebruik het account backup. IOS vraagt om bevestiging van het adres, de bestandsnaam en het wachtwoord.
+    2. Doe hetzelfde voor R2.
+    3. Controleer op de server of de bestanden er zijn en bekijk de inhoud van één ervan. Klopt hij met de configuratie van de router?
+
+    ### Deel 3 - Back-up met SFTP
+    1. Kopieer op R1 de **startup-config** met SFTP naar de server, als `R1-startup.cfg`. Wat valt je op aan de grootte, vergeleken met R1-running.cfg? Verklaar.
+    2. Voer `copy running-config startup-config` (of `write memory`) uit en herhaal stap 1.
+    3. Met `ip sftp username` en `ip sftp password` kun je de inloggegevens in de configuratie zetten, zodat je ze niet meer hoeft te typen. Waarom is dat in de praktijk een slecht idee?
+
+    ### Deel 4 - Terugzetten
+    1. Op de server staat een klein bestand `R1-wijziging.cfg`. Bekijk de inhoud op de server.
+    2. Kopieer dit bestand met SCP naar de **running-config** van R1.
+    3. Is de configuratie van R1 nu **vervangen** of **samengevoegd** (merge)? Toon dat aan. Wat gebeurde er met bestaande instellingen?
+    4. Hoe zou je een volledige configuratie wél laten vervangen in plaats van samenvoegen? (Noem twee manieren.)
+
+    ### Deel 5 - Veilig tegenover onveilig
+    1. Vul de tabel in:
+
+    | Protocol | Transport/poort | Versleuteld? | Authenticatie? | Bestandsbeheer (ls, rm)? |
+    |---|---|---|---|---|
+    | TFTP | | | | |
+    | FTP | | | | |
+    | SCP | | | | |
+    | SFTP | | | | |
+
+    2. (Optioneel) Start in CML een packet capture op de link van R1 en herhaal deel 2. Kun je de configuratie in de pakketten lezen?
+
+    ## Reflectie
+    1. Waarom gebruik je voor een back-up liever een vast bronadres (Loopback0)?
+    2. Wat is het verschil tussen een back-up van de running-config en van de startup-config? Wanneer heb je welke nodig?
+
+    Je docent bespreekt daarna je antwoorden.
+  title: Lab 4.2.1 - Back-up voor het weekend
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1
