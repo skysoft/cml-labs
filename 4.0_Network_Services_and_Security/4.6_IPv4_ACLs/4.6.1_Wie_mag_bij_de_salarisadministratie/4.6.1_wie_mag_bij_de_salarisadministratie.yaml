@@ -1,0 +1,553 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 4.6.1 - WIE MAG BIJ DE SALARISADMINISTRATIE? (configuratielab)
+       R1: HR .10.0/24, Verkoop .20.0/24, Beheer .30.0/24 (10.91.x.0/24)
+       ALG-SRV 10.91.100.20 (voor iedereen), SAL-SRV 10.91.110.10 (alleen HR + 10.91.30.11)
+       Standard ACL's: numbered, named, plaatsing, access-class
+      Test: nc -w 2 <server> 80 </dev/null
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+      Login pc's/servers: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -800.0
+    y1: -440.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R1
+          no ip domain lookup
+          ip domain name lab.local
+          username beheer privilege 15 algorithm-type scrypt secret Beheer2026
+          !
+          interface Ethernet0/0
+           description LAN HR
+           ip address 10.91.10.1 255.255.255.0
+           no shutdown
+          !
+          interface Ethernet0/1
+           description LAN Verkoop
+           ip address 10.91.20.1 255.255.255.0
+           no shutdown
+          !
+          interface Ethernet0/2
+           description LAN Beheer
+           ip address 10.91.30.1 255.255.255.0
+           no shutdown
+          !
+          interface Ethernet0/3
+           description Algemene servers
+           ip address 10.91.100.1 255.255.255.0
+           no shutdown
+          !
+          interface Ethernet1/0
+           description Salarisserver
+           ip address 10.91.110.1 255.255.255.0
+           no shutdown
+          !
+          crypto key generate rsa modulus 2048
+          ip ssh version 2
+          !
+          line vty 0 4
+           login local
+           transport input ssh
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: R1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i5
+        label: Ethernet1/0
+        mac_address: null
+        type: physical
+        slot: 4
+      - id: i6
+        label: Ethernet1/1
+        mac_address: null
+        type: physical
+        slot: 5
+      - id: i7
+        label: Ethernet1/2
+        mac_address: null
+        type: physical
+        slot: 6
+      - id: i8
+        label: Ethernet1/3
+        mac_address: null
+        type: physical
+        slot: 7
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC-HR
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.91.10.11/24 dev eth0
+          ip route add default via 10.91.10.1
+          # labinstelling: MAC-adres van de gateway vastzetten zodra het bekend is (IOL beantwoordt geen
+          # ARP meer op een interface met een outbound-ACL; op echte apparatuur is dit niet nodig)
+          (for i in $(seq 1 60); do ping -c 1 -W 1 10.91.10.1 >/dev/null 2>&1; m=$(ip neigh show 10.91.10.1 | awk '/lladdr/{print $5}'); [ -n "$m" ] && arp -s 10.91.10.1 $m && break; sleep 5; done) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: PC-HR
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -400
+    y: -200
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: SW-VK
+    node_definition: unmanaged_switch
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -300
+    y: 50
+    interfaces:
+      - id: i0
+        label: port0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: port1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i2
+        label: port2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i3
+        label: port3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC-VK
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.91.20.11/24 dev eth0
+          ip route add default via 10.91.20.1
+          # labinstelling: MAC-adres van de gateway vastzetten zodra het bekend is (IOL beantwoordt geen
+          # ARP meer op een interface met een outbound-ACL; op echte apparatuur is dit niet nodig)
+          (for i in $(seq 1 60); do ping -c 1 -W 1 10.91.20.1 >/dev/null 2>&1; m=$(ip neigh show 10.91.20.1 | awk '/lladdr/{print $5}'); [ -n "$m" ] && arp -s 10.91.20.1 $m && break; sleep 5; done) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: PC-VK
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -500
+    y: 0
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC-ADVISEUR
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.91.20.50/24 dev eth0
+          ip route add default via 10.91.20.1
+          # labinstelling: MAC-adres van de gateway vastzetten zodra het bekend is (IOL beantwoordt geen
+          # ARP meer op een interface met een outbound-ACL; op echte apparatuur is dit niet nodig)
+          (for i in $(seq 1 60); do ping -c 1 -W 1 10.91.20.1 >/dev/null 2>&1; m=$(ip neigh show 10.91.20.1 | awk '/lladdr/{print $5}'); [ -n "$m" ] && arp -s 10.91.20.1 $m && break; sleep 5; done) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: PC-ADVISEUR
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -500
+    y: 130
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC-BEHEER
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.91.30.11/24 dev eth0
+          ip route add default via 10.91.30.1
+          # labinstelling: MAC-adres van de gateway vastzetten zodra het bekend is (IOL beantwoordt geen
+          # ARP meer op een interface met een outbound-ACL; op echte apparatuur is dit niet nodig)
+          (for i in $(seq 1 60); do ping -c 1 -W 1 10.91.30.1 >/dev/null 2>&1; m=$(ip neigh show 10.91.30.1 | awk '/lladdr/{print $5}'); [ -n "$m" ] && arp -s 10.91.30.1 $m && break; sleep 5; done) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: PC-BEHEER
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -300
+    y: 250
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname ALG-SRV
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.91.100.20/24 dev eth0
+          ip route add default via 10.91.100.1
+          # labinstelling: MAC-adres van de gateway vastzetten zodra het bekend is (IOL beantwoordt geen
+          # ARP meer op een interface met een outbound-ACL; op echte apparatuur is dit niet nodig)
+          (for i in $(seq 1 60); do ping -c 1 -W 1 10.91.100.1 >/dev/null 2>&1; m=$(ip neigh show 10.91.100.1 | awk '/lladdr/{print $5}'); [ -n "$m" ] && arp -s 10.91.100.1 $m && break; sleep 5; done) &
+          # dienst op poort 80
+          (while true; do printf 'HTTP/1.0 200 OK\r\n\r\nIntranet (algemene server)\r\n' | nc -l -p 80 -w 2 >/dev/null 2>&1; done) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n6
+    image_definition: null
+    label: ALG-SRV
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 350
+    y: -150
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname SAL-SRV
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.91.110.10/24 dev eth0
+          ip route add default via 10.91.110.1
+          # labinstelling: MAC-adres van de gateway vastzetten zodra het bekend is (IOL beantwoordt geen
+          # ARP meer op een interface met een outbound-ACL; op echte apparatuur is dit niet nodig)
+          (for i in $(seq 1 60); do ping -c 1 -W 1 10.91.110.1 >/dev/null 2>&1; m=$(ip neigh show 10.91.110.1 | awk '/lladdr/{print $5}'); [ -n "$m" ] && arp -s 10.91.110.1 $m && break; sleep 5; done) &
+          # dienst op poort 80
+          (while true; do printf 'HTTP/1.0 200 OK\r\n\r\nSalarisadministratie (vertrouwelijk)\r\n' | nc -l -p 80 -w 2 >/dev/null 2>&1; done) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n7
+    image_definition: null
+    label: SAL-SRV
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 350
+    y: 150
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n1
+    n2: n0
+    i1: i0
+    i2: i1
+    conditioning: {}
+    label: PC-HR-eth0<->R1-Ethernet0/0
+  - id: l1
+    n1: n0
+    n2: n2
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: R1-Ethernet0/1<->SW-VK-port0
+  - id: l2
+    n1: n2
+    n2: n3
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: SW-VK-port1<->PC-VK-eth0
+  - id: l3
+    n1: n2
+    n2: n4
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: SW-VK-port2<->PC-ADVISEUR-eth0
+  - id: l4
+    n1: n5
+    n2: n0
+    i1: i0
+    i2: i3
+    conditioning: {}
+    label: PC-BEHEER-eth0<->R1-Ethernet0/2
+  - id: l5
+    n1: n6
+    n2: n0
+    i1: i0
+    i2: i4
+    conditioning: {}
+    label: ALG-SRV-eth0<->R1-Ethernet0/3
+  - id: l6
+    n1: n7
+    n2: n0
+    i1: i0
+    i2: i5
+    conditioning: {}
+    label: SAL-SRV-eth0<->R1-Ethernet1/0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 4.6. Configuratielab standard ACL''s:
+    wildcards, numbered en named, plaatsing, sequence numbers, access-class.'
+  notes: |-
+    # Lab 4.6.1 - Wie mag bij de salarisadministratie?
+
+    **Leerdoel (CCNA 200-301 v2.0, 4.6):** IPv4-access control lists configureren (standard, extended, numbered en named). Dit lab gaat over **standard** ACL's.
+
+    ## Scenario
+    Op het netwerk van een bedrijf kan nu iedereen overal bij, ook bij de **salarisserver**. Dat moet anders:
+    - alleen de afdeling **HR** en de **beheer-pc** 10.91.30.11 mogen bij de salarisserver;
+    - de **algemene server** (intranet) blijft voor iedereen bereikbaar;
+    - de router zelf mag alleen vanaf het **beheer-LAN** via SSH beheerd worden.
+
+    Je gebruikt hiervoor **standard** ACL's. Die kijken alleen naar het **bronadres** van een pakket.
+
+    ## Topologie (router R1)
+    | Interface | Netwerk | Hosts |
+    |---|---|---|
+    | E0/0 | HR 10.91.10.0/24 | PC-HR .11 |
+    | E0/1 | Verkoop 10.91.20.0/24 | PC-VK .11, PC-ADVISEUR .50 |
+    | E0/2 | Beheer 10.91.30.0/24 | PC-BEHEER .11 |
+    | E0/3 | Algemene servers 10.91.100.0/24 | ALG-SRV .20 (poort 80) |
+    | E1/0 | Salarisserver 10.91.110.0/24 | SAL-SRV .10 (poort 80) |
+
+    R1 heeft SSH, met gebruiker **beheer** / **Beheer2026**.
+
+    ## Inloggen
+    - R1: console, geen wachtwoord.
+    - Alle pc's en servers (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**.
+
+    **Testen:** `nc -w 2 <server> 80 </dev/null` toont de tekst van de server als je erbij mag, en blijft leeg als het verkeer wordt tegengehouden. Ping werkt ook.
+
+    ## Opdrachten
+
+    ### Deel 1 - Wildcard masks
+    Schrijf de wildcard (en waar het kan het sleutelwoord `host` of `any`) voor:
+
+    | Doel | Adres + wildcard |
+    |---|---|
+    | alleen 10.91.30.11 | |
+    | het hele HR-netwerk 10.91.10.0/24 | |
+    | alle netwerken 10.91.0.0 t/m 10.91.255.255 | |
+    | alleen 10.91.20.0 t/m 10.91.20.63 | |
+    | elk adres | |
+
+    ### Deel 2 - Een numbered standard ACL
+    1. Test eerst vanaf PC-HR, PC-VK en PC-BEHEER of je bij SAL-SRV en bij ALG-SRV komt. Noteer de uitgangssituatie.
+    2. Maak ACL **10**: HR en de beheer-pc toestaan. Moet je ook een regel voor "de rest weigeren" maken? Waarom wel of niet?
+    3. **Bewust verkeerd plaatsen:** zet ACL 10 **inkomend** op E0/1 (Verkoop). Test opnieuw vanaf PC-VK naar **beide** servers. Wat gaat er mis? Waarom is een standard ACL dicht bij de bron een slecht idee?
+    4. Haal de ACL van E0/1 en zet hem op de juiste plek: zo dicht mogelijk bij de **bestemming**. Welk interface en welke richting? Test opnieuw vanaf alle pc's.
+    5. Bekijk `show access-lists` en `show ip interface E1/0`. Wat zie je bij de tellers (matches)?
+    6. Probeer met `no access-list 10 permit host 10.91.30.11` één regel te verwijderen. Bekijk daarna `show access-lists`. Wat is er gebeurd? Zet de ACL weer terug.
+
+    ### Deel 3 - Named en bewerken met sequence numbers
+    1. De externe salarisadviseur (PC-ADVISEUR, 10.91.20.50, op het Verkoop-LAN) moet ook bij de salarisserver. Vervang ACL 10 door een **named** standard ACL **SALARIS** met dezelfde regels, en zet die op dezelfde plek.
+    2. Voeg de adviseur toe als regel met sequence number **15**, dus tussen de bestaande regels in. Bekijk de volgorde met `show access-lists SALARIS`.
+    3. Voeg een `remark` toe die uitlegt waarvoor de ACL is.
+    4. Test: PC-ADVISEUR mag bij SAL-SRV, PC-VK niet.
+    5. Waarom is de **volgorde** van regels belangrijk? Geef een voorbeeld waarbij een regel nooit geraakt zou worden.
+
+    ### Deel 4 - Beheertoegang tot de router
+    1. Test vanaf PC-VK en PC-BEHEER: `ssh beheer@10.91.20.1` (of het eigen gateway-adres). Krijg je een wachtwoordprompt? (Je hoeft niet in te loggen; breek af met Ctrl+C.)
+    2. Maak een named standard ACL **BEHEER-VTY** die alleen het beheer-LAN toestaat, en koppel die met `access-class` aan de vty-lijnen.
+    3. Test opnieuw vanaf beide pc's. Wat is het verschil? Waarom is `access-class` beter dan een ACL op elk interface van de router?
+
+    ## Reflectie
+    1. Waarom staat een standard ACL bij voorkeur dicht bij de bestemming?
+    2. Wat betekent de impliciete `deny any`, en waar zag je hem in dit lab aan het werk?
+    3. Wat is het voordeel van een named ACL ten opzichte van een numbered ACL?
+
+    Je docent bespreekt daarna je antwoorden.
+  title: Lab 4.6.1 - Wie mag bij de salarisadministratie
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1

@@ -1,0 +1,425 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 4.6.2 - ALLEEN WAT NODIG IS (configuratielab, extended ACL's)
+       R1: Medewerkers 10.92.10.0/24, Beheer 10.92.30.0/24, Servers 10.92.100.0/24
+       WEB .80 (80, 443, 22), MAIL .25 (25, 22), PC1 .11 (luistert op 5000)
+       Beleid: medewerkers alleen web, smtp en ping; beheer alles
+      Test: nc -w 2 <adres> <poort> </dev/null
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+      Login Alpine-nodes: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -780.0
+    y1: -420.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R1
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description LAN Medewerkers
+           ip address 10.92.10.1 255.255.255.0
+           no shutdown
+          !
+          interface Ethernet0/1
+           description LAN Beheer
+           ip address 10.92.30.1 255.255.255.0
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Servers
+           ip address 10.92.100.1 255.255.255.0
+           no shutdown
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: R1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.92.10.11/24 dev eth0
+          ip route add default via 10.92.10.1
+          # labinstelling: MAC-adres van de gateway vastzetten zodra het bekend is (IOL beantwoordt geen
+          # ARP meer op een interface met een outbound-ACL; op echte apparatuur is dit niet nodig)
+          (for i in $(seq 1 60); do ping -c 1 -W 1 10.92.10.1 >/dev/null 2>&1; m=$(ip neigh show 10.92.10.1 | awk '/lladdr/{print $5}'); [ -n "$m" ] && arp -s 10.92.10.1 $m && break; sleep 5; done) &
+          # dienst op poort 5000
+          (while true; do printf 'Dienst op PC1 (poort 5000)\r\n' | nc -l -p 5000 -w 2 >/dev/null 2>&1; done) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: PC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -350
+    y: -120
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC-BEHEER
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.92.30.11/24 dev eth0
+          ip route add default via 10.92.30.1
+          # labinstelling: MAC-adres van de gateway vastzetten zodra het bekend is (IOL beantwoordt geen
+          # ARP meer op een interface met een outbound-ACL; op echte apparatuur is dit niet nodig)
+          (for i in $(seq 1 60); do ping -c 1 -W 1 10.92.30.1 >/dev/null 2>&1; m=$(ip neigh show 10.92.30.1 | awk '/lladdr/{print $5}'); [ -n "$m" ] && arp -s 10.92.30.1 $m && break; sleep 5; done) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: PC-BEHEER
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -350
+    y: 150
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: SW-SRV
+    node_definition: unmanaged_switch
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 300
+    y: 0
+    interfaces:
+      - id: i0
+        label: port0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: port1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i2
+        label: port2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i3
+        label: port3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname WEB
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.92.100.80/24 dev eth0
+          ip route add default via 10.92.100.1
+          # labinstelling: MAC-adres van de gateway vastzetten zodra het bekend is (IOL beantwoordt geen
+          # ARP meer op een interface met een outbound-ACL; op echte apparatuur is dit niet nodig)
+          (for i in $(seq 1 60); do ping -c 1 -W 1 10.92.100.1 >/dev/null 2>&1; m=$(ip neigh show 10.92.100.1 | awk '/lladdr/{print $5}'); [ -n "$m" ] && arp -s 10.92.100.1 $m && break; sleep 5; done) &
+          # dienst op poort 80
+          (while true; do printf 'HTTP/1.0 200 OK\r\n\r\nWebserver (http, poort 80)\r\n' | nc -l -p 80 -w 2 >/dev/null 2>&1; done) &
+          # dienst op poort 443
+          (while true; do printf 'Webserver (https, poort 443)\r\n' | nc -l -p 443 -w 2 >/dev/null 2>&1; done) &
+          # dienst op poort 8443
+          (while true; do printf 'Beheerpagina webserver (poort 8443)\r\n' | nc -l -p 8443 -w 2 >/dev/null 2>&1; done) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: WEB
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 550
+    y: -120
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname MAIL
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.92.100.25/24 dev eth0
+          ip route add default via 10.92.100.1
+          # labinstelling: MAC-adres van de gateway vastzetten zodra het bekend is (IOL beantwoordt geen
+          # ARP meer op een interface met een outbound-ACL; op echte apparatuur is dit niet nodig)
+          (for i in $(seq 1 60); do ping -c 1 -W 1 10.92.100.1 >/dev/null 2>&1; m=$(ip neigh show 10.92.100.1 | awk '/lladdr/{print $5}'); [ -n "$m" ] && arp -s 10.92.100.1 $m && break; sleep 5; done) &
+          # dienst op poort 25
+          (while true; do printf '220 mail.lab ESMTP (poort 25)\r\n' | nc -l -p 25 -w 2 >/dev/null 2>&1; done) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: MAIL
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 550
+    y: 120
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n1
+    n2: n0
+    i1: i0
+    i2: i1
+    conditioning: {}
+    label: PC1-eth0<->R1-Ethernet0/0
+  - id: l1
+    n1: n2
+    n2: n0
+    i1: i0
+    i2: i2
+    conditioning: {}
+    label: PC-BEHEER-eth0<->R1-Ethernet0/1
+  - id: l2
+    n1: n0
+    n2: n3
+    i1: i3
+    i2: i0
+    conditioning: {}
+    label: R1-Ethernet0/2<->SW-SRV-port0
+  - id: l3
+    n1: n3
+    n2: n4
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: SW-SRV-port1<->WEB-eth0
+  - id: l4
+    n1: n3
+    n2: n5
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: SW-SRV-port2<->MAIL-eth0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 4.6. Configuratielab extended ACL''s:
+    numbered en named, plaatsing, poorten, sequence numbers, remark, log en established.'
+  notes: |-
+    # Lab 4.6.2 - Alleen wat nodig is
+
+    **Leerdoel (CCNA 200-301 v2.0, 4.6):** IPv4-access control lists configureren (standard, extended, numbered en named). Dit lab gaat over **extended** ACL's.
+
+    ## Scenario
+    Op het serverlan staan een webserver en een mailserver. Nu kunnen de medewerkers alles op die servers bereiken, ook SSH. Het beveiligingsbeleid wordt:
+
+    | Van | Naar | Toegestaan |
+    |---|---|---|
+    | Medewerkers 10.92.10.0/24 | webserver 10.92.100.80 | http (80) en https (443) |
+    | Medewerkers | mailserver 10.92.100.25 | smtp (25) |
+    | Medewerkers | serverlan | ping (echo) |
+    | Medewerkers | serverlan | **verder niets** (ook geen SSH) |
+    | Beheer 10.92.30.0/24 | serverlan | alles |
+    | Servers | medewerkers | alleen antwoorden op verbindingen die de medewerkers zelf opzetten |
+
+    ## Topologie (router R1)
+    | Interface | Netwerk | Hosts |
+    |---|---|---|
+    | E0/0 | Medewerkers 10.92.10.0/24 | PC1 .11 (luistert op poort 5000) |
+    | E0/1 | Beheer 10.92.30.0/24 | PC-BEHEER .11 |
+    | E0/2 | Servers 10.92.100.0/24 | WEB .80 (poorten 80, 443, 22), MAIL .25 (poorten 25, 22) |
+
+    ## Inloggen
+    - R1: console, geen wachtwoord.
+    - Alle Alpine-nodes: gebruiker **cisco** / wachtwoord **cisco**.
+
+    **Testen:**
+    - `nc -w 2 <adres> <poort> </dev/null` toont de tekst van de dienst als de verbinding lukt, en blijft leeg als het verkeer wordt tegengehouden. (Bij poort 22 zie je de SSH-banner.)
+    - Daarnaast `ping` en `traceroute`.
+
+    ## Opdrachten
+
+    ### Deel 1 - Uitgangssituatie en ontwerp
+    1. Test vanaf PC1 alle poorten (80, 443, 25, 22) op WEB en MAIL, plus ping en traceroute naar WEB. Noteer de resultaten.
+    2. Waarom kun je dit beleid **niet** met een standard ACL maken?
+    3. Waar plaats je een extended ACL, en waarom daar? Op welk interface en in welke richting komt de ACL voor de medewerkers?
+
+    ### Deel 2 - Een numbered extended ACL
+    1. Maak ACL **110** volgens het beleid voor de medewerkers. Gebruik `host`, `eq` en de juiste protocollen (tcp, icmp).
+    2. Plaats de ACL op het juiste interface, in de juiste richting.
+    3. Test opnieuw alles uit deel 1. Klopt het met het beleid? Waarom werkt ping wel en traceroute niet? (Tip: welk protocol gebruikt `traceroute` op Linux?)
+    4. Test vanaf PC-BEHEER: SSH naar WEB (`nc -w 2 10.92.100.80 22 </dev/null`). Werkt dat? Waarom wordt dit verkeer niet geblokkeerd?
+
+    ### Deel 3 - Named, sequence numbers, remark en log
+    1. Vervang ACL 110 door een named extended ACL **MEDEWERKERS-IN** met dezelfde regels. Gebruik sequence numbers in stappen van 10, en zet bovenaan een `remark`.
+    2. Voeg aan het eind een expliciete regel toe die al het overige verkeer weigert, met `log`. Waarom kan dat handig zijn, terwijl de impliciete deny hetzelfde doet?
+    3. Test SSH vanaf PC1 naar WEB, en bekijk `show logging | include SEC` en `show access-lists MEDEWERKERS-IN`. Wat vertellen de tellers?
+    4. De webserver krijgt een beheerpagina op poort **8443**, en ook die moet voor de medewerkers bereikbaar zijn. Voeg een regel in met sequence number **25** (tussen 443 en smtp).
+
+    ### Deel 4 - Terugverkeer en established
+    1. Op PC1 luistert een dienst op poort 5000. Test vanaf WEB: `nc -w 2 10.92.10.11 5000 </dev/null`. Het lukt niet, terwijl er nog geen ACL aan de serverkant staat. Welke ACL houdt dit tegen, en welk pakket precies? (Kijk naar de tellers van MEDEWERKERS-IN.) Wat leer je hieruit over ACL's en antwoordverkeer?
+    2. Haal MEDEWERKERS-IN **tijdelijk** van E0/0 af en test opnieuw vanaf WEB. Volgens het beleid mogen de servers geen verbindingen naar de medewerkers opzetten, maar nu lukt het wel.
+    3. Maak een named extended ACL **SERVERS-IN** die vanaf het serverlan naar de medewerkers alleen toestaat:
+       - TCP-verkeer van verbindingen die al bestaan (`established`);
+       - ICMP echo-reply;
+       en al het andere van servers naar medewerkers weigert. Verkeer van de servers naar andere bestemmingen blijft toegestaan.
+    4. Plaats SERVERS-IN en test:
+       - werkt web en mail vanaf PC1 nog?
+       - lukt de verbinding van WEB naar PC1 poort 5000 nog?
+    5. Zet MEDEWERKERS-IN weer terug op E0/0 en controleer dat alles volgens het beleid werkt.
+    6. Wat doet `established` precies? Waarom is dit geen volwaardige firewall?
+
+    ## Reflectie
+    1. Wat is het belangrijkste verschil tussen standard en extended ACL's, en wat betekent dat voor de plaatsing?
+    2. Hoeveel ACL's mag je per interface, per richting en per protocol plaatsen?
+    3. Waarom moet je bij een ACL op een interface met een routeringsprotocol (bijvoorbeeld OSPF) extra opletten?
+
+    Je docent bespreekt daarna je antwoorden.
+  title: Lab 4.6.2 - Alleen wat nodig is
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1
