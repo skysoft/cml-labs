@@ -1,0 +1,679 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 4.4.1 - HET TELEFOONBOEK VAN HET NETWERK (verkenningslab)
+       Domein korrel.lab - DNS1 10.71.10.53 (gezaghebbend + resolver)
+       rd.korrel.lab gedelegeerd naar DNS-RD 10.71.10.54
+       WEB .80, MAIL .25, PC1 .11 (dig/nslookup); IPv6 2001:db8:71:10::/64
+       Alles werkt: lees en vraag de records op (wacht 3 min na het starten)
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+      Login Alpine-nodes: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -780.0
+    y1: -460.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: default
+        content: NAT
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: INTERNET
+    node_definition: external_connector
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -400
+    interfaces:
+      - id: i0
+        label: port
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname EDGE
+          ip domain lookup
+          ip domain name korrel.lab
+          ip name-server 10.71.10.53
+          ipv6 unicast-routing
+          !
+          interface Ethernet0/0
+           description Uplink naar het echte internet (CML External Connector, NAT)
+           ip address dhcp
+           ip nat outside
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Bedrijfs-LAN
+           ip address 10.71.10.1 255.255.255.0
+           ip nat inside
+           ipv6 address 2001:db8:71:10::1/64
+           no shutdown
+          !
+          ip access-list standard NAT-INTERN
+           permit 10.71.0.0 0.0.255.255
+          ip nat inside source list NAT-INTERN interface Ethernet0/0 overload
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: EDGE
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -250
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: SW1
+    node_definition: unmanaged_switch
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -50
+    interfaces:
+      - id: i0
+        label: port0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: port1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i2
+        label: port2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i3
+        label: port3
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i4
+        label: port4
+        mac_address: null
+        type: physical
+        slot: 4
+      - id: i5
+        label: port5
+        mac_address: null
+        type: physical
+        slot: 5
+      - id: i6
+        label: port6
+        mac_address: null
+        type: physical
+        slot: 6
+      - id: i7
+        label: port7
+        mac_address: null
+        type: physical
+        slot: 7
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname DNS1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.71.10.53/24 dev eth0
+          ip route add default via 10.71.10.1
+          ip -6 address add 2001:db8:71:10::53/64 dev eth0
+          ip -6 route add default via 2001:db8:71:10::1 2>/dev/null
+          # --- DNS-server (BIND): configuratie en zones ---
+          mkdir -p /etc/bind/zones
+          cat > /etc/bind/named.conf.lab <<'EOF'
+          options {
+              directory "/var/bind";
+              listen-on { any; };
+              listen-on-v6 { any; };
+              allow-query { any; };
+              recursion yes;
+              allow-recursion { any; };
+              forwarders { 8.8.8.8; };
+              forward first;
+              dnssec-validation no;
+              pid-file "/var/run/named/named.pid";
+          };
+          logging {
+              channel q { file "/var/log/named-query.log"; print-time yes; };
+              category queries { q; };
+          };
+          zone "korrel.lab" {
+              type master;
+              file "/etc/bind/zones/korrel.lab.zone";
+              forwarders { };
+          };
+          zone "10.71.10.in-addr.arpa" {
+              type master;
+              file "/etc/bind/zones/rev4.zone";
+              forwarders { };
+          };
+          zone "0.1.0.0.1.7.0.0.8.b.d.0.1.0.0.2.ip6.arpa" {
+              type master;
+              file "/etc/bind/zones/rev6.zone";
+              forwarders { };
+          };
+          EOF
+          cat > /etc/bind/zones/korrel.lab.zone <<'EOF'
+          $TTL 3600
+          @ IN SOA dns1.korrel.lab. beheer.korrel.lab. ( 2026111401 3600 900 604800 300 )
+          @        IN NS    dns1.korrel.lab.
+          @        IN MX 10 mail.korrel.lab.
+          @        IN MX 20 mail2.korrel.lab.
+          dns1     IN A     10.71.10.53
+          dns1     IN AAAA  2001:db8:71:10::53
+          www      IN A     10.71.10.80
+          www      IN AAAA  2001:db8:71:10::80
+          shop     IN CNAME www.korrel.lab.
+          mail     IN A     10.71.10.25
+          mail     IN AAAA  2001:db8:71:10::25
+          mail2    IN A     10.71.10.26
+          edge     IN A     10.71.10.1
+          pc1      IN A     10.71.10.11
+          ; subdomein van de afdeling R&D, beheerd op een eigen nameserver
+          rd       IN NS    dns-rd.korrel.lab.
+          dns-rd   IN A     10.71.10.54
+          EOF
+          cat > /etc/bind/zones/rev4.zone <<'EOF'
+          $TTL 3600
+          @ IN SOA dns1.korrel.lab. beheer.korrel.lab. ( 2026111401 3600 900 604800 300 )
+          @ IN NS dns1.korrel.lab.
+          1    IN PTR edge.korrel.lab.
+          11   IN PTR pc1.korrel.lab.
+          25   IN PTR mail.korrel.lab.
+          26   IN PTR mail2.korrel.lab.
+          53   IN PTR dns1.korrel.lab.
+          54   IN PTR dns-rd.korrel.lab.
+          80   IN PTR www.korrel.lab.
+          EOF
+          cat > /etc/bind/zones/rev6.zone <<'EOF'
+          $TTL 3600
+          @ IN SOA dns1.korrel.lab. beheer.korrel.lab. ( 2026111401 3600 900 604800 300 )
+          @ IN NS dns1.korrel.lab.
+          5.2.0.0.0.0.0.0.0.0.0.0.0.0.0.0 IN PTR mail.korrel.lab.
+          3.5.0.0.0.0.0.0.0.0.0.0.0.0.0.0 IN PTR dns1.korrel.lab.
+          0.8.0.0.0.0.0.0.0.0.0.0.0.0.0.0 IN PTR www.korrel.lab.
+          EOF
+          # hulpscript: controleer de configuratie en zones en laad ze opnieuw
+          cat > /usr/local/bin/dns-herlaad <<'EOF'
+          #!/bin/sh
+          named-checkconf /etc/bind/named.conf.lab || exit 1
+          grep -o 'zone "[^"]*"' /etc/bind/named.conf.lab | cut -d'"' -f2 | while read z; do
+            f=$(grep -A2 "zone \"$z\"" /etc/bind/named.conf.lab | grep file | cut -d'"' -f2)
+            named-checkzone -q "$z" "$f" && echo "OK   $z" || { echo "FOUT $z:"; named-checkzone "$z" "$f"; }
+          done
+          kill -HUP $(cat /var/run/named/named.pid) && echo 'BIND opnieuw geladen'
+          EOF
+          chmod 755 /usr/local/bin/dns-herlaad
+          echo "nameserver 8.8.8.8" > /etc/resolv.conf
+          (for i in $(seq 1 40); do apk add -q bind bind-tools >/dev/null 2>&1 && break; sleep 10; done;
+           mkdir -p /var/run/named /var/bind && chown named:named /var/run/named /var/bind;
+           touch /var/log/named-query.log && chown named:named /var/log/named-query.log;
+           chmod -R a+r /etc/bind;
+           named -u named -c /etc/bind/named.conf.lab;
+           printf 'search korrel.lab\nnameserver 127.0.0.1\n' > /etc/resolv.conf) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: DNS1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -400
+    y: 120
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname DNS-RD
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.71.10.54/24 dev eth0
+          ip route add default via 10.71.10.1
+          ip -6 address add 2001:db8:71:10::54/64 dev eth0
+          ip -6 route add default via 2001:db8:71:10::1 2>/dev/null
+          # --- DNS-server (BIND): configuratie en zones ---
+          mkdir -p /etc/bind/zones
+          cat > /etc/bind/named.conf.lab <<'EOF'
+          options {
+              directory "/var/bind";
+              listen-on { any; };
+              listen-on-v6 { any; };
+              allow-query { any; };
+              recursion no;
+              dnssec-validation no;
+              pid-file "/var/run/named/named.pid";
+          };
+          logging {
+              channel q { file "/var/log/named-query.log"; print-time yes; };
+              category queries { q; };
+          };
+          zone "rd.korrel.lab" {
+              type master;
+              file "/etc/bind/zones/rd.zone";
+              forwarders { };
+          };
+          EOF
+          cat > /etc/bind/zones/rd.zone <<'EOF'
+          $TTL 3600
+          @ IN SOA dns-rd.korrel.lab. beheer.korrel.lab. ( 2026111401 3600 900 604800 300 )
+          @    IN NS  dns-rd.korrel.lab.
+          www  IN A   10.71.10.80
+          lab  IN A   10.71.10.80
+          EOF
+          # hulpscript: controleer de configuratie en zones en laad ze opnieuw
+          cat > /usr/local/bin/dns-herlaad <<'EOF'
+          #!/bin/sh
+          named-checkconf /etc/bind/named.conf.lab || exit 1
+          grep -o 'zone "[^"]*"' /etc/bind/named.conf.lab | cut -d'"' -f2 | while read z; do
+            f=$(grep -A2 "zone \"$z\"" /etc/bind/named.conf.lab | grep file | cut -d'"' -f2)
+            named-checkzone -q "$z" "$f" && echo "OK   $z" || { echo "FOUT $z:"; named-checkzone "$z" "$f"; }
+          done
+          kill -HUP $(cat /var/run/named/named.pid) && echo 'BIND opnieuw geladen'
+          EOF
+          chmod 755 /usr/local/bin/dns-herlaad
+          echo "nameserver 8.8.8.8" > /etc/resolv.conf
+          (for i in $(seq 1 40); do apk add -q bind bind-tools >/dev/null 2>&1 && break; sleep 10; done;
+           mkdir -p /var/run/named /var/bind && chown named:named /var/run/named /var/bind;
+           touch /var/log/named-query.log && chown named:named /var/log/named-query.log;
+           chmod -R a+r /etc/bind;
+           named -u named -c /etc/bind/named.conf.lab;
+           printf 'search korrel.lab\nnameserver 127.0.0.1\n' > /etc/resolv.conf) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: DNS-RD
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -200
+    y: 200
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname WEB
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.71.10.80/24 dev eth0
+          ip route add default via 10.71.10.1
+          ip -6 address add 2001:db8:71:10::80/64 dev eth0
+          ip -6 route add default via 2001:db8:71:10::1 2>/dev/null
+          # eenvoudige webserver op poort 80 (IPv4 en IPv6): python3 via internet installeren
+          mkdir -p /srv/www
+          echo 'Webshop Bakkerij De Korrel' > /srv/www/index.html
+          echo "nameserver 8.8.8.8" > /etc/resolv.conf
+          (for i in $(seq 1 40); do apk add -q python3 >/dev/null 2>&1 && break; sleep 10; done;
+           cd /srv/www && nohup python3 -m http.server 80 --bind :: >/dev/null 2>&1 &) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: WEB
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: 230
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname MAIL
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.71.10.25/24 dev eth0
+          ip route add default via 10.71.10.1
+          ip -6 address add 2001:db8:71:10::25/64 dev eth0
+          ip -6 route add default via 2001:db8:71:10::1 2>/dev/null
+          # eenvoudige SMTP-luisteraar op poort 25 (toont alleen de welkomstregel)
+          (while true; do printf '220 mail.korrel.lab ESMTP (lab)\r\n' | nc -l -p 25 -w 3 >/dev/null 2>&1; done) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n6
+    image_definition: null
+    label: MAIL
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 200
+    y: 200
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.71.10.11/24 dev eth0
+          ip route add default via 10.71.10.1
+          ip -6 address add 2001:db8:71:10::11/64 dev eth0
+          ip -6 route add default via 2001:db8:71:10::1 2>/dev/null
+          # dig/nslookup (bind-tools) installeren, daarna de bedrijfs-DNS als resolver
+          echo "nameserver 8.8.8.8" > /etc/resolv.conf
+          (for i in $(seq 1 40); do apk add -q bind-tools >/dev/null 2>&1 && break; sleep 10; done;
+           printf 'search korrel.lab\nnameserver 10.71.10.53\n' > /etc/resolv.conf) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n7
+    image_definition: null
+    label: PC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 400
+    y: 120
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i0
+    i2: i1
+    conditioning: {}
+    label: INTERNET-port<->EDGE-Ethernet0/0
+  - id: l1
+    n1: n1
+    n2: n2
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: EDGE-Ethernet0/1<->SW1-port0
+  - id: l2
+    n1: n3
+    n2: n2
+    i1: i0
+    i2: i1
+    conditioning: {}
+    label: DNS1-eth0<->SW1-port1
+  - id: l3
+    n1: n4
+    n2: n2
+    i1: i0
+    i2: i2
+    conditioning: {}
+    label: DNS-RD-eth0<->SW1-port2
+  - id: l4
+    n1: n5
+    n2: n2
+    i1: i0
+    i2: i3
+    conditioning: {}
+    label: WEB-eth0<->SW1-port3
+  - id: l5
+    n1: n6
+    n2: n2
+    i1: i0
+    i2: i4
+    conditioning: {}
+    label: MAIL-eth0<->SW1-port4
+  - id: l6
+    n1: n7
+    n2: n2
+    i1: i0
+    i2: i5
+    conditioning: {}
+    label: PC1-eth0<->SW1-port5
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 4.4. Verkenningslab DNS: A, AAAA, CNAME,
+    MX, NS en PTR opvragen en lezen, delegatie, recursie en cache.'
+  notes: |-
+    # Lab 4.4.1 - Het telefoonboek van het netwerk
+
+    **Leerdoel (CCNA 200-301 v2.0, 4.4):** problemen met DNS-records (A, AAAA, CNAME, MX, NS en PTR) diagnosticeren, zodat hosts, webapplicaties en mailservers op naam bereikbaar zijn.
+
+    ## Scenario
+    Bakkerij De Korrel heeft een eigen domein: **korrel.lab**. De nameserver **DNS1** beheert dat domein en zoekt voor de medewerkers ook namen op internet op. De afdeling R&D beheert haar eigen subdomein **rd.korrel.lab** op een eigen nameserver (**DNS-RD**).
+
+    Alles werkt. Dit is een **verkenningslab**: je leert de DNS-records lezen en opvragen, zodat je in lab 4.4.2 storingen kunt vinden.
+
+    ## Topologie (alles in 10.71.10.0/24 en 2001:db8:71:10::/64)
+    | Apparaat | IPv4 | IPv6 | Rol |
+    |---|---|---|---|
+    | EDGE | .1 | ::1 | router, internet |
+    | PC1 | .11 | ::11 | werkplek (met `dig` en `nslookup`) |
+    | MAIL | .25 | ::25 | mailserver (SMTP, poort 25) |
+    | DNS1 | .53 | ::53 | gezaghebbend voor korrel.lab en de reverse-zones, en resolver voor het bedrijf |
+    | DNS-RD | .54 | ::54 | gezaghebbend voor rd.korrel.lab |
+    | WEB | .80 | ::80 | webserver (HTTP, poort 80) |
+
+    Op DNS1 staan de zones in `/etc/bind/zones/` en de configuratie in `/etc/bind/named.conf.lab`. Bekijk ze met `sudo cat`.
+
+    Na het starten installeren de servers hun software via internet: wacht ongeveer **3 minuten**.
+
+    ## Inloggen
+    - EDGE: console, geen wachtwoord.
+    - Alle Alpine-nodes: gebruiker **cisco** / wachtwoord **cisco**.
+
+    ## Opdrachten
+
+    ### Deel 1 - Records opvragen
+    Gebruik op PC1 `dig` (en vergelijk één keer met `nslookup`). Vul de tabel in:
+
+    | Vraag | Commando | Antwoord | Recordtype |
+    |---|---|---|---|
+    | IPv4-adres van www.korrel.lab | | | |
+    | IPv6-adres van www.korrel.lab | | | |
+    | Waar wijst shop.korrel.lab naar? | | | |
+    | Welke mailservers heeft korrel.lab, met welke prioriteit? | | | |
+    | Welke nameserver is gezaghebbend voor korrel.lab? | | | |
+    | Welke naam hoort bij 10.71.10.25? | | | |
+    | Welke naam hoort bij 2001:db8:71:10::80? | | | |
+
+    1. Wat is het verschil tussen het ANSWER-, AUTHORITY- en ADDITIONAL-deel in de uitvoer van `dig`?
+    2. Wat betekent de vlag `aa` in het antwoord? Wanneer staat die er wel en wanneer niet?
+
+    ### Deel 2 - Het zonebestand lezen
+    1. Bekijk `/etc/bind/zones/korrel.lab.zone` op DNS1. Zoek elk record uit deel 1 op.
+    2. Wat staat er in het SOA-record? Wat is de functie van het serienummer?
+    3. Wat betekent `$TTL 3600`? Zoek de TTL terug in de uitvoer van `dig`.
+    4. Waarom eindigen de namen achter NS, MX en CNAME met een punt?
+    5. Bekijk de twee reverse-zones. Hoe is het IPv4-adres in de naam van de zone verwerkt, en hoe het IPv6-adres?
+
+    ### Deel 3 - Op naam werken
+    1. Haal vanaf PC1 de website op met `wget -qO- http://www.korrel.lab` en met `http://shop.korrel.lab`. Waarom werken beide?
+    2. Controleer of de mailserver bereikbaar is: `nc -w 3 mail.korrel.lab 25`. Welke regel stuurt de server?
+    3. Waarom vraagt een mailserver die mail wil afleveren bij korrel.lab eerst het MX-record op, en niet het A-record van korrel.lab?
+    4. Wat gebeurt er met mail als `mail` onbereikbaar is? Waar dient `mail2` voor?
+
+    ### Deel 4 - Delegatie (NS)
+    1. Vraag `www.rd.korrel.lab` op via DNS1. Wie geeft uiteindelijk het antwoord?
+    2. Vraag het **direct** aan DNS-RD: `dig @10.71.10.54 www.rd.korrel.lab`. Wat is het verschil in de vlaggen?
+    3. Vraag aan DNS-RD een naam buiten rd.korrel.lab op (bijvoorbeeld `www.korrel.lab` of `cloudflare.com`). Wat antwoordt DNS-RD, en waarom?
+    4. Bekijk in de zone van korrel.lab hoe het subdomein rd is gedelegeerd. Waarom staat er ook een A-record voor dns-rd (glue)?
+
+    ### Deel 5 - Recursie en cache
+    1. Vraag twee keer, met een paar seconden ertussen, `cloudflare.com` op via DNS1. Wat gebeurt er met de TTL en de "Query time"? Verklaar.
+    2. Waar haalt DNS1 de antwoorden voor internetnamen vandaan? (Kijk in de configuratie bij `forwarders`.)
+
+    ### Deel 6 - De router als DNS-client
+    1. Bekijk op EDGE welke DNS-instellingen er zijn (`show running-config | include domain|name-server`).
+    2. Ping vanaf EDGE naar `www` (zonder domeinnaam) en naar `www.korrel.lab`. Bekijk daarna `show hosts`. Wat zie je?
+    3. Waarom zetten veel beheerders op routers `no ip domain lookup`, en wat is het nadeel daarvan?
+
+    ## Reflectie
+    1. Welke records heeft een mailserver nodig om mail te kunnen ontvangen en om zelf betrouwbaar mail te versturen?
+    2. Een collega zegt: "De website is onbereikbaar, dus DNS is kapot." Hoe toon je met twee commando's aan of het een DNS-probleem is of niet?
+
+    Je docent bespreekt daarna je antwoorden.
+  title: Lab 4.4.1 - Het telefoonboek van het netwerk
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1
