@@ -64,7 +64,7 @@ Gebruikte node-types: `iol-xe`, `ioll2-xe`, `unmanaged_switch` en `alpine`.
 | [4.2 SFTP and SCP](4.0_Network_Services_and_Security/4.2_SFTP_and_SCP/) | 3 |
 | [4.3 NAT and PAT](4.0_Network_Services_and_Security/4.3_NAT_and_PAT/) | 4 |
 | [4.4 DNS Records](4.0_Network_Services_and_Security/4.4_DNS_Records/) | 2 |
-| [4.5 IPsec VPN](4.0_Network_Services_and_Security/4.5_IPsec_VPN/) | - |
+| [4.5 IPsec VPN](4.0_Network_Services_and_Security/4.5_IPsec_VPN/) | 2 |
 | [4.6 IPv4 ACLs](4.0_Network_Services_and_Security/4.6_IPv4_ACLs/) | - |
 | [4.7 Layer2 Security](4.0_Network_Services_and_Security/4.7_Layer2_Security/) | - |
 

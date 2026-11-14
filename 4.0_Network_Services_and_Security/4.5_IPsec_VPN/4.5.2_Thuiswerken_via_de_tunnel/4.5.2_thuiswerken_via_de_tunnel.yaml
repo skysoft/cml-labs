@@ -1,0 +1,549 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 4.5.2 - THUISWERKEN VIA DE TUNNEL (onderzoekslab, remote access)
+       LAPTOP 192.168.1.10 - THUISROUTER (NAT) - INTERNET-R - HQ - SRV 10.82.10.10
+       VPN-client strongSwan (IKEv2, PSK), headend HQ 203.0.113.6
+       Start: sudo swanctl --initiate --child bedrijf   (wacht 3 min na het starten)
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+      Login LAPTOP/SRV: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -800.0
+    y1: -380.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: default
+        content: NAT
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: INTERNET
+    node_definition: external_connector
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -250
+    interfaces:
+      - id: i0
+        label: port
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname LAPTOP
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 192.168.1.10/24 dev eth0
+          ip route add default via 192.168.1.1
+          # VPN-client strongSwan via internet installeren en de verbinding 'bedrijf' klaarzetten
+          echo "nameserver 8.8.8.8" > /etc/resolv.conf
+          mkdir -p /etc/swanctl/conf.d
+          cat > /etc/swanctl/conf.d/bedrijf.conf <<'EOF'
+          connections {
+            bedrijf {
+              version = 2
+              remote_addrs = 203.0.113.6
+              vips = 0.0.0.0
+              proposals = aes256-sha256-modp2048
+              local {
+                auth = psk
+                id = laptop.korrel.lab
+              }
+              remote {
+                auth = psk
+                id = 203.0.113.6
+              }
+              children {
+                bedrijf {
+                  remote_ts = 10.82.10.0/24
+                  esp_proposals = aes256-sha256
+                  start_action = none
+                }
+              }
+            }
+          }
+          secrets {
+            ike-bedrijf {
+              id-1 = laptop.korrel.lab
+              id-2 = 203.0.113.6
+              secret = "ThuisWerk2026"
+            }
+          }
+          EOF
+          (for i in $(seq 1 40); do apk add -q strongswan >/dev/null 2>&1 && break; sleep 10; done;
+           ipsec start >/dev/null 2>&1; sleep 5; swanctl --load-all >/dev/null 2>&1) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: LAPTOP
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -650
+    y: 0
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname THUISROUTER
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description Thuisnetwerk
+           ip address 192.168.1.1 255.255.255.0
+           ip nat inside
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Internetaansluiting thuis
+           ip address 198.51.100.6 255.255.255.252
+           ip nat outside
+           no shutdown
+          !
+          ip access-list standard THUIS
+           permit 192.168.1.0 0.0.0.255
+          ip nat inside source list THUIS interface Ethernet0/1 overload
+          ip route 0.0.0.0 0.0.0.0 198.51.100.5
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: THUISROUTER
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -350
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname INTERNET-R
+          no ip domain lookup
+          !
+          interface Ethernet0/0
+           description Naar de thuisaansluiting
+           ip address 198.51.100.5 255.255.255.252
+           ip nat inside
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Naar het hoofdkantoor
+           ip address 203.0.113.5 255.255.255.252
+           ip nat inside
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Uplink naar het echte internet (CML External Connector, NAT)
+           ip address dhcp
+           ip nat outside
+           no shutdown
+          !
+          ip access-list standard PUBLIEK
+           permit 198.51.100.4 0.0.0.3
+           permit 203.0.113.4 0.0.0.3
+          ip nat inside source list PUBLIEK interface Ethernet0/2 overload
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: INTERNET-R
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname HQ
+          no ip domain lookup
+          no ip cef
+          aaa new-model
+          aaa authentication login CONSOLE none
+          aaa authorization network RA-LIJST local
+          !
+          ip local pool RA-POOL 10.82.200.10 10.82.200.50
+          ip access-list standard SPLIT-TUNNEL
+           permit 10.82.10.0 0.0.0.255
+          !
+          crypto ikev2 authorization policy RA-BELEID
+           pool RA-POOL
+           route set access-list SPLIT-TUNNEL
+          !
+          crypto ikev2 proposal PROP-RA
+           encryption aes-cbc-256
+           integrity sha256
+           group 14
+          crypto ikev2 policy POL-RA
+           proposal PROP-RA
+          crypto ikev2 keyring RA-SLEUTELS
+           peer THUISWERKERS
+            address 0.0.0.0 0.0.0.0
+            pre-shared-key ThuisWerk2026
+          crypto ikev2 profile RA-PROFIEL
+           match identity remote fqdn domain korrel.lab
+           identity local address 203.0.113.6
+           authentication remote pre-share
+           authentication local pre-share
+           keyring local RA-SLEUTELS
+           aaa authorization group psk list RA-LIJST RA-BELEID
+           virtual-template 1
+          !
+          crypto ipsec transform-set TS-RA esp-aes 256 esp-sha256-hmac
+           mode tunnel
+          crypto ipsec profile IPSEC-RA
+           set transform-set TS-RA
+           set ikev2-profile RA-PROFIEL
+          !
+          interface Loopback100
+           description Adres voor de VPN-tunnels
+           ip address 10.82.200.1 255.255.255.255
+          !
+          interface Ethernet0/0
+           description LAN hoofdkantoor
+           ip address 10.82.10.1 255.255.255.0
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Internet
+           ip address 203.0.113.6 255.255.255.252
+           no shutdown
+          !
+          interface Virtual-Template1 type tunnel
+           description Sjabloon voor de tunnel van elke thuiswerker
+           ip unnumbered Loopback100
+           tunnel mode ipsec ipv4
+           tunnel protection ipsec profile IPSEC-RA
+          !
+          ip route 0.0.0.0 0.0.0.0 203.0.113.5
+          !
+          line con 0
+           login authentication CONSOLE
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: HQ
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 350
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname SRV
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.82.10.10/24 dev eth0
+          ip route add default via 10.82.10.1
+          # eenvoudige 'intranet'-pagina op poort 8080
+          (while true; do printf 'HTTP/1.0 200 OK\r\n\r\nIntranet Bakkerij De Korrel\r\n' | nc -l -p 8080 >/dev/null 2>&1; done) &
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: SRV
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 650
+    y: 0
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n1
+    n2: n2
+    i1: i0
+    i2: i1
+    conditioning: {}
+    label: LAPTOP-eth0<->THUISROUTER-Ethernet0/0
+  - id: l1
+    n1: n2
+    n2: n3
+    i1: i2
+    i2: i1
+    conditioning: {}
+    label: THUISROUTER-Ethernet0/1<->INTERNET-R-Ethernet0/0
+  - id: l2
+    n1: n3
+    n2: n4
+    i1: i2
+    i2: i2
+    conditioning: {}
+    label: INTERNET-R-Ethernet0/1<->HQ-Ethernet0/1
+  - id: l3
+    n1: n3
+    n2: n0
+    i1: i3
+    i2: i0
+    conditioning: {}
+    label: INTERNET-R-Ethernet0/2<->INTERNET-port
+  - id: l4
+    n1: n4
+    n2: n5
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: HQ-Ethernet0/0<->SRV-eth0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 4.5. Onderzoekslab remote access VPN:
+    strongSwan-client naar een IOS IKEv2-headend, adres uit pool, NAT-T, split tunneling.'
+  notes: |-
+    # Lab 4.5.2 - Thuiswerken via de tunnel
+
+    **Leerdoel (CCNA 200-301 v2.0, 4.5):** IPsec remote access- en site-to-site-VPN's beschrijven (protocollen en modes).
+
+    ## Scenario
+    Een medewerker werkt thuis op zijn laptop. Om bij de interne server (SRV, 10.82.10.10) te komen, start hij een **remote access VPN** naar de router van het hoofdkantoor (HQ). Op de laptop draait daarvoor VPN-clientsoftware (**strongSwan**, IKEv2 met pre-shared key). Het thuisnetwerk zit, zoals bij bijna iedereen, achter een router die **NAT** doet.
+
+    De VPN is al ingericht. Dit is een **onderzoekslab**: je start de verbinding, bekijkt wat er gebeurt en vergelijkt het met de site-to-site-VPN uit lab 4.5.1.
+
+    ## Topologie
+    | Apparaat | Adres | Rol |
+    |---|---|---|
+    | LAPTOP | 192.168.1.10/24 (thuis) | VPN-client (strongSwan) |
+    | THUISROUTER | 192.168.1.1 / 198.51.100.6 | thuisrouter met NAT |
+    | INTERNET-R | 198.51.100.5 / 203.0.113.5 | "het internet" (met echt internet erachter) |
+    | HQ | 203.0.113.6 / 10.82.10.1 | VPN-headend van het bedrijf |
+    | SRV | 10.82.10.10/24 | intranetserver (poort 8080) |
+
+    Na het starten installeert de laptop strongSwan via internet: wacht ongeveer **3 minuten**.
+
+    **Labinstelling:** op HQ staat CEF uit (`no ip cef`). De virtuele router (IOL) stuurt anders doorgestuurd verkeer niet door de dynamische tunnel van een thuiswerker. Op echte apparatuur is dat niet nodig.
+
+    ## Inloggen
+    - Routers: console, geen wachtwoord.
+    - LAPTOP en SRV (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**. De VPN-commando's op de laptop voer je uit met `sudo`.
+
+    ## Opdrachten
+
+    ### Deel 1 - Vóór de VPN
+    1. Probeer vanaf de laptop de intranetserver te bereiken: `ping 10.82.10.10` en `wget -qO- http://10.82.10.10:8080`. Waarom lukt dat niet? (Kijk ook naar de routeringstabel van INTERNET-R.)
+    2. Kan de laptop wel het internet op (`ping 8.8.8.8`)?
+
+    ### Deel 2 - De VPN starten
+    1. Start de verbinding op de laptop: `sudo swanctl --initiate --child bedrijf`. Lees de uitvoer: welke IKEv2-stappen (IKE_SA_INIT, IKE_AUTH) zie je?
+    2. Bekijk `sudo swanctl --list-sas`. Welk **intern IP-adres** heeft de laptop gekregen, en van wie? Welke netwerken gaan door de tunnel?
+    3. Bekijk op de laptop `ip addr` en `ip route show table 220`. Waar is het nieuwe adres gebleven, en welke route is erbij gekomen?
+    4. Probeer de intranetserver opnieuw (ping en wget). Wat ziet SRV als bronadres?
+
+    ### Deel 3 - De kant van het hoofdkantoor
+    1. Bekijk op HQ `show crypto ikev2 sa` en `show crypto session`. Met welk IP-adres en welke poort is de laptop verbonden? Waarom is dat niet 192.168.1.10?
+    2. Bekijk `show crypto ipsec sa`. Zoek de regel met **UDP-encapsulatie** / poort **4500**. Waarom gebruikt deze VPN NAT-T, en de VPN in lab 4.5.1 niet?
+    3. Bekijk `show ip local pool` en `show ip interface brief | include Virtual`. Wat doet HQ met elke nieuwe thuiswerker?
+
+    ### Deel 4 - Split tunneling
+    1. Ping vanaf de laptop (met de VPN actief) naar 8.8.8.8 en doe een traceroute. Gaat dit verkeer door de tunnel of direct via de thuisrouter?
+    2. Leg uit wat **split tunneling** is. Welke regel in de configuratie van de laptop (`/etc/swanctl/conf.d/bedrijf.conf`) en welke in die van HQ (`show running-config | section SPLIT|authorization policy`) bepalen dat?
+    3. Noem een voordeel en een nadeel van split tunneling voor het bedrijf.
+
+    ### Deel 5 - Verbreken
+    1. Verbreek de verbinding: `sudo swanctl --terminate --ike bedrijf`. Wat gebeurt er op HQ met de sessie en met het virtuele interface?
+
+    ### Deel 6 - Vergelijken
+    | Kenmerk | Site-to-site (4.5.1) | Remote access (4.5.2) |
+    |---|---|---|
+    | Wie bouwt de tunnel op? | | |
+    | Software op de pc van de gebruiker nodig? | | |
+    | Wie krijgt een adres uit een pool? | | |
+    | Achter NAT, dus NAT-T? | | |
+    | Typisch aantal tunnels op het hoofdkantoor | | |
+
+    | Kenmerk | IPsec remote access (zoals hier) | SSL/TLS-VPN (bijvoorbeeld Cisco Secure Client) |
+    |---|---|---|
+    | Protocol en poort | | |
+    | Werkt via vrijwel elke firewall of hotspot? | | |
+    | Clientloos via een browser mogelijk? | | |
+
+    ## Reflectie
+    1. Beschrijf in eigen woorden wat er gebeurt met een ping van de laptop naar SRV, vanaf het moment dat hij de laptop verlaat.
+    2. Waarom kiezen veel bedrijven voor thuiswerkers voor een SSL/TLS-VPN en tussen vestigingen voor IPsec?
+
+    Je docent bespreekt daarna je antwoorden.
+  title: Lab 4.5.2 - Thuiswerken via de tunnel
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1
