@@ -1,0 +1,751 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 4.7.3 - NA DE BEVEILIGINGSUPDATE (troubleshooting, 5 fouten)
+       SW-A (IOSvL2, start ~5 min): VLAN 20 kantoor, VLAN 40 gasten
+       SW-B (IOL-L2): VLAN 30 IPv6-lab, flexplek op E0/3
+       R-GW = gateway/DHCP; OUDE-TESTROUTER blijft aangesloten
+      Volledige opdracht en klachten: open de Lab Notes (tabblad Notes).
+      Login pc's/telefoon: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -800.0
+    y1: -460.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R-GW
+          no ip domain lookup
+          ipv6 unicast-routing
+          ip dhcp excluded-address 10.73.20.1 10.73.20.9
+          ip dhcp excluded-address 10.73.40.1 10.73.40.9
+          ip dhcp pool KANTOOR
+           network 10.73.20.0 255.255.255.0
+           default-router 10.73.20.1
+          !
+          ip dhcp pool GASTEN
+           network 10.73.40.0 255.255.255.0
+           default-router 10.73.40.1
+          !
+          interface Ethernet0/0
+           description Trunk naar SW-A
+           no ip address
+           no shutdown
+          !
+          interface Ethernet0/0.20
+           description VLAN 20 kantoor
+           encapsulation dot1Q 20
+           ip address 10.73.20.1 255.255.255.0
+          !
+          interface Ethernet0/0.40
+           description VLAN 40 gasten
+           encapsulation dot1Q 40
+           ip address 10.73.40.1 255.255.255.0
+          !
+          interface Ethernet0/1
+           description VLAN 30 IPv6-lab (via SW-B)
+           ip address 10.73.30.1 255.255.255.0
+           ipv6 address 2001:DB8:73:30::1/64
+           ipv6 nd ra interval 10
+           no shutdown
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: R-GW
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -250
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname OUDE-TESTROUTER
+          no ip domain lookup
+          ipv6 unicast-routing
+          ip dhcp pool TESTNET
+           network 192.168.1.0 255.255.255.0
+           default-router 192.168.1.1
+          !
+          interface Ethernet0/0
+           description Ooit gebruikt als testnetwerk
+           ip address 192.168.1.1 255.255.255.0
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Ooit gebruikt als IPv6-testnetwerk
+           ipv6 address 2001:DB8:73:99::1/64
+           ipv6 nd ra interval 10
+           no shutdown
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: OUDE-TESTROUTER
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: 250
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname SW-A
+          no ip domain lookup
+          vtp mode transparent
+          vlan 20
+           name KANTOOR
+          vlan 40
+           name GASTEN
+          !
+          ip dhcp snooping vlan 20,41
+          no ip dhcp snooping information option
+          ip dhcp snooping
+          ip arp inspection vlan 20
+          !
+          interface GigabitEthernet0/0
+           description Trunk naar R-GW
+           switchport trunk encapsulation dot1q
+           switchport trunk allowed vlan 20,40
+           switchport mode trunk
+           no shutdown
+          !
+          interface GigabitEthernet0/1
+           description Werkplek PC1 (kantoor)
+           switchport mode access
+           switchport access vlan 20
+           ip dhcp snooping limit rate 10
+           no shutdown
+          !
+          interface GigabitEthernet0/2
+           description Gastenplek PC4
+           switchport mode access
+           switchport access vlan 40
+           ip dhcp snooping limit rate 10
+           no shutdown
+          !
+          interface GigabitEthernet0/3
+           description Gastenruimte, vrije aansluiting
+           switchport mode access
+           switchport access vlan 40
+           ip dhcp snooping limit rate 10
+           no shutdown
+          !
+          interface Vlan20
+           ip address 10.73.20.2 255.255.255.0
+           no shutdown
+          !
+          ip default-gateway 10.73.20.1
+
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: SW-A
+    node_definition: iosvl2
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -300
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: GigabitEthernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: GigabitEthernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: GigabitEthernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: GigabitEthernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname SW-B
+          no ip domain lookup
+          no ip routing
+          vtp mode transparent
+          vlan 30
+           name LAB-IPV6
+          !
+          ipv6 nd raguard policy HOSTS
+           device-role host
+          !
+          errdisable recovery cause psecure-violation
+          errdisable recovery interval 60
+          !
+          interface Ethernet0/0
+           description Uplink naar R-GW
+           switchport mode access
+           switchport access vlan 30
+           ipv6 nd raguard attach-policy HOSTS
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Werkplek PC3
+           switchport mode access
+           switchport access vlan 30
+           switchport port-security maximum 1
+           switchport port-security mac-address sticky
+           switchport port-security
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Vrije aansluiting labruimte
+           switchport mode access
+           switchport access vlan 30
+           no shutdown
+          !
+          interface Ethernet0/3
+           description Flexplek: IP-telefoon met pc erachter
+           switchport mode access
+           switchport access vlan 30
+           switchport port-security maximum 1
+           switchport port-security mac-address sticky
+           switchport port-security
+           no shutdown
+          !
+          interface Vlan30
+           ip address 10.73.30.2 255.255.255.0
+           no shutdown
+          !
+          ip default-gateway 10.73.30.1
+
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: SW-B
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 300
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # deze werkplek krijgt zijn adres via DHCP (standaard op dit image)
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: PC1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -600
+    y: -80
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC4
+          USERNAME=cisco
+          PASSWORD=cisco
+          # deze werkplek krijgt zijn adres via DHCP (standaard op dit image)
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: PC4
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -600
+    y: 80
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC3
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.73.30.11/24 dev eth0
+          ip route add default via 10.73.30.1
+          # IPv6: automatisch via Router Advertisements (SLAAC)
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n6
+    image_definition: null
+    label: PC3
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 620
+    y: -120
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n7
+    image_definition: null
+    label: SW-FLEX
+    node_definition: unmanaged_switch
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 520
+    y: 160
+    interfaces:
+      - id: i0
+        label: port0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: port1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i2
+        label: port2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i3
+        label: port3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname TELEFOON
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.73.30.21/24 dev eth0
+          ip route add default via 10.73.30.1
+          # IPv6: automatisch via Router Advertisements (SLAAC)
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n8
+    image_definition: null
+    label: TELEFOON
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 440
+    y: 320
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC5
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.73.30.22/24 dev eth0
+          ip route add default via 10.73.30.1
+          # IPv6: automatisch via Router Advertisements (SLAAC)
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n9
+    image_definition: null
+    label: PC5
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 640
+    y: 320
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n2
+    i1: i1
+    i2: i1
+    conditioning: {}
+    label: R-GW-Ethernet0/0<->SW-A-GigabitEthernet0/0
+  - id: l1
+    n1: n4
+    n2: n2
+    i1: i0
+    i2: i2
+    conditioning: {}
+    label: PC1-eth0<->SW-A-GigabitEthernet0/1
+  - id: l2
+    n1: n5
+    n2: n2
+    i1: i0
+    i2: i3
+    conditioning: {}
+    label: PC4-eth0<->SW-A-GigabitEthernet0/2
+  - id: l3
+    n1: n1
+    n2: n2
+    i1: i1
+    i2: i4
+    conditioning: {}
+    label: OUDE-TESTROUTER-Ethernet0/0<->SW-A-GigabitEthernet0/3
+  - id: l4
+    n1: n0
+    n2: n3
+    i1: i2
+    i2: i1
+    conditioning: {}
+    label: R-GW-Ethernet0/1<->SW-B-Ethernet0/0
+  - id: l5
+    n1: n6
+    n2: n3
+    i1: i0
+    i2: i2
+    conditioning: {}
+    label: PC3-eth0<->SW-B-Ethernet0/1
+  - id: l6
+    n1: n1
+    n2: n3
+    i1: i2
+    i2: i3
+    conditioning: {}
+    label: OUDE-TESTROUTER-Ethernet0/1<->SW-B-Ethernet0/2
+  - id: l7
+    n1: n3
+    n2: n7
+    i1: i4
+    i2: i0
+    conditioning: {}
+    label: SW-B-Ethernet0/3<->SW-FLEX-port0
+  - id: l8
+    n1: n7
+    n2: n8
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: SW-FLEX-port1<->TELEFOON-eth0
+  - id: l9
+    n1: n7
+    n2: n9
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: SW-FLEX-port2<->PC5-eth0
+lab:
+  description: CCNA 200-301 v2.0 - leerdoel 4.7. Troubleshooting laag-2-beveiliging
+    (5 fouten).
+  notes: |-
+    # Lab 4.7.3 - Na de beveiligingsupdate
+
+    **Leerdoel (CCNA 200-301 v2.0, 4.7):** laag-2-beveiligingsfuncties (DHCP snooping, DAI, port security, RA guard) **troubleshooten**.
+
+    ## Scenario
+    Een collega heeft gisteren de laag-2-beveiliging op twee switches ingericht. Sindsdien komen er klachten binnen. In de configuratie zitten **5 fouten**. Vind ze, los ze op en controleer dat de beveiliging daarna nog steeds werkt.
+
+    ## Topologie
+    | Switch | Poort | Apparaat | VLAN / netwerk |
+    |---|---|---|---|
+    | SW-A (IOSvL2) | Gi0/0 | trunk naar R-GW (gateway en DHCP-server) | 20 en 40 |
+    | SW-A | Gi0/1 | PC1 (DHCP) | 20 kantoor, 10.73.20.0/24 |
+    | SW-A | Gi0/2 | PC4 (DHCP) | 40 gasten, 10.73.40.0/24 |
+    | SW-A | Gi0/3 | OUDE-TESTROUTER E0/0 | 40 |
+    | SW-B (IOL-L2) | E0/0 | R-GW E0/1 | 30, 10.73.30.0/24 en 2001:db8:73:30::/64 |
+    | SW-B | E0/1 | PC3 (.11) | 30 |
+    | SW-B | E0/2 | OUDE-TESTROUTER E0/1 | 30 |
+    | SW-B | E0/3 | flexplek: TELEFOON (.21) en PC5 (.22) via een doorlusaansluiting | 30 |
+
+    De OUDE-TESTROUTER blijft aangesloten: de beveiliging moet hem tegenhouden.
+
+    **SW-A start langzaam** (IOSvL2, ongeveer 5 minuten).
+
+    ## Inloggen
+    - Switches en routers: console, geen wachtwoord.
+    - Pc's en telefoon (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**.
+
+    **Handige commando's op een pc:**
+    - nieuw DHCP-adres aanvragen: `sudo ip addr flush dev eth0; sudo udhcpc -i eth0 -n -q`
+    - IPv6-adressen verversen: `sudo ip -6 addr flush dev eth0 scope global; sudo ip -6 route flush default`, wacht daarna 20 seconden; bekijk met `ip -6 addr` en `ip -6 route`.
+
+    ## Klachten
+    1. "PC1 op kantoor krijgt helemaal geen IP-adres meer."
+    2. "Gasten krijgen soms een adres in 192.168.1.0/24 en kunnen dan niets."
+    3. "Op de flexplek werken de telefoon én de pc allebei niet, af en toe een minuutje wel."
+    4. "PC3 in het IPv6-lab krijgt een vreemd IPv6-prefix en een andere router dan 2001:db8:73:30::1."
+
+    Let op: als een klacht is opgelost, kan er een nieuwe tevoorschijn komen.
+
+    ## Werkwijze
+    Noteer per fout:
+    | # | Switch | Symptoom | Oorzaak | Oplossing (commando's) | Hoe getest |
+    |---|---|---|---|---|---|
+    | 1 | | | | | |
+    | 2 | | | | | |
+    | 3 | | | | | |
+    | 4 | | | | | |
+    | 5 | | | | | |
+
+    **Nuttige show-commando's:**
+    - `show ip dhcp snooping`, `show ip dhcp snooping binding`, `show ip dhcp snooping statistics`
+    - `show ip arp inspection`, `show ip arp inspection statistics`
+    - `show port-security`, `show port-security interface ...`, `show interfaces status err-disabled`
+    - `show ipv6 nd raguard policy`, `show running-config interface ...`
+    - `show logging`
+
+    ## Eindcontrole
+    - PC1 en PC4 krijgen een adres van R-GW en kunnen hun gateway pingen.
+    - De OUDE-TESTROUTER kan in VLAN 20 en 40 geen adressen meer uitdelen.
+    - TELEFOON en PC5 werken allebei, en een derde apparaat op de flexplek wordt nog steeds geweigerd.
+    - PC3 ziet alleen het prefix 2001:db8:73:30::/64 met R-GW als router.
+
+    ## Reflectie
+    Welke fout verborg een andere fout, en waarom?
+
+    Je docent bespreekt daarna je antwoorden.
+  title: Lab 4.7.3 - Na de beveiligingsupdate
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1

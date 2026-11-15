@@ -1,0 +1,480 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 4.7.1 - EEN POORT, EEN APPARAAT (configuratielab, port security)
+       SW1 (IOL-L2), VLAN 10 = 10.71.10.0/24, R1 .1
+       E0/1 PC-BALIE .11, E0/2 PC-KANTOOR .12, E0/3 vergaderruimte (LAPTOP1 .21, LAPTOP2 .22)
+       Configureer: maximum, sticky, violation-modes, errdisable recovery
+      Volledige opdracht: open de Lab Notes (tabblad Notes).
+      Login pc's: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -760.0
+    y1: -420.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R1
+          no ip domain lookup
+          interface Ethernet0/0
+           ip address 10.71.10.1 255.255.255.0
+           no shutdown
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: R1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: -220
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname SW1
+          no ip domain lookup
+          no ip routing
+          vtp mode transparent
+          vlan 10
+           name KANTOOR
+          !
+          interface Ethernet0/0
+           description Uplink naar R1
+           switchport mode access
+           switchport access vlan 10
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Werkplek balie
+           switchport mode access
+           switchport access vlan 10
+           no shutdown
+          !
+          interface Ethernet0/2
+           description Werkplek kantoor
+           switchport mode access
+           switchport access vlan 10
+           no shutdown
+          !
+          interface Ethernet0/3
+           description Vergaderruimte (twee aansluitingen via een klein switchje)
+           switchport mode access
+           switchport access vlan 10
+           no shutdown
+          !
+          interface Vlan10
+           ip address 10.71.10.2 255.255.255.0
+           no shutdown
+          !
+          ip default-gateway 10.71.10.1
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: SW1
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 0
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC-BALIE
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.71.10.11/24 dev eth0
+          ip route add default via 10.71.10.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: PC-BALIE
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -350
+    y: 120
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC-KANTOOR
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.71.10.12/24 dev eth0
+          ip route add default via 10.71.10.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: PC-KANTOOR
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -120
+    y: 220
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: SW-VERGADER
+    node_definition: unmanaged_switch
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 250
+    y: 150
+    interfaces:
+      - id: i0
+        label: port0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: port1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i2
+        label: port2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i3
+        label: port3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname LAPTOP1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.71.10.21/24 dev eth0
+          ip route add default via 10.71.10.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: LAPTOP1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 150
+    y: 320
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname LAPTOP2
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.71.10.22/24 dev eth0
+          ip route add default via 10.71.10.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n6
+    image_definition: null
+    label: LAPTOP2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 380
+    y: 320
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i1
+    i2: i1
+    conditioning: {}
+    label: R1-Ethernet0/0<->SW1-Ethernet0/0
+  - id: l1
+    n1: n2
+    n2: n1
+    i1: i0
+    i2: i2
+    conditioning: {}
+    label: PC-BALIE-eth0<->SW1-Ethernet0/1
+  - id: l2
+    n1: n3
+    n2: n1
+    i1: i0
+    i2: i3
+    conditioning: {}
+    label: PC-KANTOOR-eth0<->SW1-Ethernet0/2
+  - id: l3
+    n1: n1
+    n2: n4
+    i1: i4
+    i2: i0
+    conditioning: {}
+    label: SW1-Ethernet0/3<->SW-VERGADER-port0
+  - id: l4
+    n1: n4
+    n2: n5
+    i1: i1
+    i2: i0
+    conditioning: {}
+    label: SW-VERGADER-port1<->LAPTOP1-eth0
+  - id: l5
+    n1: n4
+    n2: n6
+    i1: i2
+    i2: i0
+    conditioning: {}
+    label: SW-VERGADER-port2<->LAPTOP2-eth0
+lab:
+  description: 'CCNA 200-301 v2.0 - leerdoel 4.7. Configuratielab port security: maximum,
+    sticky, violation-modes, errdisable recovery.'
+  notes: |-
+    # Lab 4.7.1 - Eén poort, één apparaat
+
+    **Leerdoel (CCNA 200-301 v2.0, 4.7):** laag-2-beveiligingsfuncties configureren. Dit lab gaat over **port security**.
+
+    ## Scenario
+    In een kantoor kan iedereen een eigen apparaat op een vrije netwerkaansluiting zetten. Het beleid wordt:
+    - op de werkplekken (E0/1 en E0/2) mag precies **één** apparaat werken: het apparaat dat er nu staat;
+    - in de vergaderruimte (E0/3) hangt een klein switchje met maximaal **twee** apparaten;
+    - een onbekend apparaat wordt geweigerd, en de beheerder wil dat merken.
+
+    Dit is een **configuratielab** op switch SW1.
+
+    ## Topologie (VLAN 10, 10.71.10.0/24)
+    | Poort SW1 | Apparaat | IPv4 |
+    |---|---|---|
+    | E0/0 | R1 (gateway) | .1 |
+    | E0/1 | PC-BALIE | .11 |
+    | E0/2 | PC-KANTOOR | .12 |
+    | E0/3 | klein switchje met LAPTOP1 (.21) en LAPTOP2 (.22) | |
+
+    SW1 zelf heeft beheeradres .2.
+
+    ## Inloggen
+    - SW1 en R1: console, geen wachtwoord.
+    - Pc's en laptops (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**.
+
+    **Een "ander apparaat" nabootsen:** in dit lab geef je een pc een ander MAC-adres:
+    `sudo ip link set eth0 down; sudo ip link set eth0 address 52:54:00:12:34:56; sudo ip link set eth0 up`
+    Daarna stuur je verkeer met `ping 10.71.10.1`.
+
+    ## Opdrachten
+
+    ### Deel 1 - Port security met sticky learning
+    1. Zet port security aan op E0/1 en E0/2: maximaal één MAC-adres, dat de switch zelf leert en **onthoudt** (sticky).
+    2. Ping vanaf beide pc's naar R1. Bekijk `show port-security`, `show port-security address` en de running-config van E0/1. Wat is er in de configuratie verschenen?
+    3. Waarom is "sticky" handig voor een beheerder die tientallen werkplekken heeft?
+
+    ### Deel 2 - Een onbekend apparaat (violation shutdown)
+    1. Geef PC-BALIE een ander MAC-adres (zie boven) en ping naar R1.
+    2. Wat gebeurt er met poort E0/1? Bekijk `show interfaces status`, `show port-security interface Ethernet0/1` en de log.
+    3. Zet het originele MAC-adres terug (`ip link show eth0` vóór de wijziging noteren!). Werkt de poort dan vanzelf weer?
+    4. Herstel de poort handmatig. Welke twee commando's heb je nodig?
+    5. Configureer **errdisable recovery** voor port security met een interval van 60 seconden. Test opnieuw: wat gebeurt er nu na een overtreding?
+
+    ### Deel 3 - Restrict en protect
+    1. Zet de violation-mode van E0/2 op **restrict**. Herhaal de MAC-wissel op PC-KANTOOR. Wat gebeurt er met de poort, met het verkeer en met de teller "Security Violation Count"?
+    2. Wat is het verschil met **protect**? Probeer het, en vergelijk de log en de tellers.
+    3. Wanneer zou je welke mode kiezen?
+
+    | Mode | Poort gaat dicht? | Verkeer van onbekend MAC | Log/SNMP-melding | Teller loopt op |
+    |---|---|---|---|---|
+    | shutdown | | | | |
+    | restrict | | | | |
+    | protect | | | | |
+
+    ### Deel 4 - De vergaderruimte
+    1. Configureer E0/3 voor maximaal **twee** MAC-adressen (sticky). Ping vanaf LAPTOP1 en LAPTOP2.
+    2. Wat gebeurt er als er een derde apparaat bij komt? (Wissel op LAPTOP2 van MAC-adres om dat na te bootsen. Let op: het oude adres van LAPTOP2 blijft "bezet".)
+    3. Hoe ruim je een geleerd sticky-adres op als een apparaat definitief vervangen wordt?
+
+    ## Reflectie
+    1. Port security weert apparaten op MAC-adres. Waarom is dat geen waterdichte beveiliging?
+    2. Welke andere maatregel (uit leerdoel 4.1/4.7) zou je naast port security inzetten om te bepalen wie er op het netwerk mag?
+
+    Je docent bespreekt daarna je antwoorden.
+  title: Lab 4.7.1 - Een poort, een apparaat
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1

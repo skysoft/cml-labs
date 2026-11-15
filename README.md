@@ -66,7 +66,7 @@ Gebruikte node-types: `iol-xe`, `ioll2-xe`, `unmanaged_switch` en `alpine`.
 | [4.4 DNS Records](4.0_Network_Services_and_Security/4.4_DNS_Records/) | 2 |
 | [4.5 IPsec VPN](4.0_Network_Services_and_Security/4.5_IPsec_VPN/) | 2 |
 | [4.6 IPv4 ACLs](4.0_Network_Services_and_Security/4.6_IPv4_ACLs/) | 3 |
-| [4.7 Layer2 Security](4.0_Network_Services_and_Security/4.7_Layer2_Security/) | - |
+| [4.7 Layer2 Security](4.0_Network_Services_and_Security/4.7_Layer2_Security/) | 3 |
 
 ### [5.0 AI, and Network Operations and Management](5.0_AI_Network_Operations_and_Management/) (10%)
 
