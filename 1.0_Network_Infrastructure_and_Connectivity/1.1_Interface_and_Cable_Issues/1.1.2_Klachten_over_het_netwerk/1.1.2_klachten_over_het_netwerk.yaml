@@ -1,0 +1,810 @@
+annotations:
+  - border_color: '#1F4E79'
+    border_style: ''
+    color: '#1F4E79'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      LAB 1.1.2 - KLACHTEN OVER HET NETWERK (troubleshooting, 5 fouten)
+       VLAN 10 = 10.12.10.0/24, R1 .1
+       SW-KERN .2 / SW-VERDIEPING .3 (IOSvL2, start ~5 min), SW-MAGAZIJN .4
+       PC-VERD1 .21, PC-VERD2 .22, PC-ZAAL .23, PC-MAG1 .31, PC-MAG2 .32
+      Volledige opdracht en meldingen: open de Lab Notes (tabblad Notes).
+      Login pc's: cisco / cisco
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -850.0
+    y1: -480.0
+    z_index: 1
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R1
+          no ip domain lookup
+          interface Ethernet0/0
+           description LAN
+           ip address 10.12.10.1 255.255.255.0
+           no shutdown
+          !
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: R1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -350
+    y: -280
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname SW-KERN
+          no ip domain lookup
+          vtp mode transparent
+          vlan 10
+           name KANTOOR
+          vlan 99
+           name ONGEBRUIKT
+          !
+          interface GigabitEthernet0/0
+           description Router R1
+           switchport mode access
+           switchport access vlan 10
+           no shutdown
+          !
+          interface GigabitEthernet0/1
+           description Uplink A naar SW-VERDIEPING Gi0/0
+           switchport mode access
+           switchport access vlan 10
+           no shutdown
+          !
+          interface GigabitEthernet0/2
+           description Reserve-uplink naar SW-VERDIEPING Gi0/1
+           switchport mode access
+           switchport access vlan 10
+           shutdown
+          !
+          interface GigabitEthernet0/3
+           description Uplink naar SW-MAGAZIJN E0/0
+           switchport mode access
+           switchport access vlan 10
+           no shutdown
+          !
+          interface Vlan10
+           ip address 10.12.10.2 255.255.255.0
+           no shutdown
+          !
+          ip default-gateway 10.12.10.1
+          event manager applet OPSTART-SVI
+           event timer countdown time 60
+           action 1.0 cli command "enable"
+           action 2.0 cli command "configure terminal"
+           action 3.0 cli command "interface Vlan10"
+           action 4.0 cli command "shutdown"
+           action 5.0 cli command "no shutdown"
+           action 6.0 cli command "end"
+          !
+
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: SW-KERN
+    node_definition: iosvl2
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -350
+    y: -60
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: GigabitEthernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: GigabitEthernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: GigabitEthernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: GigabitEthernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname SW-VERDIEPING
+          no ip domain lookup
+          vtp mode transparent
+          vlan 10
+           name KANTOOR
+          vlan 99
+           name ONGEBRUIKT
+          !
+          interface GigabitEthernet0/0
+           description Uplink A naar SW-KERN Gi0/1
+           switchport mode access
+           switchport access vlan 10
+           no shutdown
+          !
+          interface GigabitEthernet0/1
+           description Reserve-uplink naar SW-KERN Gi0/2
+           switchport mode access
+           switchport access vlan 10
+           shutdown
+          !
+          interface GigabitEthernet0/2
+           description Werkplek PC-VERD1
+           switchport mode access
+           switchport access vlan 10
+           no shutdown
+          !
+          interface GigabitEthernet0/3
+           description Niet in gebruik
+           switchport mode access
+           switchport access vlan 99
+           no shutdown
+          !
+          interface GigabitEthernet1/0
+           description Werkplek PC-VERD2
+           switchport mode access
+           switchport access vlan 10
+           no shutdown
+          !
+          interface GigabitEthernet1/1
+           description Afdelingsswitch vergaderzaal (SW-ZAAL)
+           switchport mode access
+           switchport access vlan 10
+           spanning-tree portfast edge
+           spanning-tree bpduguard enable
+           no shutdown
+          !
+          interface Vlan10
+           ip address 10.12.10.3 255.255.255.0
+           no shutdown
+          !
+          ip default-gateway 10.12.10.1
+          event manager applet OPSTART-SVI
+           event timer countdown time 60
+           action 1.0 cli command "enable"
+           action 2.0 cli command "configure terminal"
+           action 3.0 cli command "interface Vlan10"
+           action 4.0 cli command "shutdown"
+           action 5.0 cli command "no shutdown"
+           action 6.0 cli command "end"
+          !
+
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: SW-VERDIEPING
+    node_definition: iosvl2
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 150
+    y: -60
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: GigabitEthernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: GigabitEthernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: GigabitEthernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: GigabitEthernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i5
+        label: GigabitEthernet1/0
+        mac_address: null
+        type: physical
+        slot: 4
+      - id: i6
+        label: GigabitEthernet1/1
+        mac_address: null
+        type: physical
+        slot: 5
+      - id: i7
+        label: GigabitEthernet1/2
+        mac_address: null
+        type: physical
+        slot: 6
+      - id: i8
+        label: GigabitEthernet1/3
+        mac_address: null
+        type: physical
+        slot: 7
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname SW-MAGAZIJN
+          no ip domain lookup
+          no ip routing
+          vtp mode transparent
+          vlan 10
+           name KANTOOR
+          !
+          interface Ethernet0/0
+           description Uplink naar SW-KERN Gi0/3
+           switchport mode access
+           switchport access vlan 10
+           duplex half
+           no shutdown
+          !
+          interface Ethernet0/1
+           description Werkplek PC-MAG1
+           switchport mode access
+           switchport access vlan 10
+           shutdown
+          !
+          interface Ethernet0/2
+           description Werkplek PC-MAG2
+           switchport mode access
+           switchport access vlan 10
+           no shutdown
+          !
+          interface Vlan10
+           ip address 10.12.10.4 255.255.255.0
+           no shutdown
+          !
+          ip default-gateway 10.12.10.1
+          event manager applet OPSTART-SVI
+           event timer countdown time 60
+           action 1.0 cli command "enable"
+           action 2.0 cli command "configure terminal"
+           action 3.0 cli command "interface Vlan10"
+           action 4.0 cli command "shutdown"
+           action 5.0 cli command "no shutdown"
+           action 6.0 cli command "end"
+          !
+
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: SW-MAGAZIJN
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -350
+    y: 200
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC-MAG1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.12.10.31/24 dev eth0
+          ip route add default via 10.12.10.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: PC-MAG1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -550
+    y: 350
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC-MAG2
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.12.10.32/24 dev eth0
+          ip route add default via 10.12.10.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: null
+    label: PC-MAG2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -200
+    y: 350
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC-VERD1
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.12.10.21/24 dev eth0
+          ip route add default via 10.12.10.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n6
+    image_definition: null
+    label: PC-VERD1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 450
+    y: -250
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC-VERD2
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.12.10.22/24 dev eth0
+          ip route add default via 10.12.10.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n7
+    image_definition: null
+    label: PC-VERD2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 480
+    y: -40
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname SW-ZAAL
+          no ip domain lookup
+          no ip routing
+          interface Loopback0
+           ip address 10.255.255.1 255.255.255.255
+          interface Ethernet0/0
+           no shutdown
+          interface Ethernet0/1
+           no shutdown
+
+          line con 0
+           exec-timeout 0 0
+           logging synchronous
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n8
+    image_definition: null
+    label: SW-ZAAL
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 150
+    y: 200
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname PC-ZAAL
+          USERNAME=cisco
+          PASSWORD=cisco
+          # standaard-DHCP-client van het image uitschakelen (statische host)
+          sed -i 's/iface eth0 inet dhcp/iface eth0 inet manual/' /etc/network/interfaces
+          pkill udhcpc 2>/dev/null
+          ip addr flush dev eth0
+          ip link set dev eth0 up
+          ip address add 10.12.10.23/24 dev eth0
+          ip route add default via 10.12.10.1
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n9
+    image_definition: null
+    label: PC-ZAAL
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 400
+    y: 300
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n1
+    i1: i1
+    i2: i1
+    conditioning: {}
+    label: R1-Ethernet0/0<->SW-KERN-GigabitEthernet0/0
+  - id: l1
+    n1: n1
+    n2: n2
+    i1: i2
+    i2: i1
+    conditioning:
+      corrupt_prob: 30
+      enabled: true
+    label: SW-KERN-GigabitEthernet0/1<->SW-VERDIEPING-GigabitEthernet0/0
+  - id: l2
+    n1: n1
+    n2: n2
+    i1: i3
+    i2: i2
+    conditioning: {}
+    label: SW-KERN-GigabitEthernet0/2<->SW-VERDIEPING-GigabitEthernet0/1
+  - id: l3
+    n1: n1
+    n2: n3
+    i1: i4
+    i2: i1
+    conditioning: {}
+    label: SW-KERN-GigabitEthernet0/3<->SW-MAGAZIJN-Ethernet0/0
+  - id: l4
+    n1: n4
+    n2: n3
+    i1: i0
+    i2: i2
+    conditioning: {}
+    label: PC-MAG1-eth0<->SW-MAGAZIJN-Ethernet0/1
+  - id: l5
+    n1: n5
+    n2: n3
+    i1: i0
+    i2: i3
+    conditioning: {}
+    label: PC-MAG2-eth0<->SW-MAGAZIJN-Ethernet0/2
+  - id: l6
+    n1: n6
+    n2: n2
+    i1: i0
+    i2: i3
+    conditioning: {}
+    label: PC-VERD1-eth0<->SW-VERDIEPING-GigabitEthernet0/2
+  - id: l7
+    n1: n7
+    n2: n2
+    i1: i0
+    i2: i4
+    conditioning: {}
+    label: PC-VERD2-eth0<->SW-VERDIEPING-GigabitEthernet0/3
+  - id: l8
+    n1: n8
+    n2: n2
+    i1: i1
+    i2: i6
+    conditioning: {}
+    label: SW-ZAAL-Ethernet0/0<->SW-VERDIEPING-GigabitEthernet1/1
+  - id: l9
+    n1: n9
+    n2: n8
+    i1: i0
+    i2: i2
+    conditioning: {}
+    label: PC-ZAAL-eth0<->SW-ZAAL-Ethernet0/1
+lab:
+  description: CCNA 200-301 v2.0 - leerdoel 1.1. Troubleshooting interfaces en kabels
+    (5 fouten).
+  notes: |-
+    # Lab 1.1.2 - Klachten over het netwerk
+
+    **Leerdoel (CCNA 200-301 v2.0, 1.1):** interface- en kabelproblemen diagnosticeren.
+
+    ## Scenario
+    Na een verbouwing zijn er bij de servicedesk meerdere meldingen binnengekomen. De monteurs hebben kabels verlegd, en de afdeling heeft zelf een switch in de vergaderzaal neergezet. In het netwerk zitten **5 fouten** op laag 1 en 2 (interface en kabel). Vind ze, los ze op en documenteer ze.
+
+    ## Topologie (alles in VLAN 10, 10.12.10.0/24)
+    | Apparaat | Poort | Hoort aangesloten op |
+    |---|---|---|
+    | R1 (gateway .1) | E0/0 | SW-KERN Gi0/0 |
+    | SW-KERN (.2, IOSvL2) | Gi0/1 | SW-VERDIEPING Gi0/0 (uplink A) |
+    | SW-KERN | Gi0/2 | SW-VERDIEPING Gi0/1 (reserve-uplink, kabel ligt er, poorten staan uit) |
+    | SW-KERN | Gi0/3 | SW-MAGAZIJN E0/0 |
+    | SW-VERDIEPING (.3, IOSvL2) | Gi0/2 | PC-VERD1 (.21) |
+    | SW-VERDIEPING | Gi1/0 | PC-VERD2 (.22) |
+    | SW-VERDIEPING | Gi1/1 | SW-ZAAL (afdelingsswitch), met daarachter PC-ZAAL (.23) |
+    | SW-MAGAZIJN (.4, IOL-L2) | E0/1 / E0/2 | PC-MAG1 (.31) / PC-MAG2 (.32) |
+
+    **SW-KERN en SW-VERDIEPING starten langzaam** (IOSvL2, ongeveer 5 minuten).
+
+    **Over het applet `OPSTART-SVI`:** dit EEM-applet in de configuratie van de switches hoort bij de virtuele omgeving. Het zet de beheer-SVI na het opstarten aan. Het is geen fout; laat het staan.
+
+    De afdelingsswitch SW-ZAAL is goedgekeurd: de poort ervoor hoort gewoon te werken.
+
+    ## Inloggen
+    - Switches en router: console, geen wachtwoord.
+    - Pc's (Alpine Linux): gebruiker **cisco** / wachtwoord **cisco**.
+
+    **Een kabel omzetten:** in CML kun je een link verwijderen en een nieuwe link tekenen (ook terwijl het lab draait). Dat mag, maar je kunt een probleem vaak ook in de configuratie oplossen. Beschrijf wat je zou doen in een echt gebouw.
+
+    ## Meldingen
+    1. "Op de verdieping valt de verbinding steeds weg: pings naar de gateway gaan voor de helft verloren." (PC-VERD1)
+    2. "PC-VERD2 heeft sinds de verbouwing helemaal geen netwerk."
+    3. "In de vergaderzaal werkt niets." (PC-ZAAL)
+    4. "PC-MAG1 in het magazijn heeft geen verbinding; PC-MAG2 naast hem wel."
+    5. "De monitoring geeft steeds een waarschuwing over de verbinding tussen SW-KERN en het magazijn."
+
+    ## Werkwijze
+    Noteer per fout:
+    | # | Apparaat/poort | Symptoom | Oorzaak | Oplossing | Hoe getest |
+    |---|---|---|---|---|---|
+    | 1 | | | | | |
+    | 2 | | | | | |
+    | 3 | | | | | |
+    | 4 | | | | | |
+    | 5 | | | | | |
+
+    **Nuttige commando's:**
+    - `show interfaces status`, `show interfaces status err-disabled`, `show ip interface brief`
+    - `show interfaces <poort>` (let op duplex, speed en tellers), `show interfaces counters errors`
+    - `show cdp neighbors`, `show mac address-table`
+    - `show logging`
+    - op een pc: `ping -c 20 10.12.10.1`, `ip link show eth0`
+
+    **Tip bij melding 1:** in CML lopen de fouttellers (CRC, input errors) niet op zoals bij een echte kabel. Je ziet alleen het pakketverlies. Bepaal door gericht te testen **waar** het verlies zit: welke verbindingen gebruikt het verkeer, en vanaf welke switch is het verlies er wel en niet?
+
+    ## Eindcontrole
+    - Alle pc's pingen de gateway 10.12.10.1 twintig keer zonder verlies.
+    - `show logging` geeft geen nieuwe duplex-meldingen meer.
+    - Geen enkele poort staat nog err-disabled of onbedoeld uit.
+
+    ## Reflectie
+    1. Welke melding had in een echt gebouw ook in de tellers zichtbaar geweest, en in welke tellers?
+    2. Welke fout zou je met een kabeltester hebben gevonden, en welke niet?
+
+    Je docent bespreekt daarna je antwoorden.
+  title: Lab 1.1.2 - Klachten over het netwerk
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1

@@ -4,4 +4,7 @@ Domein: [Network Infrastructure and Connectivity](../) (25% van het examen)
 
 ## Labs
 
-_Nog geen labs._
+| Lab | Titel | Topologie |
+|---|---|---|
+| 1.1.1 | Wat zegt de interface | [1.1.1_wat_zegt_de_interface.yaml](1.1.1_Wat_zegt_de_interface/1.1.1_wat_zegt_de_interface.yaml) |
+| 1.1.2 | Klachten over het netwerk | [1.1.2_klachten_over_het_netwerk.yaml](1.1.2_Klachten_over_het_netwerk/1.1.2_klachten_over_het_netwerk.yaml) |
